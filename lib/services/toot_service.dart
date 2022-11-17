@@ -20,4 +20,14 @@ class TootService {
 
     current$.add(toots[nextIndex]);
   }
+
+  void decrement() {
+    final int currentIndex = toots.indexWhere((toot) => toot.fruit == current$.value.fruit);
+    int nextIndex = currentIndex - 1;
+    if (nextIndex < 0) {
+      nextIndex = 6;
+    }
+
+    current$.add(toots[nextIndex]);
+  }
 }
