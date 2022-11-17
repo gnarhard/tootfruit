@@ -82,12 +82,11 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
                   scale: _scale,
                   child: GestureDetector(
                     onTap: () async {
-                      _controller.forward().whenComplete(
-                          () => _controller.reverse().then((value) => _tootService.shuffle()));
+                      _controller.forward().whenComplete(() => _controller.reverse());
                       await _audioService.play();
                     },
                     child: Padding(
-                      padding: const EdgeInsets.only(left: TootScreen.startingFontSize / 2),
+                      padding: const EdgeInsets.only(left: (TootScreen.startingFontSize / 3) + 12),
                       child: SizedBox(width: MediaQuery.of(context).size.width, child: AppLogo()),
                     ),
                   ),
@@ -104,7 +103,6 @@ class SineCurve extends Curve {
   const SineCurve({this.count = 3});
   final double count;
 
-  // 2. override transformInternal() method
   @override
   double transformInternal(double t) {
     return sin(count * 2 * pi * t);

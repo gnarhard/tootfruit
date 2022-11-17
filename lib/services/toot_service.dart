@@ -6,12 +6,18 @@ import 'package:tooty_fruity/models/toot.dart';
 class TootService {
   final _random = Random();
   final current$ = BehaviorSubject<Toot>.seeded(toots.first);
-  final previous$ = BehaviorSubject<Toot>.seeded(toots.first);
-  final switched$ = BehaviorSubject<bool>.seeded(false);
 
   void shuffle() {
-    switched$.add(true);
-    previous$.add(current$.value);
     current$.add(toots[_random.nextInt(toots.length)]);
+  }
+
+  void increment() {
+    final int currentIndex = toots.indexWhere((toot) => toot.fruit == current$.value.fruit);
+    int nextIndex = currentIndex + 1;
+    if (nextIndex > toots.length - 1) {
+      nextIndex = 0;
+    }
+
+    current$.add(toots[nextIndex]);
   }
 }

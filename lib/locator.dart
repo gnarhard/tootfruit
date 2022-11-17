@@ -7,7 +7,6 @@ import 'package:tooty_fruity/services/storage_service.dart';
 import 'package:tooty_fruity/services/theme_service.dart';
 import 'package:tooty_fruity/services/toast_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
-import 'package:tooty_fruity/services/url_service.dart';
 
 typedef LocatorFactory<T> = T Function();
 
@@ -36,7 +35,6 @@ class Locator {
     // Order is important.
     Locator.registerLazy(() => InitService());
     Locator.registerLazy(() => NavigationService());
-    Locator.registerLazy(() => UrlService());
     Locator.registerLazy(() => ConnectivityService());
     Locator.registerLazy(() => StorageService());
     Locator.registerLazy(() => ThemeService());
