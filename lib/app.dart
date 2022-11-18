@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tooty_fruity/routes.dart';
 import 'package:tooty_fruity/screens/launch_screen.dart';
+import 'package:tooty_fruity/screens/toot_screen.dart';
 import 'package:tooty_fruity/services/navigation_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
 
@@ -16,7 +17,6 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final _navService = Locator.get<NavigationService>();
-  final _tootService = Locator.get<TootService>();
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +27,18 @@ class _AppState extends State<App> {
       navigatorKey: _navService.navigatorKey,
       initialRoute: LaunchScreen.route,
       routes: routes,
+      navigatorObservers: [SwitchAudioObserver()],
     );
+  }
+}
+
+class SwitchAudioObserver extends NavigatorObserver {
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    if (previousRoute?.settings.name == TootScreen.route) {
+      final tootService = Locator.get<TootService>();
+      tootService.current$.add(tootService.current$.value);
+    }
+    super.didPop(route, previousRoute);
   }
 }

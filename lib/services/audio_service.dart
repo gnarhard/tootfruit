@@ -6,34 +6,25 @@ class AudioService {
   final _tootService = Locator.get<TootService>();
 
   bool hasPlayed = false;
-  AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _player = AudioPlayer();
 
   Future<void> init() async {
-    _tootService.current$.distinct().listen((toot) async {
-      if (_player.playing) {
-        _player.stop();
-      }
+    _tootService.current$.listen((toot) async {
+      await setAudio(_tootService.current$.value.audioPath);
     });
+  }
 
-    _player.playerStateStream.listen((state) {
-      if (_tootService.current$.value.duration == null) {
-        return;
-      }
-
-      if (state.processingState == ProcessingState.completed) {
-        // _tootService.shuffle();
-        _tootService.increment();
-      }
-    });
+  Future<void> setAudio(String path) async {
+    if (_player.playing) {
+      await _player.stop();
+    }
+    await _player.setAudioSource(AudioSource.uri(Uri.parse(path)));
   }
 
   Future<void> play() async {
     if (_player.playing) {
       await _player.seek(const Duration(seconds: 0));
     } else {
-      _player = AudioPlayer();
-      await _player
-          .setAudioSource(AudioSource.uri(Uri.parse(_tootService.current$.value.audioPath)));
       await _player.play();
     }
     hasPlayed = true;

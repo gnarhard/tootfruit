@@ -1,16 +1,17 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:tooty_fruity/drawer.dart';
 import 'package:tooty_fruity/locator.dart';
+import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
 import 'package:tooty_fruity/services/audio_service.dart';
+import 'package:tooty_fruity/services/navigation_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
 import 'package:tooty_fruity/widgets/logo.dart';
 
 import '../models/toot.dart';
 
 class TootScreen extends StatefulWidget {
-  static const String route = '/fart';
+  static const String route = '/toot';
   const TootScreen({Key? key}) : super(key: key);
   static const double startingFontSize = 130;
 
@@ -21,6 +22,7 @@ class TootScreen extends StatefulWidget {
 class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMixin {
   final _audioService = Locator.get<AudioService>();
   final _tootService = Locator.get<TootService>();
+  late final _navService = Locator.get<NavigationService>();
 
   late Animation<double> _animation;
   late AnimationController _controller;
@@ -31,6 +33,7 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
   @override
   void initState() {
     super.initState();
+
     final scaleTween = Tween(begin: _scale, end: 1.0);
     _controller = AnimationController(duration: _quick, vsync: this);
     _animation = scaleTween.animate(
@@ -53,62 +56,73 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        // Note: Sensitivity is integer used when you don't want to mess up vertical drag
-        const double sensitivity = 1500;
-        if (details.velocity.pixelsPerSecond.dx < -sensitivity) {
-          // Swiped right.
-          _tootService.increment();
-        } else if (details.velocity.pixelsPerSecond.dx > sensitivity) {
-          // Swiped left.
-          _tootService.decrement();
-        }
-      },
-      child: StreamBuilder<Toot>(
-          stream: _tootService.current$,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          // Note: Sensitivity is integer used when you don't want to mess up vertical drag
+          const double sensitivity = 1500;
+          if (details.velocity.pixelsPerSecond.dx < -sensitivity) {
+            // Swiped right.
+            _tootService.increment();
+          } else if (details.velocity.pixelsPerSecond.dx > sensitivity) {
+            // Swiped left.
+            _tootService.decrement();
+          }
+        },
+        child: StreamBuilder<Toot>(
+            stream: _tootService.current$,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            final toot = snapshot.requireData;
+              final toot = snapshot.requireData;
 
-            return Scaffold(
-              backgroundColor: toot.color,
-              drawer: const AppDrawer(),
-              appBar: AppBar(
-                leading: Container(),
-                centerTitle: true,
-                elevation: 0,
-                title: Text(
-                  toot.title.toUpperCase(),
-                  style: TextStyle(color: Colors.white.withAlpha(100)),
-                ),
+              return Scaffold(
                 backgroundColor: toot.color,
-              ),
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Transform.scale(
-                    scale: _scale,
-                    child: GestureDetector(
-                      onTap: () async {
-                        _controller.forward().whenComplete(() => _controller.reverse());
-                        await _audioService.play();
-                      },
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(left: (TootScreen.startingFontSize / 3) + 12),
-                        child: SizedBox(width: MediaQuery.of(context).size.width, child: AppLogo()),
+                appBar: AppBar(
+                  leading: Container(),
+                  centerTitle: true,
+                  elevation: 0,
+                  title: Text(
+                    toot.title.toUpperCase(),
+                    style: TextStyle(color: Colors.white.withAlpha(80)),
+                  ),
+                  backgroundColor: toot.color,
+                ),
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    Transform.scale(
+                      scale: _scale,
+                      child: GestureDetector(
+                        onTap: () async {
+                          _controller.forward().whenComplete(() => _controller.reverse());
+                          await _audioService.play();
+                        },
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.only(left: (TootScreen.startingFontSize / 3) + 12),
+                          child:
+                              SizedBox(width: MediaQuery.of(context).size.width, child: AppLogo()),
+                        ),
                       ),
                     ),
-                  ),
-                  const Text('tap that', style: TextStyle(color: Colors.white, fontSize: 20)),
-                ],
-              ),
-            );
-          }),
+                    const Text('tap that', style: TextStyle(color: Colors.white, fontSize: 20)),
+                    const Spacer(),
+                    TextButton(
+                        onPressed: () {
+                          _navService.current.pushNamed(TootFairyScreen.route);
+                        },
+                        child: const Text('VISIT THE TOOT FAIRY',
+                            style: TextStyle(color: Colors.white))),
+                  ],
+                ),
+              );
+            }),
+      ),
     );
   }
 }
