@@ -28,6 +28,7 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
   late AnimationController _controller;
   static const _quick = Duration(milliseconds: 200);
   double _scale = 0.7;
+  static const double swipeSensitivity = 800;
   final int _shakeCount = 3;
 
   @override
@@ -61,11 +62,11 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
       child: GestureDetector(
         onHorizontalDragEnd: (details) {
           // Note: Sensitivity is integer used when you don't want to mess up vertical drag
-          const double sensitivity = 1500;
-          if (details.velocity.pixelsPerSecond.dx < -sensitivity) {
+
+          if (details.velocity.pixelsPerSecond.dx < -swipeSensitivity) {
             // Swiped right.
             _tootService.increment();
-          } else if (details.velocity.pixelsPerSecond.dx > sensitivity) {
+          } else if (details.velocity.pixelsPerSecond.dx > swipeSensitivity) {
             // Swiped left.
             _tootService.decrement();
           }
@@ -87,7 +88,10 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
                   elevation: 0,
                   title: Text(
                     toot.title.toUpperCase(),
-                    style: TextStyle(color: Colors.white.withAlpha(80)),
+                    style: TextStyle(
+                        color: toot.darkText
+                            ? Colors.black.withAlpha(80)
+                            : Colors.white.withAlpha(80)),
                   ),
                   backgroundColor: toot.color,
                 ),
@@ -110,14 +114,16 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
                         ),
                       ),
                     ),
-                    const Text('tap that', style: TextStyle(color: Colors.white, fontSize: 20)),
+                    Text('tap that',
+                        style: TextStyle(
+                            color: toot.darkText ? Colors.black : Colors.white, fontSize: 20)),
                     const Spacer(),
                     TextButton(
                         onPressed: () {
                           _navService.current.pushNamed(TootFairyScreen.route);
                         },
-                        child: const Text('VISIT THE TOOT FAIRY',
-                            style: TextStyle(color: Colors.white))),
+                        child: Text('VISIT THE TOOT FAIRY',
+                            style: TextStyle(color: toot.darkText ? Colors.black : Colors.white))),
                   ],
                 ),
               );

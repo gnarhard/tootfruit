@@ -2,6 +2,8 @@ import 'package:just_audio/just_audio.dart';
 import 'package:tooty_fruity/locator.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
 
+import '../models/toot.dart';
+
 class AudioService {
   final _tootService = Locator.get<TootService>();
 
@@ -10,8 +12,10 @@ class AudioService {
 
   Future<void> init() async {
     _tootService.current$.listen((toot) async {
-      await setAudio(_tootService.current$.value.audioPath);
+      await setAudio(
+          'asset:///assets/audio/${_tootService.current$.value.fruit}.${_tootService.current$.value.fileExtension}');
     });
+    _tootService.current$.add(toots.first);
   }
 
   Future<void> setAudio(String path) async {

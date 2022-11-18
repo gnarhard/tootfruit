@@ -33,7 +33,7 @@ class Locator {
     }
 
     // Order is important.
-    Locator.registerLazy(() => InitService());
+    Locator.register(InitService());
     Locator.registerLazy(() => NavigationService());
     Locator.registerLazy(() => ConnectivityService());
     Locator.registerLazy(() => StorageService());
