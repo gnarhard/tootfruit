@@ -1,4 +1,4 @@
-# tooty_fruity
+# Toot Fruit
 
 A fruity little toot app.
 
@@ -11,4 +11,4 @@ A fruity little toot app.
 - Fruit shaking animation
 
 ### V2
-- Tooty Timer
+- Toot Timer
