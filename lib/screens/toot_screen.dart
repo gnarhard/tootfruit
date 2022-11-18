@@ -118,12 +118,16 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
                         style: TextStyle(
                             color: toot.darkText ? Colors.black : Colors.white, fontSize: 20)),
                     const Spacer(),
-                    TextButton(
-                        onPressed: () {
-                          _navService.current.pushNamed(TootFairyScreen.route);
-                        },
-                        child: Text('VISIT THE TOOT FAIRY',
-                            style: TextStyle(color: toot.darkText ? Colors.black : Colors.white))),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextButton(
+                          onPressed: () {
+                            _navService.current.pushNamed(TootFairyScreen.route);
+                          },
+                          child: Text('VISIT THE TOOT FAIRY',
+                              style:
+                                  TextStyle(color: toot.darkText ? Colors.black : Colors.white))),
+                    ),
                   ],
                 ),
               );

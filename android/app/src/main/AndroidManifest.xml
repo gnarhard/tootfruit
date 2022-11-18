@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gem.tooty_fruity.tooty_fruity">
+    package="com.gnarhard.toot_fruit">
    <application
-        android:label="Tooty Fruity"
+        android:label="Toot Fruit"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

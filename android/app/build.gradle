@@ -43,7 +43,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.gem.tooty_fruity.tooty_fruity"
+        applicationId "com.gnarhard.toot_fruit"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
