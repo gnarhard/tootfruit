@@ -108,8 +108,8 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                     toot.title.toUpperCase(),
                     style: TextStyle(
                         color: toot.darkText
-                            ? Colors.black.withAlpha(80)
-                            : Colors.white.withAlpha(80)),
+                            ? Colors.grey.withOpacity(.8)
+                            : Colors.white.withOpacity(.6)),
                   ),
                   backgroundColor: toot.color,
                 ),
@@ -124,7 +124,6 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                         child: GestureDetector(
                           onTap: () async {
                             _animate(toot);
-
                             await _audioService.play();
                           },
                           child: Padding(
@@ -145,7 +144,8 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                       padding: const EdgeInsets.all(16.0),
                       child: Text('tap that',
                           style: TextStyle(
-                              color: toot.darkText ? Colors.black : Colors.white, fontSize: 20)),
+                              color: toot.darkText ? Colors.black.withOpacity(.8) : Colors.white,
+                              fontSize: 20)),
                     ),
                     const Spacer(),
                     Padding(
@@ -155,8 +155,10 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                             _navService.current.pushNamed(TootFairyScreen.route);
                           },
                           child: Text('VISIT THE TOOT FAIRY',
-                              style:
-                                  TextStyle(color: toot.darkText ? Colors.black : Colors.white))),
+                              style: TextStyle(
+                                  color: toot.darkText
+                                      ? Colors.grey.withOpacity(.8)
+                                      : Colors.white.withOpacity(.7)))),
                     ),
                   ],
                 ),
@@ -176,9 +178,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   }
 
   void _animate(Toot toot) {
-    _tickerFuture = _rotationController.repeat(reverse: true);
-
-    _tickerFuture.timeout(toot.duration!, onTimeout: () {
+    _rotationController.repeat(reverse: true).timeout(toot.duration!, onTimeout: () {
       // if (_userSwiped) {
       //   _rotationController.reset();
       // } else {
