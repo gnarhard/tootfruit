@@ -33,11 +33,12 @@ class _AppState extends State<App> {
 }
 
 class SwitchAudioObserver extends NavigatorObserver {
+  late final _tootService = Locator.get<TootService>();
+
   @override
   void didPop(Route route, Route? previousRoute) {
     if (previousRoute?.settings.name == TootScreen.route) {
-      final tootService = Locator.get<TootService>();
-      tootService.current$.add(tootService.current$.value);
+      _tootService.set(_tootService.current$.value);
     }
     super.didPop(route, previousRoute);
   }

@@ -6,12 +6,12 @@ import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
 import 'package:tooty_fruity/services/audio_service.dart';
 import 'package:tooty_fruity/services/navigation_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
-import 'package:tooty_fruity/widgets/logo.dart';
 
 import '../models/toot.dart';
 
 class TootScreen extends StatefulWidget {
   static const String route = '/toot';
+
   const TootScreen({Key? key}) : super(key: key);
   static const double startingFontSize = 130;
 
@@ -19,39 +19,56 @@ class TootScreen extends StatefulWidget {
   TootScreenState createState() => TootScreenState();
 }
 
-class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMixin {
+class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   final _audioService = Locator.get<AudioService>();
   final _tootService = Locator.get<TootService>();
   late final _navService = Locator.get<NavigationService>();
 
-  late Animation<double> _animation;
-  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _rotationAnimation;
+  late AnimationController _scaleController;
+  late AnimationController _rotationController;
+  late TickerFuture _tickerFuture;
   static const _quick = Duration(milliseconds: 200);
+  static const _quicker = Duration(milliseconds: 80);
   double _scale = 0.7;
+  double _angle = 0.0;
   static const double swipeSensitivity = 800;
-  final int _shakeCount = 3;
 
   @override
   void initState() {
     super.initState();
 
     final scaleTween = Tween(begin: _scale, end: 1.0);
-    _controller = AnimationController(duration: _quick, vsync: this);
-    _animation = scaleTween.animate(
+    final rotateTween = Tween(begin: _angle, end: .5);
+    _scaleController = AnimationController(duration: _quick, vsync: this);
+    _rotationController = AnimationController(duration: _quicker, vsync: this);
+
+    _scaleAnimation = scaleTween.animate(
       CurvedAnimation(
-        parent: _controller,
-        curve: Curves.fastLinearToSlowEaseIn,
-        // curve: SineCurve(count: _shakeCount.toDouble()),
+        parent: _scaleController,
+        curve: Curves.linearToEaseOut,
       ),
     )..addListener(() {
-        setState(() => _scale = _animation.value);
+        setState(() => _scale = _scaleAnimation.value);
+      });
+
+    _rotationAnimation = rotateTween.animate(
+      CurvedAnimation(
+        parent: _rotationController,
+        curve: Curves.linear,
+      ),
+    )..addListener(() {
+        setState(() => _angle = _rotationAnimation.value);
       });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _controller.removeStatusListener((listener) => {});
+    _scaleController.dispose();
+    _scaleController.removeStatusListener((listener) => {});
+    _rotationController.dispose();
+    _rotationController.removeStatusListener((listener) => {});
     super.dispose();
   }
 
@@ -60,15 +77,16 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
     return WillPopScope(
       onWillPop: () async => false,
       child: GestureDetector(
-        onHorizontalDragEnd: (details) {
+        onHorizontalDragEnd: (details) async {
           // Note: Sensitivity is integer used when you don't want to mess up vertical drag
-
           if (details.velocity.pixelsPerSecond.dx < -swipeSensitivity) {
             // Swiped right.
-            _tootService.increment();
+            _resetAnimations();
+            await _tootService.increment();
           } else if (details.velocity.pixelsPerSecond.dx > swipeSensitivity) {
             // Swiped left.
-            _tootService.decrement();
+            _resetAnimations();
+            await _tootService.decrement();
           }
         },
         child: StreamBuilder<Toot>(
@@ -99,24 +117,36 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Spacer(),
-                    Transform.scale(
-                      scale: _scale,
-                      child: GestureDetector(
-                        onTap: () async {
-                          _controller.forward().whenComplete(() => _controller.reverse());
-                          await _audioService.play();
-                        },
-                        child: Padding(
-                          padding:
-                              const EdgeInsets.only(left: (TootScreen.startingFontSize / 3) + 12),
-                          child:
-                              SizedBox(width: MediaQuery.of(context).size.width, child: AppLogo()),
+                    Transform.rotate(
+                      angle: _angle,
+                      child: Transform.scale(
+                        scale: _scale,
+                        child: GestureDetector(
+                          onTap: () async {
+                            _animate(toot);
+
+                            await _audioService.play();
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: (TootScreen.startingFontSize / 3) + 12),
+                            child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Text(
+                                  toot.emoji,
+                                  style: const TextStyle(
+                                      fontSize: TootScreen.startingFontSize, height: 2),
+                                )),
+                          ),
                         ),
                       ),
                     ),
-                    Text('tap that',
-                        style: TextStyle(
-                            color: toot.darkText ? Colors.black : Colors.white, fontSize: 20)),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text('tap that',
+                          style: TextStyle(
+                              color: toot.darkText ? Colors.black : Colors.white, fontSize: 20)),
+                    ),
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -135,10 +165,34 @@ class TootScreenState extends State<TootScreen> with SingleTickerProviderStateMi
       ),
     );
   }
+
+  void _resetAnimations() {
+    setState(() {
+      _scaleController.stop();
+      _rotationController.stop();
+      _scale = .7;
+      _angle = 0;
+    });
+  }
+
+  void _animate(Toot toot) {
+    _tickerFuture = _rotationController.repeat(reverse: true);
+
+    _tickerFuture.timeout(toot.duration!, onTimeout: () {
+      // if (_userSwiped) {
+      //   _rotationController.reset();
+      // } else {
+      _rotationController.reverse(from: .5).whenComplete(() => _rotationController.stop());
+      // }
+    });
+
+    _scaleController.forward().whenComplete(() => _scaleController.reverse());
+  }
 }
 
 class SineCurve extends Curve {
   const SineCurve({this.count = 3});
+
   final double count;
 
   @override

@@ -9,12 +9,14 @@ class Toot {
   final String fileExtension;
   final Color color;
   final bool darkText;
+  Duration? duration;
 
   Toot({
     required this.fruit,
     required this.title,
     required this.emoji,
     required this.color,
+    this.duration,
     this.darkText = false,
     this.fileExtension = 'm4a',
   });
