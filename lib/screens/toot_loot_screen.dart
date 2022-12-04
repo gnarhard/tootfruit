@@ -46,6 +46,8 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   void initState() {
     super.initState();
 
+    _tootService.reward();
+
     final scaleTween = Tween(begin: _scale, end: .8);
     final rotateTween = Tween(begin: _angle, end: .2);
     _scaleController = AnimationController(duration: _quick, vsync: this)..repeat(reverse: true);
@@ -181,7 +183,11 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(toot.title.toUpperCase(),
-                          style: TextStyle(color: Colors.white.withOpacity(.9), fontSize: 20)),
+                          style: TextStyle(
+                              color: toot.darkText
+                                  ? Colors.grey.withOpacity(.8)
+                                  : Colors.white.withOpacity(.7),
+                              fontSize: 20)),
                     ),
                     const Spacer(),
                   ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tooty_fruity/locator.dart';
-import 'package:tooty_fruity/screens/toot_loot_screen.dart';
+import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
 import 'package:tooty_fruity/services/audio_service.dart';
 import 'package:tooty_fruity/services/navigation_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
@@ -34,7 +34,6 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   double _scale = 0.7;
   double _angle = 0.0;
   static const double swipeSensitivity = 800;
-  bool _visible = false;
 
   @override
   void initState() {
@@ -168,33 +167,37 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                 fontSize: 20)),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(64.0),
+                        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
                         child: FadeTransition(
                           opacity: _opacityAnimation,
-                          child: Column(
-                            children: [
-                              Image.asset(
-                                'assets/images/swipe.png',
-                                height: 100,
-                                width: 100,
-                                color: toot.darkText ? Colors.black.withOpacity(.8) : Colors.white,
-                                colorBlendMode: BlendMode.srcATop,
-                                fit: BoxFit.fitWidth,
-                              ),
-                              Text('swipe',
-                                  style: TextStyle(
+                          child: _tootService.owned$.value.length == 1
+                              ? Container()
+                              : Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/swipe.png',
+                                      height: 100,
+                                      width: 100,
                                       color: toot.darkText
                                           ? Colors.grey.withOpacity(.8)
-                                          : Colors.white.withOpacity(.7))),
-                            ],
-                          ),
+                                          : Colors.white.withOpacity(.7),
+                                      colorBlendMode: BlendMode.srcATop,
+                                      fit: BoxFit.fitWidth,
+                                    ),
+                                    Text('swipe',
+                                        style: TextStyle(
+                                            color: toot.darkText
+                                                ? Colors.grey.withOpacity(.8)
+                                                : Colors.white.withOpacity(.7))),
+                                  ],
+                                ),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: TextButton(
                             onPressed: () {
-                              _navService.current.pushNamed(TootLootScreen.route);
+                              _navService.current.pushNamed(TootFairyScreen.route);
                             },
                             child: Text('VISIT THE TOOT FAIRY',
                                 style: TextStyle(

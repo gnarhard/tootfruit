@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:tooty_fruity/services/toast_service.dart';
 
 class StorageService {
   static const _fileName = 'storage.json';
@@ -9,7 +10,21 @@ class StorageService {
   Map<String, dynamic>? cachedStorage;
   Map<String, dynamic>? store;
 
-  bool exists(key) => ((store != null) && (store![key] != null));
+  /// Checks first if data and store exists then checks if the cache is expired and wipes data if it is.
+  bool exists(key) {
+    if ((store != null) && (store![key] != null)) {
+      DateTime expiration = DateTime.parse(store!["${key}_expiration"]);
+      DateTime weekFromExpiration = DateTime(expiration.year, expiration.month, expiration.day + 7);
+      if (expiration.isBefore(weekFromExpiration)) {
+        return true;
+      } else {
+        remove(key);
+        remove("${key}_expiration");
+      }
+    }
+
+    return false;
+  }
 
   Future get(String key) async {
     final storage = await loadStorage();
@@ -69,15 +84,15 @@ class StorageService {
       return storage;
     }
 
-    // try {
-    final jsonString = await storageFile.readAsString();
+    try {
+      final jsonString = await storageFile.readAsString();
 
-    if (jsonString != '') {
-      storage = json.decode(jsonString);
+      if (jsonString != '') {
+        storage = json.decode(jsonString);
+      }
+    } catch (err) {
+      ToastService.error(message: "Failed to store data.", devError: err.toString());
     }
-    // } catch (err) {
-    //   ToastService.error(message: "Failed to store data.", devError: err.toString());
-    // }
 
     cachedStorage = storage;
     store = storage;
