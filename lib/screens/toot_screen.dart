@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tooty_fruity/locator.dart';
-import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
+import 'package:tooty_fruity/screens/toot_loot_screen.dart';
 import 'package:tooty_fruity/services/audio_service.dart';
 import 'package:tooty_fruity/services/navigation_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
@@ -194,7 +194,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                         padding: const EdgeInsets.all(16.0),
                         child: TextButton(
                             onPressed: () {
-                              _navService.current.pushNamed(TootFairyScreen.route);
+                              _navService.current.pushNamed(TootLootScreen.route);
                             },
                             child: Text('VISIT THE TOOT FAIRY',
                                 style: TextStyle(
@@ -222,11 +222,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
 
   void _animate(Toot toot) {
     _rotationController.repeat(reverse: true).timeout(toot.duration!, onTimeout: () {
-      // if (_userSwiped) {
-      //   _rotationController.reset();
-      // } else {
       _rotationController.reverse(from: .5).whenComplete(() => _rotationController.stop());
-      // }
     });
 
     _scaleController.forward().whenComplete(() => _scaleController.reverse());

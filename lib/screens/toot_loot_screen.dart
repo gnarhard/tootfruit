@@ -6,6 +6,7 @@ import 'package:tooty_fruity/services/navigation_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
 
 import '../models/toot.dart';
+import '../widgets/star.dart';
 
 class TootLootScreen extends StatefulWidget {
   static const String route = '/toot_loot';
@@ -25,19 +26,31 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   late Animation<double> _rotationAnimation;
   late AnimationController _scaleController;
   late AnimationController _rotationController;
-  static const _quick = Duration(milliseconds: 200);
+  late AnimationController _explosionRotationController;
+  late AnimationController _explosionRotationController2;
+  late AnimationController _explosionRotationController3;
+  late AnimationController _explosionRotationController4;
+  late AnimationController _explosionRotationController5;
+  late AnimationController _explosionRotationController6;
+  static const _quick = Duration(milliseconds: 500);
   static const _quicker = Duration(milliseconds: 80);
-  double _scale = 0.7;
+  double _scale = 0.5;
   double _angle = 0.0;
+  static const int _baseRotationSpeed = 2000;
+  double _baseSize = 0;
+  static const double _baseOpacity = .4;
+  static const double _opacityModifier = .05;
+  static const int _starPointCount = 10;
 
   @override
   void initState() {
     super.initState();
 
-    final scaleTween = Tween(begin: _scale, end: 1.0);
-    final rotateTween = Tween(begin: _angle, end: .5);
-    _scaleController = AnimationController(duration: _quick, vsync: this);
-    _rotationController = AnimationController(duration: _quicker, vsync: this);
+    final scaleTween = Tween(begin: _scale, end: .8);
+    final rotateTween = Tween(begin: _angle, end: .2);
+    _scaleController = AnimationController(duration: _quick, vsync: this)..repeat(reverse: true);
+    _rotationController = AnimationController(duration: _quicker, vsync: this)
+      ..repeat(reverse: true);
 
     _scaleAnimation = scaleTween.animate(
       CurvedAnimation(
@@ -56,6 +69,31 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
     )..addListener(() {
         setState(() => _angle = _rotationAnimation.value);
       });
+
+    _explosionRotationController = AnimationController(
+      duration: const Duration(milliseconds: _baseRotationSpeed * 6),
+      vsync: this,
+    )..repeat();
+    _explosionRotationController2 = AnimationController(
+      duration: const Duration(milliseconds: _baseRotationSpeed * 5),
+      vsync: this,
+    )..repeat();
+    _explosionRotationController3 = AnimationController(
+      duration: const Duration(milliseconds: _baseRotationSpeed * 4),
+      vsync: this,
+    )..repeat();
+    _explosionRotationController4 = AnimationController(
+      duration: const Duration(milliseconds: _baseRotationSpeed * 3),
+      vsync: this,
+    )..repeat();
+    _explosionRotationController5 = AnimationController(
+      duration: const Duration(milliseconds: _baseRotationSpeed * 2),
+      vsync: this,
+    )..repeat();
+    _explosionRotationController6 = AnimationController(
+      duration: const Duration(milliseconds: _baseRotationSpeed),
+      vsync: this,
+    )..repeat();
   }
 
   @override
@@ -69,97 +107,171 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: StreamBuilder<Toot>(
-          stream: _tootService.newLoot$,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    _baseSize = MediaQuery.of(context).size.width;
 
-            final toot = snapshot.requireData;
-            _animate(toot);
+    return GestureDetector(
+      onTap: () => _navService.current.pushNamed(TootScreen.route),
+      child: WillPopScope(
+        onWillPop: () async => false,
+        child: StreamBuilder<Toot>(
+            stream: _tootService.newLoot$,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            return Scaffold(
-              backgroundColor: toot.color,
-              appBar: AppBar(
-                leading: Container(),
-                centerTitle: true,
-                elevation: 0,
-                title: Text(
-                  'TOOT LOOT: ${toot.title.toUpperCase()}',
-                  style: TextStyle(
-                      color: toot.darkText
-                          ? Colors.grey.withOpacity(.8)
-                          : Colors.white.withOpacity(.6)),
-                ),
+              final toot = snapshot.requireData;
+              return Scaffold(
                 backgroundColor: toot.color,
-              ),
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Spacer(),
-                  Stack(
-                    children: [
-                      const Image(image: AssetImage('images/explosion.png')),
-                      Transform.rotate(
-                        angle: _angle,
-                        child: Transform.scale(
-                          scale: _scale,
-                          child: SizedBox(
-                            width: TootScreen.startingFontSize,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                toot.emoji,
-                                style: const TextStyle(
-                                    fontSize: TootScreen.startingFontSize, height: 2),
+                appBar: AppBar(
+                  leading: Container(),
+                  centerTitle: true,
+                  elevation: 0,
+                  title: Text(
+                    'TOOT LOOT',
+                    style: TextStyle(
+                        color: toot.darkText
+                            ? Colors.grey.withOpacity(.8)
+                            : Colors.white.withOpacity(.6)),
+                  ),
+                  backgroundColor: toot.color,
+                ),
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    SizedBox(
+                      width: _baseSize,
+                      height: _baseSize,
+                      child: Stack(
+                        clipBehavior: Clip.antiAlias,
+                        fit: StackFit.loose,
+                        children: [
+                          ..._buildStarPattern(),
+                          Center(
+                            child: Transform.rotate(
+                              angle: _angle,
+                              child: Transform.scale(
+                                scale: _scale,
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: const BoxDecoration(
+                                    /// Gives container an actual size
+                                    color: Colors.transparent,
+                                  ),
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(right: TootScreen.startingFontSize),
+                                    child: Text(
+                                      toot.emoji,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                          // backgroundColor: Colors.red,
+                                          fontSize: TootScreen.startingFontSize,
+                                          height: 2),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('start tooting',
-                        style: TextStyle(
-                            color: toot.darkText ? Colors.black.withOpacity(.8) : Colors.white,
-                            fontSize: 20)),
-                  ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextButton(
-                        onPressed: () {
-                          _navService.current.pushNamed(TootScreen.route);
-                        },
-                        child: Text('VISIT THE TOOT FAIRY',
-                            style: TextStyle(
-                                color: toot.darkText
-                                    ? Colors.grey.withOpacity(.8)
-                                    : Colors.white.withOpacity(.7)))),
-                  ),
-                ],
-              ),
-            );
-          }),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(toot.title.toUpperCase(),
+                          style: TextStyle(color: Colors.white.withOpacity(.9), fontSize: 20)),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+              );
+            }),
+      ),
     );
   }
 
-  void _resetAnimations() {
-    setState(() {
-      _scaleController.stop();
-      _rotationController.stop();
-      _scale = .7;
-      _angle = 0;
-    });
-  }
-
-  void _animate(Toot toot) {
-    _rotationController.repeat(reverse: true);
-    _scaleController.repeat(reverse: true);
+  List<Widget> _buildStarPattern() {
+    return [
+      RotationTransition(
+        turns: Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController),
+        child: Center(
+          child: ClipPath(
+            clipper: StarClipper(_starPointCount),
+            child: Container(
+              width: _baseSize,
+              height: _baseSize,
+              color: Colors.white.withOpacity(_baseOpacity),
+            ),
+          ),
+        ),
+      ),
+      RotationTransition(
+        turns: Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController2),
+        child: Center(
+          child: ClipPath(
+            clipper: StarClipper(_starPointCount),
+            child: Container(
+              width: _baseSize,
+              height: _baseSize,
+              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier)),
+            ),
+          ),
+        ),
+      ),
+      RotationTransition(
+        turns: Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController3),
+        child: Center(
+          child: ClipPath(
+            clipper: StarClipper(_starPointCount),
+            child: Container(
+              width: _baseSize / 1.25,
+              height: _baseSize / 1.25,
+              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 2)),
+            ),
+          ),
+        ),
+      ),
+      RotationTransition(
+        turns: Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController4),
+        child: Center(
+          child: ClipPath(
+            clipper: StarClipper(_starPointCount),
+            child: Container(
+              width: _baseSize / 1.5,
+              height: _baseSize / 1.5,
+              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 3)),
+            ),
+          ),
+        ),
+      ),
+      RotationTransition(
+        turns: Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController5),
+        child: Center(
+          child: ClipPath(
+            clipper: StarClipper(_starPointCount),
+            child: Container(
+              width: _baseSize / 1.75,
+              height: _baseSize / 1.75,
+              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 4)),
+            ),
+          ),
+        ),
+      ),
+      RotationTransition(
+        turns: Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController6),
+        child: Center(
+          child: ClipPath(
+            clipper: StarClipper(_starPointCount),
+            child: Container(
+              width: _baseSize / 2,
+              height: _baseSize / 2,
+              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 5)),
+            ),
+          ),
+        ),
+      ),
+    ];
   }
 }

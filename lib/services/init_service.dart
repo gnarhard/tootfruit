@@ -1,9 +1,9 @@
-import 'package:tooty_fruity/screens/toot_screen.dart';
 import 'package:tooty_fruity/services/theme_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
 
 import '../locator.dart';
 import '../models/toot.dart';
+import '../screens/toot_loot_screen.dart';
 import 'navigation_service.dart';
 
 class InitService {
@@ -18,7 +18,7 @@ class InitService {
       _tootService.set(toots.first)
     ]);
 
-    _navService.current.pushNamed(TootScreen.route);
+    _navService.current.pushNamed(TootLootScreen.route);
   }
 
   Future<void> postLoginInit() async {}
