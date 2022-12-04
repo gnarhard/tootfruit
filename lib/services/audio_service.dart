@@ -1,10 +1,6 @@
 import 'package:just_audio/just_audio.dart';
-import 'package:tooty_fruity/locator.dart';
-import 'package:tooty_fruity/services/toot_service.dart';
 
 class AudioService {
-  final _tootService = Locator.get<TootService>();
-
   bool hasPlayed = false;
   final AudioPlayer _player = AudioPlayer();
 

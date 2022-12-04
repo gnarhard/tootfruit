@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:tooty_fruity/locator.dart';
 import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
@@ -26,14 +24,17 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
+  late Animation<double> _opacityAnimation;
   late AnimationController _scaleController;
   late AnimationController _rotationController;
-  late TickerFuture _tickerFuture;
+  late AnimationController _opacityController;
   static const _quick = Duration(milliseconds: 200);
   static const _quicker = Duration(milliseconds: 80);
+  static const _long = Duration(milliseconds: 3000);
   double _scale = 0.7;
   double _angle = 0.0;
   static const double swipeSensitivity = 800;
+  bool _visible = false;
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
     final rotateTween = Tween(begin: _angle, end: .5);
     _scaleController = AnimationController(duration: _quick, vsync: this);
     _rotationController = AnimationController(duration: _quicker, vsync: this);
+    _opacityController = AnimationController(duration: _long, vsync: this)..repeat(reverse: true);
 
     _scaleAnimation = scaleTween.animate(
       CurvedAnimation(
@@ -61,6 +63,11 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
     )..addListener(() {
         setState(() => _angle = _rotationAnimation.value);
       });
+
+    _opacityAnimation = CurvedAnimation(
+      parent: _opacityController,
+      curve: Curves.easeIn,
+    );
   }
 
   @override
@@ -69,6 +76,8 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
     _scaleController.removeStatusListener((listener) => {});
     _rotationController.dispose();
     _rotationController.removeStatusListener((listener) => {});
+    _opacityController.dispose();
+    _opacityController.removeStatusListener((listener) => {});
     super.dispose();
   }
 
@@ -113,54 +122,88 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                   ),
                   backgroundColor: toot.color,
                 ),
-                body: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-                    Transform.rotate(
-                      angle: _angle,
-                      child: Transform.scale(
-                        scale: _scale,
-                        child: GestureDetector(
-                          onTap: () async {
-                            _animate(toot);
-                            await _audioService.play();
-                          },
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(left: (TootScreen.startingFontSize / 3) + 12),
-                            child: SizedBox(
-                                width: MediaQuery.of(context).size.width,
+                body: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      Transform.rotate(
+                        angle: _angle,
+                        child: Transform.scale(
+                          scale: _scale,
+                          child: GestureDetector(
+                            onTap: () async {
+                              _animate(toot);
+                              await _audioService.play();
+                            },
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: const BoxDecoration(
+                                /// Gives container an actual size
+                                color: Colors.transparent,
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(right: TootScreen.startingFontSize + 16),
                                 child: Text(
                                   toot.emoji,
+                                  textAlign: TextAlign.center,
                                   style: const TextStyle(
-                                      fontSize: TootScreen.startingFontSize, height: 2),
-                                )),
+                                      // backgroundColor: Colors.red,
+                                      fontSize: TootScreen.startingFontSize,
+                                      height: 2),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('tap that',
-                          style: TextStyle(
-                              color: toot.darkText ? Colors.black.withOpacity(.8) : Colors.white,
-                              fontSize: 20)),
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextButton(
-                          onPressed: () {
-                            _navService.current.pushNamed(TootFairyScreen.route);
-                          },
-                          child: Text('VISIT THE TOOT FAIRY',
-                              style: TextStyle(
-                                  color: toot.darkText
-                                      ? Colors.grey.withOpacity(.8)
-                                      : Colors.white.withOpacity(.7)))),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text('tap that',
+                            style: TextStyle(
+                                color: toot.darkText ? Colors.black.withOpacity(.8) : Colors.white,
+                                fontSize: 20)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(64.0),
+                        child: FadeTransition(
+                          opacity: _opacityAnimation,
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                'assets/images/swipe.png',
+                                height: 100,
+                                width: 100,
+                                color: toot.darkText ? Colors.black.withOpacity(.8) : Colors.white,
+                                colorBlendMode: BlendMode.srcATop,
+                                fit: BoxFit.fitWidth,
+                              ),
+                              Text('swipe',
+                                  style: TextStyle(
+                                      color: toot.darkText
+                                          ? Colors.grey.withOpacity(.8)
+                                          : Colors.white.withOpacity(.7))),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextButton(
+                            onPressed: () {
+                              _navService.current.pushNamed(TootFairyScreen.route);
+                            },
+                            child: Text('VISIT THE TOOT FAIRY',
+                                style: TextStyle(
+                                    color: toot.darkText
+                                        ? Colors.grey.withOpacity(.8)
+                                        : Colors.white.withOpacity(.7)))),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }),
@@ -187,16 +230,5 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
     });
 
     _scaleController.forward().whenComplete(() => _scaleController.reverse());
-  }
-}
-
-class SineCurve extends Curve {
-  const SineCurve({this.count = 3});
-
-  final double count;
-
-  @override
-  double transformInternal(double t) {
-    return sin(count * 2 * pi * t);
   }
 }

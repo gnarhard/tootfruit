@@ -10,6 +10,7 @@ class TootService {
 
   final _random = Random();
   final current$ = BehaviorSubject<Toot>.seeded(toots.first);
+  final newLoot$ = BehaviorSubject<Toot>.seeded(toots.last);
 
   void shuffle() {
     current$.add(toots[_random.nextInt(toots.length)]);
