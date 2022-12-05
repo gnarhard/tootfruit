@@ -7,7 +7,7 @@ A fruity little toot app.
   - Figure out test ads
   - Build out fairy screen
   - Build tests for the functionality
-  - Redeem code for unlocking every toot
+  - Figure out why toot doesn't make sound on first time
 
 ### V2
 - Bug: (Android) Only after a fresh install, the audio service won't play on the first tap.

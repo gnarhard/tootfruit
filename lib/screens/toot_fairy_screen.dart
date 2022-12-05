@@ -59,7 +59,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> with SingleTickerProv
           FadeTransition(
               opacity: _animationController,
               child: GestureDetector(
-                onDoubleTap: () async {
+                onLongPress: () async {
                   _audioService.stop();
                   _tootService.rewardAll();
                   _navService.current.pushNamed(TootScreen.route);
