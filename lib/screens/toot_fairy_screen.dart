@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tooty_fruity/locator.dart';
 import 'package:tooty_fruity/screens/toot_loot_screen.dart';
+import 'package:tooty_fruity/screens/toot_screen.dart';
 import 'package:tooty_fruity/services/audio_service.dart';
 import 'package:tooty_fruity/services/navigation_service.dart';
+import 'package:tooty_fruity/services/toot_service.dart';
 
 class TootFairyScreen extends StatefulWidget {
   static const String route = '/toot_fairy';
@@ -16,6 +18,7 @@ class TootFairyScreen extends StatefulWidget {
 class _TootFairyScreenState extends State<TootFairyScreen> with SingleTickerProviderStateMixin {
   final _audioService = Locator.get<AudioService>();
   late final _navService = Locator.get<NavigationService>();
+  late final _tootService = Locator.get<TootService>();
 
   static const Color _gold = Color(0xffFFF2A0);
   static const Color _brown = Color(0xff92713E);
@@ -55,27 +58,35 @@ class _TootFairyScreenState extends State<TootFairyScreen> with SingleTickerProv
           const Spacer(),
           FadeTransition(
               opacity: _animationController,
-              child: const Image(
-                image: AssetImage("assets/images/toot_fairy.png"),
+              child: GestureDetector(
+                onDoubleTap: () async {
+                  _audioService.stop();
+                  _tootService.rewardAll();
+                  _navService.current.pushNamed(TootScreen.route);
+                },
+                child: const Image(
+                  image: AssetImage("assets/images/toot_fairy.png"),
+                ),
               )),
           Text('Watch an ad to unlock a premium toot!',
               style: TextStyle(color: Colors.white.withOpacity(.6))),
-          Center(
-            child: Padding(
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () async {
-                  _audioService.stop();
+                  await _tootService.reward();
+                  await _audioService.stop();
                   _navService.current.pushNamed(TootLootScreen.route);
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: _gold,
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                    textStyle: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                child: const Text("WATCH AD", style: TextStyle(color: _brown, fontSize: 36)),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                child: const Text("WATCH AD", style: TextStyle(color: _brown)),
               ),
             ),
-          ),
+          ]),
           const Spacer(),
         ]));
   }

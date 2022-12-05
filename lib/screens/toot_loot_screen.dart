@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tooty_fruity/locator.dart';
 import 'package:tooty_fruity/screens/toot_screen.dart';
 import 'package:tooty_fruity/services/audio_service.dart';
@@ -42,11 +43,13 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   static const double _opacityModifier = .05;
   static const int _starPointCount = 10;
 
+  Color _textColor(Toot toot) => toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
+  Color _contrastTextColor(Toot toot) =>
+      toot.darkText ? toot.color.darken(50) : toot.color.lighten(50);
+
   @override
   void initState() {
     super.initState();
-
-    _tootService.reward();
 
     final scaleTween = Tween(begin: _scale, end: .8);
     final rotateTween = Tween(begin: _angle, end: .2);
@@ -115,14 +118,15 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
       onTap: () => _navService.current.pushNamed(TootScreen.route),
       child: WillPopScope(
         onWillPop: () async => false,
-        child: StreamBuilder<Toot>(
+        child: StreamBuilder<Toot?>(
             stream: _tootService.newLoot$,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final toot = snapshot.requireData;
+              final toot = snapshot.requireData!;
+
               return Scaffold(
                 backgroundColor: toot.color,
                 appBar: AppBar(
@@ -131,10 +135,7 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                   elevation: 0,
                   title: Text(
                     'TOOT LOOT',
-                    style: TextStyle(
-                        color: toot.darkText
-                            ? Colors.grey.withOpacity(.8)
-                            : Colors.white.withOpacity(.6)),
+                    style: TextStyle(color: _textColor(toot)),
                   ),
                   backgroundColor: toot.color,
                 ),
@@ -183,11 +184,7 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(toot.title.toUpperCase(),
-                          style: TextStyle(
-                              color: toot.darkText
-                                  ? Colors.grey.withOpacity(.8)
-                                  : Colors.white.withOpacity(.7),
-                              fontSize: 20)),
+                          style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
                     ),
                     const Spacer(),
                   ],

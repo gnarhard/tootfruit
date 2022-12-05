@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tooty_fruity/locator.dart';
 import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
 import 'package:tooty_fruity/services/audio_service.dart';
@@ -34,6 +35,10 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   double _scale = 0.7;
   double _angle = 0.0;
   static const double swipeSensitivity = 800;
+
+  Color _textColor(Toot toot) => toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
+  Color _contrastTextColor(Toot toot) =>
+      toot.darkText ? toot.color.darken(50) : toot.color.lighten(50);
 
   @override
   void initState() {
@@ -114,14 +119,11 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                   elevation: 0,
                   title: Text(
                     toot.title.toUpperCase(),
-                    style: TextStyle(
-                        color: toot.darkText
-                            ? Colors.grey.withOpacity(.8)
-                            : Colors.white.withOpacity(.6)),
+                    style: TextStyle(color: _textColor(toot)),
                   ),
                   backgroundColor: toot.color,
                 ),
-                body: Container(
+                body: SizedBox(
                   width: double.infinity,
                   height: double.infinity,
                   child: Column(
@@ -162,49 +164,40 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text('tap that',
-                            style: TextStyle(
-                                color: toot.darkText ? Colors.black.withOpacity(.8) : Colors.white,
-                                fontSize: 20)),
+                            style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
                         child: FadeTransition(
                           opacity: _opacityAnimation,
                           child: _tootService.owned$.value.length == 1
-                              ? Container()
+                              ? const SizedBox(height: 100)
                               : Column(
                                   children: [
                                     Image.asset(
                                       'assets/images/swipe.png',
                                       height: 100,
                                       width: 100,
-                                      color: toot.darkText
-                                          ? Colors.grey.withOpacity(.8)
-                                          : Colors.white.withOpacity(.7),
+                                      color: _textColor(toot),
                                       colorBlendMode: BlendMode.srcATop,
                                       fit: BoxFit.fitWidth,
                                     ),
-                                    Text('swipe',
-                                        style: TextStyle(
-                                            color: toot.darkText
-                                                ? Colors.grey.withOpacity(.8)
-                                                : Colors.white.withOpacity(.7))),
+                                    Text('swipe', style: TextStyle(color: _textColor(toot))),
                                   ],
                                 ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: TextButton(
-                            onPressed: () {
-                              _navService.current.pushNamed(TootFairyScreen.route);
-                            },
-                            child: Text('VISIT THE TOOT FAIRY',
-                                style: TextStyle(
-                                    color: toot.darkText
-                                        ? Colors.grey.withOpacity(.8)
-                                        : Colors.white.withOpacity(.7)))),
-                      ),
+                      _tootService.ownsEveryToot
+                          ? const SizedBox(height: 64)
+                          : Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: TextButton(
+                                  onPressed: () {
+                                    _navService.current.pushNamed(TootFairyScreen.route);
+                                  },
+                                  child: Text('VISIT THE TOOT FAIRY',
+                                      style: TextStyle(color: _textColor(toot)))),
+                            ),
                     ],
                   ),
                 ),

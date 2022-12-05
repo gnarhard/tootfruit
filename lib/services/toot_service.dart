@@ -15,7 +15,9 @@ class TootService {
   final current$ = BehaviorSubject<Toot>.seeded(toots.first);
   final all$ = BehaviorSubject<List<Toot>>.seeded(toots);
   final owned$ = BehaviorSubject<List<Toot>>.seeded([toots.first]);
-  final newLoot$ = BehaviorSubject<Toot>.seeded(toots.last);
+  final newLoot$ = BehaviorSubject<Toot?>.seeded(null);
+
+  bool get ownsEveryToot => all$.value == owned$.value;
 
   Future<void> init() async {
     User user = _userService.current$.value!;
@@ -24,7 +26,7 @@ class TootService {
     current$.add(toot);
 
     for (String fruit in user.ownedFruit) {
-      final toot = toots.firstWhere((element) => element.fruit == user.currentFruit);
+      final toot = toots.firstWhere((element) => element.fruit == fruit);
       ownedToots.add(toot);
     }
 
@@ -78,5 +80,24 @@ class TootService {
     owned$.add([...owned$.value, newToot]);
     _userService.current$.add(user);
     current$.add(newToot);
+
+    await set(newToot);
+  }
+
+  Future<void> rewardAll() async {
+    final newToot = toots.last;
+    User user = _userService.current$.value!;
+    final fruitNames = <String>[];
+
+    for (Toot toot in all$.value) {
+      fruitNames.add(toot.fruit);
+    }
+    user.ownedFruit = fruitNames;
+    _userService.current$.add(user);
+
+    owned$.add(all$.value);
+    current$.add(newToot);
+
+    await set(newToot);
   }
 }
