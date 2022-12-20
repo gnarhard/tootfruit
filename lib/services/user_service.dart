@@ -17,7 +17,11 @@ class UserService {
     if (userJson == null) {
       current = User(settings: Settings());
     } else {
-      current = User.fromJson(userJson);
+      if (userJson is User) {
+        current = userJson;
+      } else {
+        current = User.fromJson(userJson);
+      }
     }
 
     await _storageService.set('user', current!);
