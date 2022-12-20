@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tooty_fruity/routes.dart';
-import 'package:tooty_fruity/screens/launch_screen.dart';
-import 'package:tooty_fruity/screens/toot_screen.dart';
-import 'package:tooty_fruity/services/navigation_service.dart';
-import 'package:tooty_fruity/services/toot_service.dart';
+import 'package:toot_fruit/routes.dart';
+import 'package:toot_fruit/screens/launch_screen.dart';
+import 'package:toot_fruit/screens/toot_screen.dart';
+import 'package:toot_fruit/services/navigation_service.dart';
+import 'package:toot_fruit/services/toot_service.dart';
 
 import 'env.dart';
 import 'locator.dart';
@@ -38,7 +38,7 @@ class SwitchAudioObserver extends NavigatorObserver {
   @override
   void didPop(Route route, Route? previousRoute) {
     if (previousRoute?.settings.name == TootScreen.route) {
-      _tootService.set(_tootService.current$.value);
+      _tootService.set(_tootService.current);
     }
     super.didPop(route, previousRoute);
   }

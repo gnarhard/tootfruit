@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:tooty_fruity/services/toast_service.dart';
+import 'package:toot_fruit/services/toast_service.dart';
 
 class StorageService {
   static const _fileName = 'storage.json';

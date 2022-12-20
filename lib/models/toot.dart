@@ -90,7 +90,7 @@ List<Toot> toots = [
     color: const Color(0xffd1e231),
   ),
   Toot(
-    fruit: 'grape',
+    fruit: 'grapes',
     title: 'Gassy Grape',
     emoji: '🍇',
     color: const Color(0xff6f2da8),

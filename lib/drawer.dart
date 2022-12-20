@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tooty_fruity/screens/settings_screen.dart';
-import 'package:tooty_fruity/screens/toot_screen.dart';
+import 'package:toot_fruit/screens/settings_screen.dart';
+import 'package:toot_fruit/screens/toot_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
