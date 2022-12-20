@@ -1,5 +1,5 @@
-name: tooty_fruity
-description: A dynamic fart app.
+name: toot_fruit
+description: This fruity little fart app allows you to swipe between different fruit emojis and revel in a carefully curated collection of scatalogical sounds.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.

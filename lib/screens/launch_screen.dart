@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tooty_fruity/services/init_service.dart';
-import 'package:tooty_fruity/services/user_service.dart';
+import 'package:toot_fruit/services/init_service.dart';
 
 import '../locator.dart';
 
@@ -20,6 +19,8 @@ class LaunchScreenState extends State<LaunchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _initService.init(context);
+
     return Container(
       color: _firstColor,
       child: Scaffold(
@@ -38,11 +39,5 @@ class LaunchScreenState extends State<LaunchScreen> {
         ]),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initService.init();
   }
 }

@@ -4,7 +4,6 @@ A fruity little toot app.
 ### TODO
 - Figure out test ads
 - Implement Rewarded Ads
-- Build out toot fairy screen
 - Figure out why toot doesn't make sound on first time
 - ipod touch compatibility
 

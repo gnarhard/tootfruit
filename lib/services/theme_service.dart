@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart' show BehaviorSubject;
-import 'package:tooty_fruity/locator.dart';
-import 'package:tooty_fruity/services/storage_service.dart';
+import 'package:toot_fruit/locator.dart';
+import 'package:toot_fruit/services/storage_service.dart';
 
 class ThemeService {
   late final _storageService = Locator.get<StorageService>();

@@ -1,16 +1,26 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tooty_fruity/locator.dart';
-import 'package:tooty_fruity/screens/toot_loot_screen.dart';
-import 'package:tooty_fruity/screens/toot_screen.dart';
-import 'package:tooty_fruity/services/audio_service.dart';
-import 'package:tooty_fruity/services/navigation_service.dart';
-import 'package:tooty_fruity/services/toot_service.dart';
+import 'package:toot_fruit/locator.dart';
+import 'package:toot_fruit/screens/toot_loot_screen.dart';
+import 'package:toot_fruit/screens/toot_screen.dart';
+import 'package:toot_fruit/services/audio_service.dart';
+import 'package:toot_fruit/services/navigation_service.dart';
+import 'package:toot_fruit/services/toot_service.dart';
 
 class TootFairyScreen extends StatefulWidget {
   static const String route = '/toot_fairy';
 
   const TootFairyScreen({Key? key}) : super(key: key);
+
+  static Future<void> precacheImages(context) async {
+    await precacheImage(const AssetImage('assets/images/all_fruits.png'), context);
+    await precacheImage(const AssetImage('assets/images/clouds_bottom.png'), context);
+    await precacheImage(const AssetImage('assets/images/clouds_top.png'), context);
+    await precacheImage(const AssetImage('assets/images/cloud_simple.png'), context);
+  }
 
   @override
   State<TootFairyScreen> createState() => _TootFairyScreenState();
@@ -21,39 +31,39 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
   late final _navService = Locator.get<NavigationService>();
   late final _tootService = Locator.get<TootService>();
 
-  static const Color _buttonColor = Color(0xff1BDE22);
-  static const Color _backgroundColor = Color(0xff182f1a);
-  static const Color _backgroundColorSecondary = Color(0xff023a04);
+  static const Color _backgroundColor = Color(0xff53BAF3);
+  static const Color _backgroundColorSecondary = Color(0xff43b6f6);
+  // static const Color _buttonColor = Color(0xffFCE832);
+  static const Color _buttonColor = _backgroundColor;
 
   static const _fruitRotationSpeed = Duration(seconds: 10);
-  static const _fairyRotationSpeed = Duration(milliseconds: 500);
+  static const _fairyRotationDuration = Duration(seconds: 10);
+  static const double _fairyRotationSpeed = 2;
 
-  double _angle = -.2;
+  late final AnimationController _fruitRotationController =
+      AnimationController(duration: _fruitRotationSpeed, vsync: this)..repeat();
 
-  late AnimationController _fruitRotationController;
-  // late AnimationController _fairyAnimationController;
+  late AnimationController _fairyAnimationController;
 
-  late Animation<double> _rotationAnimation;
-  late AnimationController _rotationController;
+  late final AnimationController _rotationController =
+      AnimationController(duration: _fairyRotationDuration, vsync: this)..repeat(reverse: true);
+
+  double _verticalOffset = -20;
 
   @override
   void initState() {
     super.initState();
+    _fairyAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+      lowerBound: 0,
+      upperBound: 24,
+    );
+    _fairyAnimationController.addListener(() {
+      setState(() {});
+    });
 
-    _fruitRotationController = AnimationController(duration: _fruitRotationSpeed, vsync: this)
-      ..repeat(reverse: false);
-    _rotationController = AnimationController(duration: _fairyRotationSpeed, vsync: this)
-      ..repeat(reverse: true);
-
-    final rotateTween = Tween(begin: _angle, end: .01);
-    _rotationAnimation = rotateTween.animate(
-      CurvedAnimation(
-        parent: _rotationController,
-        curve: Curves.linear,
-      ),
-    )..addListener(() {
-        setState(() => _angle = _rotationController.value);
-      });
+    _fairyAnimationController.repeat(reverse: true);
     _startAudio();
   }
 
@@ -64,114 +74,176 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
     super.dispose();
   }
 
+  void changePosition(Timer t) async {
+    setState(() {
+      _verticalOffset = _verticalOffset == 0 ? 20 : 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      // decoration: BoxDecoration(
-      //   image: DecorationImage(
-      //     image: const AssetImage('assets/images/colorful_explosion.jpg'),
-      //     colorFilter: ColorFilter.mode(_backgroundColor.withOpacity(.5), BlendMode.multiply),
-      //     fit: BoxFit.cover,
-      //   ),
-      // ),
-      child: Container(
+        constraints: const BoxConstraints.expand(),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment(-0.4, -0.8),
+              stops: [0, .5, .5, 1],
+              tileMode: TileMode.repeated,
+              colors: <Color>[
+                _backgroundColor,
+                _backgroundColor,
+                _backgroundColorSecondary,
+                _backgroundColorSecondary,
+              ]),
+        ),
+        child: Container(
           constraints: const BoxConstraints.expand(),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: <Color>[
-                  _backgroundColor.withOpacity(1),
-                  _backgroundColorSecondary.withOpacity(1)
-                ]),
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/clouds_top.png'),
+              fit: BoxFit.cover,
+            ),
           ),
           child: Container(
-            // decoration: BoxDecoration(
-            //   image: DecorationImage(
-            //     image: const AssetImage('assets/images/fairy_dust_inverted.png'),
-            //     colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.1), BlendMode.dstATop),
-            //     fit: BoxFit.cover,
-            //   ),
-            // ),
-            child: Container(
-              // decoration: BoxDecoration(
-              //   image: DecorationImage(
-              //     image: const AssetImage('assets/images/fairy_dust.png'),
-              //     colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.05), BlendMode.dstATop),
-              //     fit: BoxFit.cover,
-              //   ),
-              // ),
-              child: Scaffold(
+            constraints: const BoxConstraints.expand(),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/clouds_bottom.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: AppBar(
+                iconTheme: const IconThemeData(
+                  color: _backgroundColor, //change your color here
+                ),
                 backgroundColor: Colors.transparent,
-                appBar: AppBar(
-                  backgroundColor: Colors.transparent,
-                  centerTitle: true,
-                  elevation: 0,
-                  title: Text(
-                    'Unlock Toot Loot!'.toUpperCase(),
-                    style: TextStyle(color: Colors.white.withAlpha(80)),
+                centerTitle: true,
+                elevation: 0,
+                title: Text(
+                  'TOOT FAIRY'.toUpperCase(),
+                  style: TextStyle(
+                    color: _backgroundColorSecondary.withOpacity(.6),
+                    fontSize: 32,
+                    shadows: const <Shadow>[
+                      Shadow(
+                        offset: Offset(1, 1),
+                        blurRadius: 2.0,
+                        color: Color.fromARGB(50, 0, 0, 255),
+                      ),
+                    ],
                   ),
                 ),
-                body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  const Spacer(),
-                  Stack(children: [
-                    RotationTransition(
-                        turns: Tween(begin: 1.0, end: 0.0).animate(_fruitRotationController),
-                        child: Image.asset(
-                          'assets/images/all_fruits.png',
-                          width: double.maxFinite,
-                        )),
-                    GestureDetector(
-                      onLongPress: () async {
-                        _audioService.stop();
-                        _tootService.rewardAll();
-                        _navService.current.pushNamed(TootScreen.route);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 80.0),
-                        child: Center(
-                          child: Transform.rotate(
-                            angle: _angle,
-                            child: SvgPicture.asset(
-                              'assets/images/toot_fairy.svg',
-                              width: 160,
+              ),
+              body: Stack(children: [
+                Container(
+                  margin: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.top +
+                          MediaQuery.of(context).padding.bottom),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(children: [
+                        AnimatedBuilder(
+                          animation: _fruitRotationController,
+                          child: Image.asset(
+                            'assets/images/all_fruits.png',
+                            width: MediaQuery.of(context).size.width,
+                          ),
+                          builder: (BuildContext context, Widget? child) {
+                            return Transform.rotate(
+                              angle: _fruitRotationController.value * _fairyRotationSpeed * math.pi,
+                              child: child,
+                            );
+                          },
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 80.0),
+                          child: Image.asset(
+                            'assets/images/cloud_simple.png',
+                          ),
+                        ),
+                        GestureDetector(
+                          onLongPress: () async {
+                            _audioService.stop();
+                            _tootService.rewardAll();
+                            _navService.current.pushNamed(TootScreen.route);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 80),
+                            child: Center(
+                              child: Container(
+                                margin: EdgeInsets.only(top: _fairyAnimationController.value),
+                                child: SvgPicture.asset(
+                                  'assets/images/toot_fairy.svg',
+                                  width: 160,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ]),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Watch an ad to be rewarded with toot loot!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white.withOpacity(.6))),
+                      ]),
+                    ],
                   ),
-                  const SizedBox(height: 32),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await _tootService.reward();
-                          await _audioService.stop();
-                          _navService.current.pushNamed(TootLootScreen.route);
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: _buttonColor,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                            textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        child: const Text("CLAIM", style: TextStyle(color: _backgroundColor)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await _tootService.reward();
+                              await _audioService.stop();
+                              _navService.current.pushNamed(TootLootScreen.route);
+                            },
+                            style: ElevatedButton.styleFrom(
+                                shape: BeveledRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                side: const BorderSide(
+                                  width: 2,
+                                  color: Colors.white,
+                                ),
+                                elevation: 10,
+                                backgroundColor: _buttonColor,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                textStyle:
+                                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                            child: const Text("GIMME LOOT", style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                      ]),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('watch an ad to get toot loot',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _backgroundColorSecondary.withOpacity(.7),
+                            )),
                       ),
-                    ),
-                  ]),
-                  const Spacer(),
-                ]),
-              ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child:
+                            Text('${_tootService.owned.length} / ${_tootService.all.length} owned',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: _backgroundColorSecondary.withOpacity(.7),
+                                )),
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
             ),
-          )),
-    );
+          ),
+        ));
   }
 
   Future<void> _startAudio() async {

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:tooty_fruity/models/settings.dart';
+import 'package:toot_fruit/models/settings.dart';
 
 part 'user.g.dart';
 
