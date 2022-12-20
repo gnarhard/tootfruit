@@ -1,4 +1,3 @@
-import 'package:rxdart/rxdart.dart';
 import 'package:tooty_fruity/services/storage_service.dart';
 
 import '../locator.dart';
@@ -8,23 +7,21 @@ import '../models/user.dart';
 class UserService {
   late final _storageService = Locator.get<StorageService>();
 
-  final current$ = BehaviorSubject<User?>.seeded(null);
+  User? current;
+
   Future<int> get money async => await _storageService.get('chestMoney');
 
-  Future<void> init() async {
-    // _storageService.deleteStorageFile();
+  Future<User> init() async {
     final userJson = await _storageService.get('user');
-    late User user;
 
     if (userJson == null) {
-      user = User(settings: Settings());
+      current = User(settings: Settings());
     } else {
-      user = User.fromJson(userJson);
+      current = User.fromJson(userJson);
     }
 
-    current$.add(user);
-    current$.listen((user) async {
-      await _storageService.set('user', user!.toJson());
-    });
+    await _storageService.set('user', current!.toJson());
+
+    return current!;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tooty_fruity/locator.dart';
 import 'package:tooty_fruity/screens/toot_screen.dart';
@@ -156,24 +157,10 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                               angle: _angle,
                               child: Transform.scale(
                                 scale: _scale,
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: const BoxDecoration(
-                                    /// Gives container an actual size
-                                    color: Colors.transparent,
-                                  ),
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.only(right: TootScreen.startingFontSize),
-                                    child: Text(
-                                      toot.emoji,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                          // backgroundColor: Colors.red,
-                                          fontSize: TootScreen.startingFontSize,
-                                          height: 2),
-                                    ),
-                                  ),
+                                child: SvgPicture.asset(
+                                  'assets/images/fruit/${toot.fruit}.svg',
+                                  height: 400,
+                                  width: 400,
                                 ),
                               ),
                             ),

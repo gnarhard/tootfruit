@@ -7,26 +7,53 @@ import 'package:tooty_fruity/services/toast_service.dart';
 class StorageService {
   static const _fileName = 'storage.json';
 
+  static const _cacheExpirationDays = Duration(days: 1);
+
   Map<String, dynamic>? cachedStorage;
   Map<String, dynamic>? store;
 
+  DateTime get _expirationDate => DateTime.now().add(_cacheExpirationDays);
+
+  DateTime _setNewExpirationDate(expiration) =>
+      DateTime(expiration.year, expiration.month, expiration.day).add(_cacheExpirationDays);
+
   /// Checks first if data and store exists then checks if the cache is expired and wipes data if it is.
   bool exists(key) {
-    if ((store != null) && (store![key] != null)) {
-      DateTime expiration = DateTime.parse(store!["${key}_expiration"]);
-      DateTime weekFromExpiration = DateTime(expiration.year, expiration.month, expiration.day + 7);
-      if (expiration.isBefore(weekFromExpiration)) {
-        return true;
-      } else {
-        remove(key);
-        remove("${key}_expiration");
-      }
+    if ((cachedStorage == null) || (cachedStorage![key] == null)) {
+      return false;
+    }
+
+    String? cacheInvalidationDate = cachedStorage!["${key}_expiration"];
+    if (cacheInvalidationDate == null) {
+      return false;
+    }
+
+    DateTime expiration = DateTime.parse(cacheInvalidationDate);
+    final cacheIsStale = isStale(key, expiration);
+
+    return !cacheIsStale;
+  }
+
+  bool isStale(String key, DateTime expiration) {
+    if (expiration.isAfter(_setNewExpirationDate(expiration))) {
+      invalidateCache(key);
+      return true;
     }
 
     return false;
   }
 
+  invalidateCache(String key) {
+    remove(key);
+    remove("${key}_expiration");
+  }
+
   Future get(String key) async {
+    final storageFile = await _getStorageFile();
+    if (!await storageFile.exists()) {
+      await storageFile.create();
+    }
+
     final storage = await loadStorage();
 
     return storage[key];
@@ -44,8 +71,7 @@ class StorageService {
     final storage = await loadStorage();
 
     storage[key] = value;
-    DateTime today = DateTime.now();
-    storage["${key}_expiration"] = DateTime(today.year, today.month, today.day + 7).toString();
+    storage["${key}_expiration"] = _expirationDate.toString();
 
     await _saveStorage(storage);
   }
