@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tinycolor2/tinycolor2.dart';
-import 'package:tooty_fruity/locator.dart';
-import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
-import 'package:tooty_fruity/services/audio_service.dart';
-import 'package:tooty_fruity/services/navigation_service.dart';
-import 'package:tooty_fruity/services/toot_service.dart';
+import 'package:toot_fruit/locator.dart';
+import 'package:toot_fruit/screens/toot_fairy_screen.dart';
+import 'package:toot_fruit/services/audio_service.dart';
+import 'package:toot_fruit/services/navigation_service.dart';
+import 'package:toot_fruit/services/toot_service.dart';
 
 import '../models/toot.dart';
+import '../widgets/star.dart';
 
 class TootScreen extends StatefulWidget {
   static const String route = '/toot';
@@ -88,109 +89,123 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final toot = _tootService.current;
+
     return WillPopScope(
       onWillPop: () async => false,
       child: GestureDetector(
-        onHorizontalDragEnd: (details) async {
-          // Note: Sensitivity is integer used when you don't want to mess up vertical drag
-          if (details.velocity.pixelsPerSecond.dx < -swipeSensitivity) {
-            // Swiped right.
-            _resetAnimations();
-            await _tootService.increment();
-          } else if (details.velocity.pixelsPerSecond.dx > swipeSensitivity) {
-            // Swiped left.
-            _resetAnimations();
-            await _tootService.decrement();
-          }
-        },
-        child: StreamBuilder<Toot>(
-            stream: _tootService.current$,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final toot = snapshot.requireData;
-
-              return Scaffold(
-                backgroundColor: toot.color,
-                appBar: AppBar(
-                  leading: Container(),
-                  centerTitle: true,
-                  elevation: 0,
-                  title: Text(
-                    toot.title.toUpperCase(),
-                    style: TextStyle(color: _textColor(toot)),
-                  ),
-                  backgroundColor: toot.color,
+          onHorizontalDragEnd: (details) async {
+            // Note: Sensitivity is integer used when you don't want to mess up vertical drag
+            if (details.velocity.pixelsPerSecond.dx < -swipeSensitivity) {
+              // Swiped right.
+              _resetAnimations();
+              await _tootService.increment();
+              setState(() {});
+            } else if (details.velocity.pixelsPerSecond.dx > swipeSensitivity) {
+              // Swiped left.
+              _resetAnimations();
+              await _tootService.decrement();
+              setState(() {});
+            }
+          },
+          child: Scaffold(
+            backgroundColor: toot.color,
+            appBar: AppBar(
+              leading: Container(),
+              centerTitle: true,
+              elevation: 0,
+              title: Text(
+                toot.title.toUpperCase(),
+                style: TextStyle(
+                  color: _textColor(toot),
+                  fontSize: 32,
                 ),
-                body: SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Spacer(),
-                      Transform.rotate(
-                        angle: _angle,
-                        child: Transform.scale(
-                          scale: _scale,
-                          child: GestureDetector(
-                            onTap: () async {
-                              _animate(toot);
-                              await _audioService.play();
-                            },
-                            child: SvgPicture.asset(
-                              'assets/images/fruit/${toot.fruit}.svg',
-                              height: 400,
-                              width: 400,
-                            ),
-                          ),
+              ),
+              backgroundColor: toot.color,
+            ),
+            body: SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  Transform.rotate(
+                    angle: _angle,
+                    child: Transform.scale(
+                      scale: _scale,
+                      child: GestureDetector(
+                        onTap: () async {
+                          _animate(toot);
+                          await _audioService.play();
+                        },
+                        child: SvgPicture.asset(
+                          'assets/images/fruit/${toot.fruit}.svg',
+                          height: 400,
+                          width: 400,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text('tap that',
-                            style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                        child: FadeTransition(
-                          opacity: _opacityAnimation,
-                          child: _tootService.owned.length == 1
-                              ? const SizedBox(height: 100)
-                              : Column(
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/swipe.png',
-                                      height: 100,
-                                      width: 100,
-                                      color: _textColor(toot),
-                                      colorBlendMode: BlendMode.srcATop,
-                                      fit: BoxFit.fitWidth,
-                                    ),
-                                    Text('swipe', style: TextStyle(color: _textColor(toot))),
-                                  ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('tap that',
+                        style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    child: FadeTransition(
+                      opacity: _opacityAnimation,
+                      child: _tootService.owned.length < 2
+                          ? const SizedBox(height: 100)
+                          : Column(
+                              children: [
+                                Image.asset(
+                                  'assets/images/swipe.png',
+                                  height: 100,
+                                  width: 100,
+                                  color: _textColor(toot),
+                                  colorBlendMode: BlendMode.srcATop,
+                                  fit: BoxFit.fitWidth,
                                 ),
-                        ),
-                      ),
-                      _tootService.ownsEveryToot
-                          ? const SizedBox(height: 32)
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16.0),
-                              child: TextButton(
-                                  onPressed: () {
-                                    _navService.current.pushNamed(TootFairyScreen.route);
-                                  },
-                                  child: Text('VISIT THE TOOT FAIRY',
-                                      style: TextStyle(color: _textColor(toot)))),
+                                Text('swipe', style: TextStyle(color: _textColor(toot))),
+                              ],
                             ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            }),
-      ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: TextButton(
+                        onPressed: () {
+                          _navService.current.pushNamed(TootFairyScreen.route);
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _tootService.ownsEveryToot
+                                ? Container()
+                                : ClipPath(
+                                    clipper: StarClipper(10),
+                                    child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: Colors.redAccent,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Center(
+                                          child: Text('!', style: TextStyle(color: Colors.white))),
+                                    ),
+                                  ),
+                            _tootService.ownsEveryToot ? Container() : const SizedBox(width: 4),
+                            Text('VISIT THE TOOT FAIRY', style: TextStyle(color: _textColor(toot))),
+                          ],
+                        )),
+                  ),
+                ],
+              ),
+            ),
+          )),
     );
   }
 

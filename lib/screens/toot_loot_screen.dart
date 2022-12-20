@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tinycolor2/tinycolor2.dart';
-import 'package:tooty_fruity/locator.dart';
-import 'package:tooty_fruity/screens/toot_screen.dart';
-import 'package:tooty_fruity/services/audio_service.dart';
-import 'package:tooty_fruity/services/navigation_service.dart';
-import 'package:tooty_fruity/services/toot_service.dart';
+import 'package:toot_fruit/locator.dart';
+import 'package:toot_fruit/screens/toot_screen.dart';
+import 'package:toot_fruit/services/navigation_service.dart';
+import 'package:toot_fruit/services/toot_service.dart';
 
 import '../models/toot.dart';
 import '../widgets/star.dart';
@@ -21,7 +20,6 @@ class TootLootScreen extends StatefulWidget {
 
 class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStateMixin {
   late final _tootService = Locator.get<TootService>();
-  late final _audioService = Locator.get<AudioService>();
   late final _navService = Locator.get<NavigationService>();
 
   late Animation<double> _scaleAnimation;
@@ -114,72 +112,64 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     _baseSize = MediaQuery.of(context).size.width;
+    final toot = _tootService.newLoot!;
 
     return GestureDetector(
-      onTap: () => _navService.current.pushNamed(TootScreen.route),
-      child: WillPopScope(
-        onWillPop: () async => false,
-        child: StreamBuilder<Toot?>(
-            stream: _tootService.newLoot$,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final toot = snapshot.requireData!;
-
-              return Scaffold(
-                backgroundColor: toot.color,
-                appBar: AppBar(
-                  leading: Container(),
-                  centerTitle: true,
-                  elevation: 0,
-                  title: Text(
-                    'TOOT LOOT',
-                    style: TextStyle(color: _textColor(toot)),
+        onTap: () => _navService.current.pushNamed(TootScreen.route),
+        child: WillPopScope(
+            onWillPop: () async => false,
+            child: Scaffold(
+              backgroundColor: toot.color,
+              appBar: AppBar(
+                leading: Container(),
+                centerTitle: true,
+                elevation: 0,
+                title: Text(
+                  'TOOT LOOT',
+                  style: TextStyle(
+                    color: _textColor(toot),
+                    fontSize: 32,
                   ),
-                  backgroundColor: toot.color,
                 ),
-                body: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-                    SizedBox(
-                      width: _baseSize,
-                      height: _baseSize,
-                      child: Stack(
-                        clipBehavior: Clip.antiAlias,
-                        fit: StackFit.loose,
-                        children: [
-                          ..._buildStarPattern(),
-                          Center(
-                            child: Transform.rotate(
-                              angle: _angle,
-                              child: Transform.scale(
-                                scale: _scale,
-                                child: SvgPicture.asset(
-                                  'assets/images/fruit/${toot.fruit}.svg',
-                                  height: 400,
-                                  width: 400,
-                                ),
+                backgroundColor: toot.color,
+              ),
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  SizedBox(
+                    width: _baseSize,
+                    height: _baseSize,
+                    child: Stack(
+                      clipBehavior: Clip.antiAlias,
+                      fit: StackFit.loose,
+                      children: [
+                        ..._buildStarPattern(),
+                        Center(
+                          child: Transform.rotate(
+                            angle: _angle,
+                            child: Transform.scale(
+                              scale: _scale,
+                              child: SvgPicture.asset(
+                                'assets/images/fruit/${toot.fruit}.svg',
+                                height: 400,
+                                width: 400,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(toot.title.toUpperCase(),
-                          style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
-                    ),
-                    const Spacer(),
-                  ],
-                ),
-              );
-            }),
-      ),
-    );
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(toot.title.toUpperCase(),
+                        style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
+                  ),
+                  const Spacer(),
+                ],
+              ),
+            )));
   }
 
   List<Widget> _buildStarPattern() {
