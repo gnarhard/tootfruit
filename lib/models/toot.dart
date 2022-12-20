@@ -128,7 +128,7 @@ List<Toot> toots = [
     color: const Color(0xffE37383),
   ),
   Toot(
-    fruit: 'apple',
+    fruit: 'appleGreen',
     title: 'Sour Apple',
     fileExtension: 'mp3',
     emoji: '🍏',
