@@ -42,6 +42,7 @@ dependencies:
   json_annotation: ^4.7.0
   build_runner: ^2.3.2
   tinycolor2: ^3.0.1
+  flutter_svg: ^1.1.6
 
 dev_dependencies:
   flutter_test:
@@ -68,3 +69,4 @@ flutter:
   assets:
     - assets/audio/
     - assets/images/
+    - assets/images/fruit/

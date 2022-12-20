@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tooty_fruity/locator.dart';
 import 'package:tooty_fruity/screens/toot_fairy_screen.dart';
@@ -139,24 +140,10 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                               _animate(toot);
                               await _audioService.play();
                             },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              decoration: const BoxDecoration(
-                                /// Gives container an actual size
-                                color: Colors.transparent,
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(right: TootScreen.startingFontSize + 16),
-                                child: Text(
-                                  toot.emoji,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      // backgroundColor: Colors.red,
-                                      fontSize: TootScreen.startingFontSize,
-                                      height: 2),
-                                ),
-                              ),
+                            child: SvgPicture.asset(
+                              'assets/images/fruit/${toot.fruit}.svg',
+                              height: 400,
+                              width: 400,
                             ),
                           ),
                         ),
@@ -167,10 +154,10 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                             style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                         child: FadeTransition(
                           opacity: _opacityAnimation,
-                          child: _tootService.owned$.value.length == 1
+                          child: _tootService.owned.length == 1
                               ? const SizedBox(height: 100)
                               : Column(
                                   children: [
@@ -188,9 +175,9 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       _tootService.ownsEveryToot
-                          ? const SizedBox(height: 64)
+                          ? const SizedBox(height: 32)
                           : Padding(
-                              padding: const EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
                               child: TextButton(
                                   onPressed: () {
                                     _navService.current.pushNamed(TootFairyScreen.route);

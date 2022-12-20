@@ -1,4 +1,5 @@
 import 'package:tooty_fruity/screens/toot_screen.dart';
+import 'package:tooty_fruity/services/storage_service.dart';
 import 'package:tooty_fruity/services/theme_service.dart';
 import 'package:tooty_fruity/services/toot_service.dart';
 import 'package:tooty_fruity/services/user_service.dart';
@@ -11,8 +12,10 @@ class InitService {
   late final _themeService = Locator.get<ThemeService>();
   late final _tootService = Locator.get<TootService>();
   late final _userService = Locator.get<UserService>();
+  late final _storageService = Locator.get<StorageService>();
 
   Future<void> init() async {
+    // await _storageService.deleteStorageFile();
     await _userService.init();
 
     await Future.wait([
@@ -22,6 +25,4 @@ class InitService {
 
     _navService.current.pushNamed(TootScreen.route);
   }
-
-  Future<void> postLoginInit() async {}
 }
