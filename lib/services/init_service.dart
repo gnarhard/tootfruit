@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:toot_fruit/services/storage_service.dart';
 import 'package:toot_fruit/services/theme_service.dart';
 import 'package:toot_fruit/services/toot_service.dart';
@@ -15,6 +16,10 @@ class InitService {
   late final _userService = Locator.get<UserService>();
   late final _storageService = Locator.get<StorageService>();
 
+  bool isSmallScreen = false;
+
+  double get headingFontSize => isSmallScreen ? 16 : 26;
+
   Future<void> init(context) async {
     // await _storageService.deleteStorageFile();
     await TootFairyScreen.precacheImages(context);
@@ -24,6 +29,10 @@ class InitService {
       _themeService.init(), // Discover the stored theme.
       _tootService.init()
     ]);
+
+    if (MediaQuery.of(context).size.width < 400) {
+      isSmallScreen = true;
+    }
 
     _navService.current.pushNamed(TootScreen.route);
     // _navService.current.pushNamed(TootFairyScreen.route);

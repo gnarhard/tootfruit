@@ -10,6 +10,8 @@ import 'package:toot_fruit/services/audio_service.dart';
 import 'package:toot_fruit/services/navigation_service.dart';
 import 'package:toot_fruit/services/toot_service.dart';
 
+import '../services/init_service.dart';
+
 class TootFairyScreen extends StatefulWidget {
   static const String route = '/toot_fairy';
 
@@ -29,6 +31,7 @@ class TootFairyScreen extends StatefulWidget {
 class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderStateMixin {
   final _audioService = Locator.get<AudioService>();
   late final _navService = Locator.get<NavigationService>();
+  late final _initService = Locator.get<InitService>();
   late final _tootService = Locator.get<TootService>();
 
   static const Color _backgroundColor = Color(0xff53BAF3);
@@ -70,6 +73,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
   @override
   void dispose() {
     _rotationController.dispose();
+    _fairyAnimationController.dispose();
     _fruitRotationController.dispose();
     super.dispose();
   }
@@ -119,6 +123,34 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                 iconTheme: const IconThemeData(
                   color: _backgroundColor, //change your color here
                 ),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: _backgroundColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text('${_tootService.owned.length} / ${_tootService.all.length}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                            )),
+                      ),
+                    ),
+                  ),
+                ],
                 backgroundColor: Colors.transparent,
                 centerTitle: true,
                 elevation: 0,
@@ -126,7 +158,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                   'TOOT FAIRY'.toUpperCase(),
                   style: TextStyle(
                     color: _backgroundColorSecondary.withOpacity(.6),
-                    fontSize: 32,
+                    fontSize: _initService.headingFontSize,
                     shadows: const <Shadow>[
                       Shadow(
                         offset: Offset(1, 1),
@@ -147,21 +179,25 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Stack(children: [
-                        AnimatedBuilder(
-                          animation: _fruitRotationController,
-                          child: Image.asset(
-                            'assets/images/all_fruits.png',
-                            width: MediaQuery.of(context).size.width,
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 80.0),
+                          child: AnimatedBuilder(
+                            animation: _fruitRotationController,
+                            child: Image.asset(
+                              'assets/images/all_fruits.png',
+                              width: MediaQuery.of(context).size.width,
+                            ),
+                            builder: (BuildContext context, Widget? child) {
+                              return Transform.rotate(
+                                angle:
+                                    _fruitRotationController.value * _fairyRotationSpeed * math.pi,
+                                child: child,
+                              );
+                            },
                           ),
-                          builder: (BuildContext context, Widget? child) {
-                            return Transform.rotate(
-                              angle: _fruitRotationController.value * _fairyRotationSpeed * math.pi,
-                              child: child,
-                            );
-                          },
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 80.0),
+                          padding: const EdgeInsets.only(top: 64.0),
                           child: Image.asset(
                             'assets/images/cloud_simple.png',
                           ),
@@ -173,13 +209,13 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                             _navService.current.pushNamed(TootScreen.route);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 80),
+                            padding: const EdgeInsets.only(top: 64),
                             child: Center(
                               child: Container(
                                 margin: EdgeInsets.only(top: _fairyAnimationController.value),
                                 child: SvgPicture.asset(
                                   'assets/images/toot_fairy.svg',
-                                  width: 160,
+                                  width: MediaQuery.of(context).size.width / 3,
                                 ),
                               ),
                             ),
@@ -189,57 +225,76 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              await _tootService.reward();
-                              await _audioService.stop();
-                              _navService.current.pushNamed(TootLootScreen.route);
-                            },
-                            style: ElevatedButton.styleFrom(
-                                shape: BeveledRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                _tootService.ownsEveryToot
+                    ? Container()
+                    : Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    await _tootService.reward();
+                                    await _audioService.stop();
+                                    _navService.current.pushNamed(TootLootScreen.route);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      shape: BeveledRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      side: const BorderSide(
+                                        width: 2,
+                                        color: Colors.white,
+                                      ),
+                                      elevation: 10,
+                                      backgroundColor: _buttonColor,
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                      textStyle: const TextStyle(
+                                          fontSize: 24, fontWeight: FontWeight.bold)),
+                                  child: const Text("GIMME LOOT",
+                                      style: TextStyle(color: Colors.white)),
                                 ),
-                                side: const BorderSide(
-                                  width: 2,
-                                  color: Colors.white,
-                                ),
-                                elevation: 10,
-                                backgroundColor: _buttonColor,
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                textStyle:
-                                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                            child: const Text("GIMME LOOT", style: TextStyle(color: Colors.white)),
-                          ),
-                        ),
-                      ]),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('watch an ad to get toot loot',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: _backgroundColorSecondary.withOpacity(.7),
-                            )),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child:
-                            Text('${_tootService.owned.length} / ${_tootService.all.length} owned',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: _backgroundColorSecondary.withOpacity(.7),
+                              ),
+                            ]),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0, top: 4),
+                              child: Text('watch ad for new fruit or',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: _backgroundColorSecondary.withOpacity(.7),
+                                  )),
+                            ),
+                            OutlinedButton(
+                                onPressed: () {
+                                  // todo: in app purchase
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    side: const BorderSide(
+                                      width: 2,
+                                      color: _backgroundColorSecondary,
+                                    ),
+                                    padding:
+                                        const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                    textStyle:
+                                        const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                                child: const Text(
+                                  "\$2 ALL TOOTS",
+                                  style: TextStyle(
+                                    color: _backgroundColorSecondary,
+                                    fontSize: 18,
+                                  ),
                                 )),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
               ]),
             ),
           ),
