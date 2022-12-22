@@ -28,10 +28,6 @@ class LaunchScreenState extends State<LaunchScreen> {
   Widget build(BuildContext context) {
     TootFairyScreen.precacheImages(context);
 
-    if (MediaQuery.of(context).size.width < 400) {
-      _initService.isSmallScreen = true;
-    }
-
     return Container(
       color: _firstColor,
       child: Scaffold(

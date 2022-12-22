@@ -9,6 +9,7 @@ import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
 import '../models/toot.dart';
+import '../widgets/screen_title.dart';
 import '../widgets/star.dart';
 
 class TootScreen extends StatefulWidget {
@@ -116,10 +117,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
               leading: Container(),
               centerTitle: true,
               elevation: 0,
-              title: Text(
-                toot.title.toUpperCase(),
-                style: TextStyle(color: _textColor(toot), fontSize: _initService.headingFontSize),
-              ),
+              title: AppScreenTitle(color: _textColor(toot)),
               backgroundColor: toot.color,
             ),
             body: Stack(
