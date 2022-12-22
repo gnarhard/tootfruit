@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:tootfruit/locator.dart';
@@ -17,19 +16,17 @@ class InAppPurchaseService {
   static const String productId = 'all_toot_fruits';
 
   void init() {
-    if (Platform.isIOS) {
-      final Stream purchaseUpdated = InAppPurchase.instance.purchaseStream;
+    final Stream purchaseUpdated = InAppPurchase.instance.purchaseStream;
 
-      _purchaseSubscription = purchaseUpdated.listen((purchaseDetailsList) {
-        _listenToPurchaseUpdated(purchaseDetailsList);
-      }, onDone: () {
-        _purchaseSubscription.cancel();
-        _tootService.loading$.add(false);
-      }, onError: (err) {
-        ToastService.error(message: "Failed to update purchase.", devError: err);
-        _tootService.loading$.add(false);
-      }) as StreamSubscription<List<PurchaseDetails>>;
-    }
+    _purchaseSubscription = purchaseUpdated.listen((purchaseDetailsList) {
+      _listenToPurchaseUpdated(purchaseDetailsList);
+    }, onDone: () {
+      _purchaseSubscription.cancel();
+      _tootService.loading$.add(false);
+    }, onError: (err) {
+      ToastService.error(message: "Failed to update purchase.", devError: err);
+      _tootService.loading$.add(false);
+    }) as StreamSubscription<List<PurchaseDetails>>;
   }
 
   Future<void> _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
