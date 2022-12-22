@@ -178,7 +178,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
+                    padding: const EdgeInsets.only(bottom: 16.0),
                     child: OutlinedButton(
                         onPressed: () {
                           _navService.current.pushNamed(TootFairyScreen.route);

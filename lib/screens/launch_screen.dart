@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/services/init_service.dart';
 
 import '../locator.dart';
@@ -18,8 +19,18 @@ class LaunchScreenState extends State<LaunchScreen> {
   static const _firstColor = Colors.pink;
 
   @override
+  void initState() {
+    super.initState();
+    _initService.init();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _initService.init(context);
+    TootFairyScreen.precacheImages(context);
+
+    if (MediaQuery.of(context).size.width < 400) {
+      _initService.isSmallScreen = true;
+    }
 
     return Container(
       color: _firstColor,

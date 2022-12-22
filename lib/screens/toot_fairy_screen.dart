@@ -7,10 +7,12 @@ import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/google_ad_service.dart';
+import 'package:tootfruit/services/in_app_purchase_service.dart';
 import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
 import '../services/init_service.dart';
+import '../services/toast_service.dart';
 
 class TootFairyScreen extends StatefulWidget {
   static const String route = '/toot_fairy';
@@ -34,9 +36,11 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
   late final _initService = Locator.get<InitService>();
   late final _tootService = Locator.get<TootService>();
   late final _googleAdService = Locator.get<GoogleAdService>();
+  late final _productService = Locator.get<InAppPurchaseService>();
 
   static const Color _backgroundColor = Color(0xff53BAF3);
   static const Color _backgroundColorSecondary = Color(0xff43b6f6);
+
   // static const Color _buttonColor = Color(0xffFCE832);
   static const Color _buttonColor = _backgroundColor;
 
@@ -206,9 +210,10 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                         ),
                         GestureDetector(
                           onLongPress: () async {
-                            _audioService.stop();
-                            _tootService.rewardAll();
+                            await _audioService.stop();
+                            await _tootService.rewardAll();
                             _navService.current.pushNamed(TootScreen.route);
+                            ToastService.success(message: "Whoa! You know the secret!");
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(top: 64),
@@ -270,8 +275,8 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                                   )),
                             ),
                             OutlinedButton(
-                                onPressed: () {
-                                  // todo: in app purchase
+                                onPressed: () async {
+                                  await _tootService.purchaseAll();
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
@@ -286,13 +291,26 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                                         const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                                     textStyle:
                                         const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                                child: const Text(
-                                  "\$2 ALL TOOTS",
-                                  style: TextStyle(
-                                    color: _backgroundColorSecondary,
-                                    fontSize: 18,
-                                  ),
-                                )),
+                                child: StreamBuilder<bool>(
+                                    stream: _tootService.loading$,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return Container();
+                                      }
+
+                                      return snapshot.requireData
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator())
+                                          : const Text(
+                                              "\$2 ALL TOOTS",
+                                              style: TextStyle(
+                                                color: _backgroundColorSecondary,
+                                                fontSize: 18,
+                                              ),
+                                            );
+                                    })),
                           ],
                         ),
                       ),

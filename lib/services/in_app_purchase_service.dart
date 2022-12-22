@@ -2,9 +2,16 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toast_service.dart';
+import 'package:tootfruit/services/toot_service.dart';
 
-class ProductService {
+class InAppPurchaseService {
+  late final _tootService = Locator.get<TootService>();
+  late final _navService = Locator.get<NavigationService>();
+
   late StreamSubscription<List<PurchaseDetails>> _purchaseSubscription;
 
   static const String productId = 'all_toot_fruits';
@@ -12,12 +19,15 @@ class ProductService {
   void init() {
     if (Platform.isIOS) {
       final Stream purchaseUpdated = InAppPurchase.instance.purchaseStream;
+
       _purchaseSubscription = purchaseUpdated.listen((purchaseDetailsList) {
         _listenToPurchaseUpdated(purchaseDetailsList);
       }, onDone: () {
         _purchaseSubscription.cancel();
+        _tootService.loading$.add(false);
       }, onError: (err) {
         ToastService.error(message: "Failed to update purchase.", devError: err);
+        _tootService.loading$.add(false);
       }) as StreamSubscription<List<PurchaseDetails>>;
     }
   }
@@ -25,20 +35,36 @@ class ProductService {
   Future<void> _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
     for (PurchaseDetails purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
-        // todo: _showPendingUI();
-      } else {
-        if (purchaseDetails.status == PurchaseStatus.error) {
-          ToastService.error(
-              message: "Failed to purchase product.", devError: purchaseDetails.error.toString());
-        } else if (purchaseDetails.status == PurchaseStatus.purchased) {}
+        return;
+      }
+
+      if (purchaseDetails.status == PurchaseStatus.error) {
+        await InAppPurchase.instance.completePurchase(purchaseDetails);
+        ToastService.error(
+            message: "Failed to purchase product.", devError: purchaseDetails.error.toString());
+        _tootService.loading$.add(false);
+        return;
+      }
+
+      if (purchaseDetails.pendingCompletePurchase) {
+        await InAppPurchase.instance.completePurchase(purchaseDetails);
+        _tootService.loading$.add(false);
+      }
+
+      if (purchaseDetails.status == PurchaseStatus.purchased ||
+          purchaseDetails.status == PurchaseStatus.restored) {
         if (purchaseDetails.pendingCompletePurchase) {
           await InAppPurchase.instance.completePurchase(purchaseDetails);
         }
+
+        await _tootService.rewardAll();
+        _tootService.loading$.add(false);
+        _navService.current.pushNamed(TootScreen.route);
       }
     }
   }
 
-  Future<void> purchase() async {
+  Future<void> purchase(String type) async {
     final bool available = await InAppPurchase.instance.isAvailable();
     if (!available) {
       // The store cannot be reached or accessed.
@@ -54,10 +80,12 @@ class ProductService {
     }
 
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
-    // Subscriptions are non-consumable.
-    InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
-    // From here the purchase flow will be handled by the underlying store.
-    // Updates will be delivered to the `InAppPurchase.instance.purchaseStream`.
+
+    if (type == 'consumable') {
+      InAppPurchase.instance.buyConsumable(purchaseParam: purchaseParam);
+    } else if (type == 'nonconsumable') {
+      InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+    }
   }
 
   Future<void> restore() async {
