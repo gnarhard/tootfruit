@@ -1,13 +1,13 @@
 import 'package:get_it/get_it.dart';
-import 'package:toot_fruit/services/audio_service.dart';
-import 'package:toot_fruit/services/connectivity_service.dart';
-import 'package:toot_fruit/services/init_service.dart';
-import 'package:toot_fruit/services/navigation_service.dart';
-import 'package:toot_fruit/services/storage_service.dart';
-import 'package:toot_fruit/services/theme_service.dart';
-import 'package:toot_fruit/services/toast_service.dart';
-import 'package:toot_fruit/services/toot_service.dart';
-import 'package:toot_fruit/services/user_service.dart';
+import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/connectivity_service.dart';
+import 'package:tootfruit/services/google_ad_service.dart';
+import 'package:tootfruit/services/init_service.dart';
+import 'package:tootfruit/services/navigation_service.dart';
+import 'package:tootfruit/services/storage_service.dart';
+import 'package:tootfruit/services/toast_service.dart';
+import 'package:tootfruit/services/toot_service.dart';
+import 'package:tootfruit/services/user_service.dart';
 
 typedef LocatorFactory<T> = T Function();
 
@@ -39,7 +39,7 @@ class Locator {
     Locator.registerLazy(() => NavigationService());
     Locator.registerLazy(() => ConnectivityService());
     Locator.registerLazy(() => StorageService());
-    Locator.registerLazy(() => ThemeService());
+    Locator.registerLazy(() => GoogleAdService());
     Locator.register(TootService());
     Locator.register(AudioService());
     _initialized = true;

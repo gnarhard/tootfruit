@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:toot_fruit/routes.dart';
-import 'package:toot_fruit/screens/launch_screen.dart';
-import 'package:toot_fruit/screens/toot_screen.dart';
-import 'package:toot_fruit/services/navigation_service.dart';
-import 'package:toot_fruit/services/toot_service.dart';
+import 'package:tootfruit/routes.dart';
+import 'package:tootfruit/screens/launch_screen.dart';
+import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/navigation_service.dart';
+import 'package:tootfruit/services/toot_service.dart';
 
 import 'env.dart';
 import 'locator.dart';
