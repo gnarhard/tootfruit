@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toot_fruit/services/init_service.dart';
+import 'package:tootfruit/services/init_service.dart';
 
 import '../locator.dart';
 

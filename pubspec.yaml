@@ -1,4 +1,4 @@
-name: toot_fruit
+name: tootfruit
 description: This fruity little fart app allows you to swipe between different fruit emojis and revel in a carefully curated collection of scatalogical sounds.
 
 # The following line prevents the package from being accidentally published to
@@ -43,6 +43,8 @@ dependencies:
   build_runner: ^2.3.2
   tinycolor2: ^3.0.1
   flutter_svg: ^1.1.6
+  google_mobile_ads: ^2.3.0
+  in_app_purchase: ^3.1.0
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,12 @@
 # Toot Fruit
-A fruity little toot app.
+This fruity little fart app allows you to swipe between different fruit emojis and revel in a carefully curated collection of scatalogical sounds.
 
 ### TODO
 - Figure out test ads
 - Implement Rewarded Ads
 - Figure out why toot doesn't make sound on first time
-- ipod touch compatibility
+- Update app icon
+- implement "buy all now" for $2 button on toot fairy screen
 
 ### V2
 - Build tests for the functionality

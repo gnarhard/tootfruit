@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toot_fruit/drawer.dart';
+import 'package:tootfruit/drawer.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({Key? key}) : super(key: key);

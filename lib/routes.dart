@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:toot_fruit/screens/launch_screen.dart';
-import 'package:toot_fruit/screens/toot_fairy_screen.dart';
-import 'package:toot_fruit/screens/toot_loot_screen.dart';
-import 'package:toot_fruit/screens/toot_screen.dart';
+import 'package:tootfruit/screens/launch_screen.dart';
+import 'package:tootfruit/screens/toot_fairy_screen.dart';
+import 'package:tootfruit/screens/toot_loot_screen.dart';
+import 'package:tootfruit/screens/toot_screen.dart';
 
 final routes = <String, Widget Function(BuildContext)>{
   LaunchScreen.route: (context) => const LaunchScreen(), // /launch

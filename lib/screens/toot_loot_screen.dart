@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tinycolor2/tinycolor2.dart';
-import 'package:toot_fruit/locator.dart';
-import 'package:toot_fruit/screens/toot_screen.dart';
-import 'package:toot_fruit/services/navigation_service.dart';
-import 'package:toot_fruit/services/toot_service.dart';
+import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/navigation_service.dart';
+import 'package:tootfruit/services/toot_service.dart';
 
 import '../models/toot.dart';
+import '../services/init_service.dart';
 import '../widgets/star.dart';
 
 class TootLootScreen extends StatefulWidget {
@@ -20,7 +22,9 @@ class TootLootScreen extends StatefulWidget {
 
 class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStateMixin {
   late final _tootService = Locator.get<TootService>();
+  late final _initService = Locator.get<InitService>();
   late final _navService = Locator.get<NavigationService>();
+  late final _audioService = Locator.get<AudioService>();
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
@@ -41,6 +45,7 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   static const double _baseOpacity = .4;
   static const double _opacityModifier = .05;
   static const int _starPointCount = 10;
+  late Toot toot;
 
   Color _textColor(Toot toot) => toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
   Color _contrastTextColor(Toot toot) =>
@@ -98,6 +103,8 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
       duration: const Duration(milliseconds: _baseRotationSpeed),
       vsync: this,
     )..repeat();
+    toot = _tootService.newLoot!;
+    _startAudio();
   }
 
   @override
@@ -112,7 +119,6 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     _baseSize = MediaQuery.of(context).size.width;
-    final toot = _tootService.newLoot!;
 
     return GestureDetector(
         onTap: () => _navService.current.pushNamed(TootScreen.route),
@@ -126,10 +132,7 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                 elevation: 0,
                 title: Text(
                   'TOOT LOOT',
-                  style: TextStyle(
-                    color: _textColor(toot),
-                    fontSize: 32,
-                  ),
+                  style: TextStyle(color: _textColor(toot), fontSize: _initService.headingFontSize),
                 ),
                 backgroundColor: toot.color,
               ),
@@ -253,5 +256,10 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
         ),
       ),
     ];
+  }
+
+  Future<void> _startAudio() async {
+    await _tootService.set(toot);
+    await _audioService.play();
   }
 }

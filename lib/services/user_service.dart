@@ -1,4 +1,4 @@
-import 'package:toot_fruit/services/storage_service.dart';
+import 'package:tootfruit/services/storage_service.dart';
 
 import '../locator.dart';
 import '../models/settings.dart';
@@ -17,7 +17,11 @@ class UserService {
     if (userJson == null) {
       current = User(settings: Settings());
     } else {
-      current = User.fromJson(userJson);
+      if (userJson is User) {
+        current = userJson;
+      } else {
+        current = User.fromJson(userJson);
+      }
     }
 
     await _storageService.set('user', current!);
