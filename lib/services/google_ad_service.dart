@@ -58,18 +58,18 @@ class GoogleAdService {
 
   void showRewardedAd() {
     if (_rewardedAd == null) {
-      ToastService.error(message: "Attempted to show ad before loading completed.");
+      ToastService.error(message: "No ad available.");
       return;
     }
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) {
         if (kDebugMode) {
-          print('ad onAdShowedFullScreenContent.');
+          print('onAdShowedFullScreenContent.');
         }
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
         if (kDebugMode) {
-          print('$ad onAdDismissedFullScreenContent.');
+          print('onAdDismissedFullScreenContent.');
         }
         ad.dispose();
         createRewardedAd();
@@ -81,7 +81,7 @@ class GoogleAdService {
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
         if (kDebugMode) {
-          print('$ad onAdFailedToShowFullScreenContent: $error');
+          print('onAdFailedToShowFullScreenContent: $error');
         }
         ad.dispose();
         createRewardedAd();
@@ -91,7 +91,7 @@ class GoogleAdService {
     _rewardedAd!.setImmersiveMode(true);
     _rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) async {
       if (kDebugMode) {
-        print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
+        print('Rewarded $RewardItem(${reward.amount}, ${reward.type})');
       }
       await _tootService.reward();
     });
