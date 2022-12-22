@@ -3,7 +3,6 @@ This fruity little fart app allows you to swipe between different fruit images a
 
 ### TODO
 - Figure out why toot doesn't make sound on first time on android
-- Update app icon
 - implement "buy all now" for $2 button for android devices
 
 ### V2
