@@ -9,6 +9,9 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Locator.registerAll();
   MobileAds.instance.initialize();
+  final RequestConfiguration requestConfiguration =
+      RequestConfiguration(tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes);
+  MobileAds.instance.updateRequestConfiguration(requestConfiguration);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) {
     runApp(const App());
   });
