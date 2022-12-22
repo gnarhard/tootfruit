@@ -1,17 +1,21 @@
 import 'dart:math';
 
+import 'package:rxdart/rxdart.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/models/user.dart';
 import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/in_app_purchase_service.dart';
 import 'package:tootfruit/services/storage_service.dart';
-import 'package:tootfruit/services/toast_service.dart';
 import 'package:tootfruit/services/user_service.dart';
 
 class TootService {
   late final _audioService = Locator.get<AudioService>();
   late final _userService = Locator.get<UserService>();
   late final _storageService = Locator.get<StorageService>();
+  late final _inAppPurchaseService = Locator.get<InAppPurchaseService>();
+
+  final loading$ = BehaviorSubject<bool>.seeded(false);
 
   final _random = Random();
   Toot current = toots.first;
@@ -94,6 +98,14 @@ class TootService {
 
     await set(newToot);
     await _storageService.set('user', _userService.current!);
-    ToastService.success(message: "Whoa! You found the secret way to unlock all toots!");
+  }
+
+  Future<void> purchaseAll() async {
+    if (loading$.value) {
+      return;
+    }
+    await _audioService.stop();
+    loading$.add(true);
+    await _inAppPurchaseService.purchase('consumable');
   }
 }

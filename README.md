@@ -1,12 +1,10 @@
 # Toot Fruit
-This fruity little fart app allows you to swipe between different fruit emojis and revel in a carefully curated collection of scatalogical sounds.
+This fruity little fart app allows you to swipe between different fruit images and revel in a carefully curated collection of scatalogical delights.
 
 ### TODO
-- Figure out test ads
-- Implement Rewarded Ads
-- Figure out why toot doesn't make sound on first time
+- Figure out why toot doesn't make sound on first time on android
 - Update app icon
-- implement "buy all now" for $2 button on toot fairy screen
+- implement "buy all now" for $2 button for android devices
 
 ### V2
 - Build tests for the functionality

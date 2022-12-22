@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/connectivity_service.dart';
 import 'package:tootfruit/services/google_ad_service.dart';
+import 'package:tootfruit/services/in_app_purchase_service.dart';
 import 'package:tootfruit/services/init_service.dart';
 import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/storage_service.dart';
@@ -40,6 +41,7 @@ class Locator {
     Locator.registerLazy(() => ConnectivityService());
     Locator.registerLazy(() => StorageService());
     Locator.registerLazy(() => GoogleAdService());
+    Locator.registerLazy(() => InAppPurchaseService());
     Locator.register(TootService());
     Locator.register(AudioService());
     _initialized = true;

@@ -70,6 +70,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    namespace 'com.gnarhard.tootfruit'
 }
 
 flutter {
