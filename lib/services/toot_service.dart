@@ -18,8 +18,9 @@ class TootService {
   Toot? newLoot;
   List<Toot> all = toots;
   List<Toot> owned = [];
+  bool isRewarded = false;
 
-  bool get ownsEveryToot => all == owned;
+  bool get ownsEveryToot => all.length == owned.length;
 
   Future<void> init() async {
     User user = _userService.current!;
@@ -77,6 +78,7 @@ class TootService {
 
     await set(newLoot!);
     await _storageService.set('user', _userService.current!);
+    isRewarded = true;
   }
 
   Future<void> rewardAll() async {

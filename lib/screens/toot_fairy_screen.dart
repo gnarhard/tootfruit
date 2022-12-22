@@ -57,6 +57,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
   @override
   void initState() {
     super.initState();
+    _tootService.isRewarded = false;
     _fairyAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
@@ -239,7 +240,6 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     await _audioService.stop();
-                                    await _tootService.reward();
                                     _googleAdService.showRewardedAd();
                                   },
                                   style: ElevatedButton.styleFrom(

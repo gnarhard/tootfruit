@@ -6,11 +6,13 @@ import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_loot_screen.dart';
 import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toast_service.dart';
+import 'package:tootfruit/services/toot_service.dart';
 
 import '../env.dart';
 
 class GoogleAdService {
   late final _navService = Locator.get<NavigationService>();
+  late final _tootService = Locator.get<TootService>();
 
   String get iosRewardedTest => Env.isProduction
       ? 'ca-app-pub-8425430181155588/2476319674'
@@ -71,6 +73,11 @@ class GoogleAdService {
         }
         ad.dispose();
         createRewardedAd();
+        if (_tootService.isRewarded) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            _navService.current.pushNamed(TootLootScreen.route);
+          });
+        }
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
         if (kDebugMode) {
@@ -82,14 +89,11 @@ class GoogleAdService {
     );
 
     _rewardedAd!.setImmersiveMode(true);
-    _rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+    _rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) async {
       if (kDebugMode) {
         print('$ad with reward $RewardItem(${reward.amount}, ${reward.type})');
       }
-
-      _navService.current.pushNamed(TootLootScreen.route);
-
-      ad.dispose();
+      await _tootService.reward();
     });
     _rewardedAd = null;
   }

@@ -194,6 +194,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                         ),
                         child: SizedBox(
                           width: 160,
+                          height: 24,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
