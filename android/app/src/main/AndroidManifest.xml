@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.gnarhard.tootfruit">
     <uses-permission android:name="com.android.vending.BILLING"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
     <application
             android:label="Toot Fruit"
             android:name="${applicationName}"

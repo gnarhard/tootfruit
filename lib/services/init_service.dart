@@ -23,7 +23,7 @@ class InitService {
   double get headingFontSize => isSmallScreen ? 16 : 26;
 
   Future<void> init() async {
-    // await _storageService.deleteStorageFile();
+    await _storageService.deleteStorageFile();
     await _connectivityService.init();
     await _userService.init();
     await _tootService.init();
