@@ -155,9 +155,12 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                           child: Transform.scale(
                             scale: _scale,
                             child: GestureDetector(
-                              onTap: () async {
+                              onTap: () {
+                                // NOTE: I encountered an issue where the toot wouldn't play
+                                // if the user tapped the screen right after the app was loaded.
+                                // Keeping all of this synchronous is crucial for responsiveness.
+                                _audioService.play();
                                 _animate(toot);
-                                await _audioService.play();
                               },
                               child: SvgPicture.asset(
                                 'assets/images/fruit/${toot.fruit}.svg',
