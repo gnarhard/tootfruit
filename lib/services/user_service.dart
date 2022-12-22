@@ -1,4 +1,4 @@
-import 'package:toot_fruit/services/storage_service.dart';
+import 'package:tootfruit/services/storage_service.dart';
 
 import '../locator.dart';
 import '../models/settings.dart';

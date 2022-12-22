@@ -3,12 +3,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:toot_fruit/locator.dart';
-import 'package:toot_fruit/screens/toot_loot_screen.dart';
-import 'package:toot_fruit/screens/toot_screen.dart';
-import 'package:toot_fruit/services/audio_service.dart';
-import 'package:toot_fruit/services/navigation_service.dart';
-import 'package:toot_fruit/services/toot_service.dart';
+import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/google_ad_service.dart';
+import 'package:tootfruit/services/navigation_service.dart';
+import 'package:tootfruit/services/toot_service.dart';
 
 import '../services/init_service.dart';
 
@@ -33,6 +33,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
   late final _navService = Locator.get<NavigationService>();
   late final _initService = Locator.get<InitService>();
   late final _tootService = Locator.get<TootService>();
+  late final _googleAdService = Locator.get<GoogleAdService>();
 
   static const Color _backgroundColor = Color(0xff53BAF3);
   static const Color _backgroundColorSecondary = Color(0xff43b6f6);
@@ -237,9 +238,9 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                                 padding: const EdgeInsets.all(8.0),
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    await _tootService.reward();
                                     await _audioService.stop();
-                                    _navService.current.pushNamed(TootLootScreen.route);
+                                    await _tootService.reward();
+                                    _googleAdService.showRewardedAd();
                                   },
                                   style: ElevatedButton.styleFrom(
                                       shape: BeveledRectangleBorder(

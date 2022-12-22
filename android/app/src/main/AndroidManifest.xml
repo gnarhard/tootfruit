@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gnarhard.toot_fruit">
+    package="com.gnarhard.tootfruit">
    <application
         android:label="Toot Fruit"
         android:name="${applicationName}"
@@ -30,5 +30,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+       <meta-data
+               android:name="com.google.android.gms.ads.APPLICATION_ID"
+               android:value="ca-app-pub-8425430181155588~3915440142"/>
     </application>
 </manifest>

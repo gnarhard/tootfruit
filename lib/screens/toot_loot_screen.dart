@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tinycolor2/tinycolor2.dart';
-import 'package:toot_fruit/locator.dart';
-import 'package:toot_fruit/screens/toot_screen.dart';
-import 'package:toot_fruit/services/audio_service.dart';
-import 'package:toot_fruit/services/navigation_service.dart';
-import 'package:toot_fruit/services/toot_service.dart';
+import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/navigation_service.dart';
+import 'package:tootfruit/services/toot_service.dart';
 
 import '../models/toot.dart';
 import '../services/init_service.dart';

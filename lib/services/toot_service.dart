@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:toot_fruit/locator.dart';
-import 'package:toot_fruit/models/toot.dart';
-import 'package:toot_fruit/models/user.dart';
-import 'package:toot_fruit/services/audio_service.dart';
-import 'package:toot_fruit/services/storage_service.dart';
-import 'package:toot_fruit/services/toast_service.dart';
-import 'package:toot_fruit/services/user_service.dart';
+import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/models/toot.dart';
+import 'package:tootfruit/models/user.dart';
+import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/storage_service.dart';
+import 'package:tootfruit/services/toast_service.dart';
+import 'package:tootfruit/services/user_service.dart';
 
 class TootService {
   late final _audioService = Locator.get<AudioService>();
