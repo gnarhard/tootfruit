@@ -7,6 +7,6 @@ import 'package:tootfruit/screens/toot_screen.dart';
 final routes = <String, Widget Function(BuildContext)>{
   LaunchScreen.route: (context) => const LaunchScreen(), // /launch
   TootScreen.route: (context) => const TootScreen(), // /toot
-  TootFairyScreen.route: (context) => const TootFairyScreen(), // /toot_fairy
+  TootFairyScreen.route: (context) => TootFairyScreen(), // /toot_fairy
   TootLootScreen.route: (context) => const TootLootScreen(), // /toot_loot
 };

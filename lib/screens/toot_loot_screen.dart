@@ -6,6 +6,7 @@ import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
+import 'package:tootfruit/widgets/screen_title.dart';
 
 import '../models/toot.dart';
 import '../services/init_service.dart';
@@ -130,10 +131,7 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                 leading: Container(),
                 centerTitle: true,
                 elevation: 0,
-                title: Text(
-                  'TOOT LOOT',
-                  style: TextStyle(color: _textColor(toot), fontSize: _initService.headingFontSize),
-                ),
+                title: AppScreenTitle(color: _textColor(toot)),
                 backgroundColor: toot.color,
               ),
               body: Column(

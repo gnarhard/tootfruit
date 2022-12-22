@@ -1,97 +1,42 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tootfruit/locator.dart';
-import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/google_ad_service.dart';
-import 'package:tootfruit/services/in_app_purchase_service.dart';
-import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
+import 'package:tootfruit/widgets/cloud.dart';
+import 'package:tootfruit/widgets/rotating_fruit.dart';
+import 'package:tootfruit/widgets/toot_fairy.dart';
 
 import '../services/init_service.dart';
-import '../services/toast_service.dart';
+import '../widgets/screen_title.dart';
 
-class TootFairyScreen extends StatefulWidget {
+class TootFairyScreen extends StatelessWidget {
   static const String route = '/toot_fairy';
 
-  const TootFairyScreen({Key? key}) : super(key: key);
+  final _audioService = Locator.get<AudioService>();
+  late final _initService = Locator.get<InitService>();
+  late final _tootService = Locator.get<TootService>();
+  late final _googleAdService = Locator.get<GoogleAdService>();
+
+  static const Color _backgroundColor = Color(0xff53BAF3);
+  static const Color _backgroundColorSecondary = Color(0xff43b6f6);
+  static const Color _buttonColor = _backgroundColor;
+
+  TootFairyScreen({Key? key}) : super(key: key);
 
   static Future<void> precacheImages(context) async {
     await precacheImage(const AssetImage('assets/images/all_fruits.png'), context);
-    await precacheImage(const AssetImage('assets/images/clouds_bottom.png'), context);
-    await precacheImage(const AssetImage('assets/images/clouds_top.png'), context);
+    await precacheImage(const AssetImage('assets/images/clouds_bottom_smaller.png'), context);
+    await precacheImage(const AssetImage('assets/images/clouds_top_smaller.png'), context);
     await precacheImage(const AssetImage('assets/images/cloud_simple.png'), context);
   }
 
   @override
-  State<TootFairyScreen> createState() => _TootFairyScreenState();
-}
-
-class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderStateMixin {
-  final _audioService = Locator.get<AudioService>();
-  late final _navService = Locator.get<NavigationService>();
-  late final _initService = Locator.get<InitService>();
-  late final _tootService = Locator.get<TootService>();
-  late final _googleAdService = Locator.get<GoogleAdService>();
-  late final _productService = Locator.get<InAppPurchaseService>();
-
-  static const Color _backgroundColor = Color(0xff53BAF3);
-  static const Color _backgroundColorSecondary = Color(0xff43b6f6);
-
-  // static const Color _buttonColor = Color(0xffFCE832);
-  static const Color _buttonColor = _backgroundColor;
-
-  static const _fruitRotationSpeed = Duration(seconds: 10);
-  static const _fairyRotationDuration = Duration(seconds: 10);
-  static const double _fairyRotationSpeed = 2;
-
-  late final AnimationController _fruitRotationController =
-      AnimationController(duration: _fruitRotationSpeed, vsync: this)..repeat();
-
-  late AnimationController _fairyAnimationController;
-
-  late final AnimationController _rotationController =
-      AnimationController(duration: _fairyRotationDuration, vsync: this)..repeat(reverse: true);
-
-  double _verticalOffset = -20;
-
-  @override
-  void initState() {
-    super.initState();
-    _tootService.isRewarded = false;
-    _fairyAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-      lowerBound: 0,
-      upperBound: 24,
-    );
-    _fairyAnimationController.addListener(() {
-      setState(() {});
-    });
-
-    _fairyAnimationController.repeat(reverse: true);
-    _startAudio();
-  }
-
-  @override
-  void dispose() {
-    _rotationController.dispose();
-    _fairyAnimationController.dispose();
-    _fruitRotationController.dispose();
-    super.dispose();
-  }
-
-  void changePosition(Timer t) async {
-    setState(() {
-      _verticalOffset = _verticalOffset == 0 ? 20 : 0;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    _tootService.isRewarded = false;
+    _startAudio();
     return Container(
         constraints: const BoxConstraints.expand(),
         decoration: const BoxDecoration(
@@ -111,7 +56,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
           constraints: const BoxConstraints.expand(),
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/clouds_top.png'),
+              image: AssetImage('assets/images/clouds_top_smaller.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -119,7 +64,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
             constraints: const BoxConstraints.expand(),
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/clouds_bottom.png'),
+                image: AssetImage('assets/images/clouds_bottom_smaller.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -160,77 +105,34 @@ class _TootFairyScreenState extends State<TootFairyScreen> with TickerProviderSt
                 backgroundColor: Colors.transparent,
                 centerTitle: true,
                 elevation: 0,
-                title: Text(
-                  'TOOT FAIRY'.toUpperCase(),
-                  style: TextStyle(
-                    color: _backgroundColorSecondary.withOpacity(.6),
-                    fontSize: _initService.headingFontSize,
-                    shadows: const <Shadow>[
-                      Shadow(
-                        offset: Offset(1, 1),
-                        blurRadius: 2.0,
-                        color: Color.fromARGB(50, 0, 0, 255),
-                      ),
-                    ],
-                  ),
+                title: AppScreenTitle(
+                  color: _backgroundColorSecondary.withOpacity(.6),
+                  shadows: const <Shadow>[
+                    Shadow(
+                      offset: Offset(1, 1),
+                      blurRadius: 2.0,
+                      color: Color.fromARGB(50, 0, 0, 255),
+                    ),
+                  ],
                 ),
               ),
               body: Stack(children: [
-                Container(
-                  margin: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).padding.top +
-                          MediaQuery.of(context).padding.bottom),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Stack(children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 80.0),
-                          child: AnimatedBuilder(
-                            animation: _fruitRotationController,
-                            child: Image.asset(
-                              'assets/images/all_fruits.png',
-                              width: MediaQuery.of(context).size.width,
-                            ),
-                            builder: (BuildContext context, Widget? child) {
-                              return Transform.rotate(
-                                angle:
-                                    _fruitRotationController.value * _fairyRotationSpeed * math.pi,
-                                child: child,
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 64.0),
-                          child: Image.asset(
-                            'assets/images/cloud_simple.png',
-                          ),
-                        ),
-                        GestureDetector(
-                          onLongPress: () async {
-                            await _audioService.stop();
-                            await _tootService.rewardAll();
-                            _navService.current.pushNamed(TootScreen.route);
-                            ToastService.success(message: "Whoa! You know the secret!");
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 64),
-                            child: Center(
-                              child: Container(
-                                margin: EdgeInsets.only(top: _fairyAnimationController.value),
-                                child: SvgPicture.asset(
-                                  'assets/images/toot_fairy.svg',
-                                  width: MediaQuery.of(context).size.width / 3,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).padding.top +
+                              MediaQuery.of(context).padding.bottom +
+                              AppBar().preferredSize.height),
+                      child: Stack(alignment: Alignment.center, children: const [
+                        RotatingFruits(),
+                        Cloud(),
+                        TootFairy(),
                       ]),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 _tootService.ownsEveryToot
                     ? Container()
