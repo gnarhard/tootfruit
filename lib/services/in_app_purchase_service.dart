@@ -66,13 +66,14 @@ class InAppPurchaseService {
     if (!available) {
       // The store cannot be reached or accessed.
       ToastService.error(message: "The App Store cannot be reached.");
+      _tootService.loading$.add(false);
     }
 
     final ProductDetails? productDetails = await getProduct();
 
     if (productDetails == null) {
       ToastService.error(message: "The App Store couldn't find this product.");
-
+      _tootService.loading$.add(false);
       return;
     }
 
