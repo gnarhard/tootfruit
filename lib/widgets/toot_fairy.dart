@@ -53,7 +53,6 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onPanCancel: () => _timer?.cancel(),
       onPanDown: (_) => {
         _timer = Timer(const Duration(seconds: 3), () async {
           await _audioService.stop();
@@ -62,6 +61,7 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
           ToastService.success(message: "Whoa! You know the secret!");
         })
       },
+      onPanEnd: (details) => _timer!.cancel(),
       child: LayoutBuilder(builder: (context, constraints) {
         return Container(
           margin: EdgeInsets.only(top: _fairyAnimationController.value),

@@ -8,7 +8,6 @@ This fruity little fart app allows you to swipe between different fruit images a
   - More obvious that you need to watch an ad or buy
 - improved design for toot loot screen
   - more stars?
-  -  
 
 ### V2
 - Build tests for the functionality
