@@ -2,7 +2,20 @@
 This fruity little fart app allows you to swipe between different fruit images and revel in a carefully curated collection of scatalogical delights.
 
 ### TODO
-- implement "buy all now" for $2 button for android devices
+- improved usability for toot fairy screen
+  - toot fairy has a toot
+  - toot fairy buy all button needs to have state reset after cancelling purchase 
+  - collected number of toots shows "collected" or "owned"
+  - More obvious that you need to watch an ad or buy
+    - "Collect more"
+    - "Buy all"
+  - Less chance to accidentally unlock all toots
+- improved usability for toot screen
+  - allow longpress
+  - tap that with up arrow?
+- improved design for toot loot screen
+  - more stars?
+  -  
 
 ### V2
 - Build tests for the functionality

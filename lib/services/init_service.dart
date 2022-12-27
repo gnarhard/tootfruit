@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:tootfruit/services/connectivity_service.dart';
 import 'package:tootfruit/services/google_ad_service.dart';
 import 'package:tootfruit/services/in_app_purchase_service.dart';
@@ -21,7 +22,9 @@ class InitService {
   bool isSmallScreen = false;
 
   Future<void> init() async {
-    await _storageService.deleteStorageFile();
+    if (kDebugMode) {
+      // await _storageService.deleteStorageFile();
+    }
     await _connectivityService.init();
     await _userService.init();
     await _tootService.init();
