@@ -10,7 +10,7 @@ import 'package:tootfruit/services/toot_service.dart';
 
 import '../env.dart';
 
-class GoogleAdService {
+class AdService {
   late final _navService = Locator.get<NavigationService>();
   late final _tootService = Locator.get<TootService>();
 

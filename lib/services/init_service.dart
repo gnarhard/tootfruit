@@ -15,7 +15,7 @@ class InitService {
   late final _tootService = Locator.get<TootService>();
   late final _userService = Locator.get<UserService>();
   late final _storageService = Locator.get<StorageService>();
-  late final _googleAdService = Locator.get<GoogleAdService>();
+  late final _adService = Locator.get<AdService>();
   late final _connectivityService = Locator.get<ConnectivityService>();
   late final _inAppPurchaseService = Locator.get<InAppPurchaseService>();
 
@@ -28,10 +28,12 @@ class InitService {
     await _connectivityService.init();
     await _userService.init();
     await _tootService.init();
-    await _googleAdService.createRewardedAd();
+    await _adService.createRewardedAd();
     _inAppPurchaseService.init();
 
     _navService.current.pushNamed(TootScreen.route);
-    // _navService.current.pushNamed(TootFairyScreen.route);
+    // if (kDebugMode) {
+    //   _navService.current.pushNamed(TootFairyScreen.route);
+    // }
   }
 }

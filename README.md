@@ -4,10 +4,6 @@ This fruity little fart app allows you to swipe between different fruit images a
 ### TODO
 - improved usability for toot fairy screen
   - toot fairy has a toot
-  - collected number of toots shows "collected" or "owned"
-  - More obvious that you need to watch an ad or buy
-- improved design for toot loot screen
-  - more stars?
 
 ### V2
 - Build tests for the functionality

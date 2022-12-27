@@ -221,7 +221,10 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                       ),
                                     ),
                               _tootService.ownsEveryToot ? Container() : const SizedBox(width: 4),
-                              Text('VISIT THE TOOT FAIRY',
+                              Text(
+                                  _tootService.ownsEveryToot
+                                      ? 'VISIT THE TOOT FAIRY'
+                                      : 'GET MORE TOOT FRUIT',
                                   style: TextStyle(color: _textColor(toot), fontSize: 12)),
                             ],
                           ),

@@ -16,7 +16,7 @@ class TootFairyScreen extends StatelessWidget {
 
   final _audioService = Locator.get<AudioService>();
   late final _tootService = Locator.get<TootService>();
-  late final _googleAdService = Locator.get<GoogleAdService>();
+  late final _adService = Locator.get<AdService>();
 
   static const Color _backgroundColor = Color(0xff53BAF3);
   static const Color _backgroundColorSecondary = Color(0xff43b6f6);
@@ -155,7 +155,7 @@ class TootFairyScreen extends StatelessWidget {
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     await _audioService.stop();
-                                    _googleAdService.showRewardedAd();
+                                    _adService.showRewardedAd();
                                   },
                                   style: ElevatedButton.styleFrom(
                                       shape: BeveledRectangleBorder(

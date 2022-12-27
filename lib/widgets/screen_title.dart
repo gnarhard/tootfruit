@@ -25,7 +25,7 @@ class AppScreenTitle extends StatelessWidget {
 
       return Text(
         title.toUpperCase(),
-        style: TextStyle(color: color, fontSize: 16, shadows: shadows ?? []),
+        style: TextStyle(color: color, fontSize: 18, shadows: shadows ?? []),
       );
     });
   }

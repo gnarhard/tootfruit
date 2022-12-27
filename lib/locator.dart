@@ -40,7 +40,7 @@ class Locator {
     Locator.registerLazy(() => NavigationService());
     Locator.registerLazy(() => ConnectivityService());
     Locator.registerLazy(() => StorageService());
-    Locator.registerLazy(() => GoogleAdService());
+    Locator.registerLazy(() => AdService());
     Locator.registerLazy(() => InAppPurchaseService());
     Locator.register(TootService());
     Locator.register(AudioService());
