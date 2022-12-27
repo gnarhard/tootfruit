@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/services/audio_service.dart';
@@ -22,6 +24,7 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
   late final _navService = Locator.get<NavigationService>();
 
   late AnimationController _fairyAnimationController;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -50,11 +53,14 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () async {
-        await _audioService.stop();
-        await _tootService.rewardAll();
-        _navService.current.pushNamed(TootScreen.route);
-        ToastService.success(message: "Whoa! You know the secret!");
+      onPanCancel: () => _timer?.cancel(),
+      onPanDown: (_) => {
+        _timer = Timer(const Duration(seconds: 3), () async {
+          await _audioService.stop();
+          await _tootService.rewardAll();
+          _navService.current.pushNamed(TootScreen.route);
+          ToastService.success(message: "Whoa! You know the secret!");
+        })
       },
       child: LayoutBuilder(builder: (context, constraints) {
         return Container(

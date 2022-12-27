@@ -4,10 +4,8 @@ This fruity little fart app allows you to swipe between different fruit images a
 ### TODO
 - improved usability for toot fairy screen
   - toot fairy has a toot
-  - toot fairy buy all button needs to have state reset after cancelling purchase 
   - collected number of toots shows "collected" or "owned"
   - More obvious that you need to watch an ad or buy
-  - Less chance to accidentally unlock all toots
 - improved design for toot loot screen
   - more stars?
   -  

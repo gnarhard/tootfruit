@@ -23,7 +23,7 @@ class InitService {
 
   Future<void> init() async {
     if (kDebugMode) {
-      // await _storageService.deleteStorageFile();
+      await _storageService.deleteStorageFile();
     }
     await _connectivityService.init();
     await _userService.init();
