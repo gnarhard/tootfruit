@@ -2,8 +2,6 @@
 This fruity little fart app allows you to swipe between different fruit images and revel in a carefully curated collection of scatalogical delights.
 
 ### TODO
-- improved usability for toot fairy screen
-  - toot fairy has a toot
 
 ### V2
 - Build tests for the functionality

@@ -238,7 +238,7 @@ class TootFairyScreen extends StatelessWidget {
   }
 
   Future<void> _startAudio() async {
-    await _audioService.setAudio('asset:///assets/audio/toot_fairy.m4a');
+    await _audioService.setAudio('asset:///assets/audio/toot_fairy_intro.m4a');
     await _audioService.play();
   }
 }
