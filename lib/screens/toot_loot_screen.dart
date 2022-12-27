@@ -9,7 +9,6 @@ import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/widgets/screen_title.dart';
 
 import '../models/toot.dart';
-import '../services/init_service.dart';
 import '../widgets/star.dart';
 
 class TootLootScreen extends StatefulWidget {
@@ -23,7 +22,6 @@ class TootLootScreen extends StatefulWidget {
 
 class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStateMixin {
   late final _tootService = Locator.get<TootService>();
-  late final _initService = Locator.get<InitService>();
   late final _navService = Locator.get<NavigationService>();
   late final _audioService = Locator.get<AudioService>();
 
