@@ -35,6 +35,11 @@ class InAppPurchaseService {
         return;
       }
 
+      if (purchaseDetails.status == PurchaseStatus.canceled) {
+        _tootService.loading$.add(false);
+        return;
+      }
+
       if (purchaseDetails.status == PurchaseStatus.error) {
         await InAppPurchase.instance.completePurchase(purchaseDetails);
         ToastService.error(
