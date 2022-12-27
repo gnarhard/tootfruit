@@ -131,7 +131,10 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                 leading: Container(),
                 centerTitle: true,
                 elevation: 0,
-                title: AppScreenTitle(color: _textColor(toot)),
+                title: AppScreenTitle(
+                  color: _textColor(toot),
+                  title: 'TOOT LOOT',
+                ),
                 backgroundColor: toot.color,
               ),
               body: Column(

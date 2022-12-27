@@ -9,14 +9,12 @@ import 'package:tootfruit/widgets/cloud.dart';
 import 'package:tootfruit/widgets/rotating_fruit.dart';
 import 'package:tootfruit/widgets/toot_fairy.dart';
 
-import '../services/init_service.dart';
 import '../widgets/screen_title.dart';
 
 class TootFairyScreen extends StatelessWidget {
   static const String route = '/toot_fairy';
 
   final _audioService = Locator.get<AudioService>();
-  late final _initService = Locator.get<InitService>();
   late final _tootService = Locator.get<TootService>();
   late final _googleAdService = Locator.get<GoogleAdService>();
 
@@ -92,12 +90,21 @@ class TootFairyScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: Text('${_tootService.owned.length} / ${_tootService.all.length}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                            )),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('${_tootService.owned.length} / ${_tootService.all.length}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                              )),
+                          const Text('FRUITS',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.white,
+                              )),
+                        ],
                       ),
                     ),
                   ),
@@ -106,6 +113,7 @@ class TootFairyScreen extends StatelessWidget {
                 centerTitle: true,
                 elevation: 0,
                 title: AppScreenTitle(
+                  title: 'TOOT FAIRY',
                   color: _backgroundColorSecondary.withOpacity(.6),
                   shadows: const <Shadow>[
                     Shadow(
@@ -163,7 +171,7 @@ class TootFairyScreen extends StatelessWidget {
                                           const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                                       textStyle: const TextStyle(
                                           fontSize: 24, fontWeight: FontWeight.bold)),
-                                  child: const Text("GIMME LOOT",
+                                  child: const Text("COLLECT MORE",
                                       style: TextStyle(color: Colors.white)),
                                 ),
                               ),
@@ -173,6 +181,13 @@ class TootFairyScreen extends StatelessWidget {
                               child: Text('watch ad for new fruit or',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
+                                    shadows: const <Shadow>[
+                                      Shadow(
+                                        offset: Offset(1, 1),
+                                        blurRadius: 2.0,
+                                        color: Color.fromARGB(50, 0, 0, 255),
+                                      ),
+                                    ],
                                     color: _backgroundColorSecondary.withOpacity(.7),
                                   )),
                             ),
@@ -206,7 +221,7 @@ class TootFairyScreen extends StatelessWidget {
                                               height: 20,
                                               child: CircularProgressIndicator())
                                           : const Text(
-                                              "\$2 ALL TOOTS",
+                                              "BUY ALL",
                                               style: TextStyle(
                                                 color: _backgroundColorSecondary,
                                                 fontSize: 18,

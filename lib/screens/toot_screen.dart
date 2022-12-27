@@ -4,7 +4,6 @@ import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/init_service.dart';
 import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
@@ -26,7 +25,6 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   final _audioService = Locator.get<AudioService>();
   final _tootService = Locator.get<TootService>();
   late final _navService = Locator.get<NavigationService>();
-  late final _initService = Locator.get<InitService>();
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
@@ -40,6 +38,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   double _scale = 0.7;
   double _angle = 0.0;
   static const double swipeSensitivity = 800;
+  late Toot toot;
 
   Color _textColor(Toot toot) => toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
   Color _contrastTextColor(Toot toot) =>
@@ -92,7 +91,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final toot = _tootService.current;
+    toot = _tootService.current;
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -117,7 +116,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
               leading: Container(),
               centerTitle: true,
               elevation: 0,
-              title: AppScreenTitle(color: _textColor(toot)),
+              title: AppScreenTitle(title: toot.title, color: _textColor(toot)),
               backgroundColor: toot.color,
             ),
             body: Stack(
@@ -153,13 +152,8 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                           child: Transform.scale(
                             scale: _scale,
                             child: GestureDetector(
-                              onTap: () {
-                                // NOTE: I encountered an issue where the toot wouldn't play
-                                // if the user tapped the screen right after the app was loaded.
-                                // Keeping all of this synchronous is crucial for responsiveness.
-                                _audioService.play();
-                                _animate(toot);
-                              },
+                              onTap: () => _tootAndAnimate(),
+                              onLongPress: () => _tootAndAnimate(),
                               child: SvgPicture.asset(
                                 'assets/images/fruit/${toot.fruit}.svg',
                                 width: MediaQuery.of(context).size.width * 0.6,
@@ -169,8 +163,18 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                         ),
                         FittedBox(
                           fit: BoxFit.cover,
-                          child: Text('tap that',
-                              style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.arrow_upward,
+                                semanticLabel: 'Up arrow',
+                                color: _contrastTextColor(toot),
+                                size: 14,
+                              ),
+                              Text('tap that',
+                                  style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -239,11 +243,19 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _animate(Toot toot) {
+  void _animate() {
     _rotationController.repeat(reverse: true).timeout(toot.duration!, onTimeout: () {
       _rotationController.reverse(from: .5).whenComplete(() => _rotationController.stop());
     });
 
     _scaleController.forward().whenComplete(() => _scaleController.reverse());
+  }
+
+  void _tootAndAnimate() {
+    // NOTE: I encountered an issue where the toot wouldn't play
+    // if the user tapped the screen right after the app was loaded.
+    // Keeping all of this synchronous is crucial for responsiveness.
+    _audioService.play();
+    _animate();
   }
 }
