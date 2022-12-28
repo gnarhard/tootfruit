@@ -22,10 +22,10 @@ class InAppPurchaseService {
       _listenToPurchaseUpdated(purchaseDetailsList);
     }, onDone: () {
       _purchaseSubscription.cancel();
-      _tootService.loading$.add(false);
+      _cancel();
     }, onError: (err) {
       ToastService.error(message: "Failed to update purchase.", devError: err);
-      _tootService.loading$.add(false);
+      _cancel();
     }) as StreamSubscription<List<PurchaseDetails>>;
   }
 
@@ -36,7 +36,7 @@ class InAppPurchaseService {
       }
 
       if (purchaseDetails.status == PurchaseStatus.canceled) {
-        _tootService.loading$.add(false);
+        _cancel();
         return;
       }
 
@@ -44,13 +44,13 @@ class InAppPurchaseService {
         await InAppPurchase.instance.completePurchase(purchaseDetails);
         ToastService.error(
             message: "Failed to purchase product.", devError: purchaseDetails.error.toString());
-        _tootService.loading$.add(false);
+        _cancel();
         return;
       }
 
       if (purchaseDetails.pendingCompletePurchase) {
         await InAppPurchase.instance.completePurchase(purchaseDetails);
-        _tootService.loading$.add(false);
+        _cancel();
       }
 
       if (purchaseDetails.status == PurchaseStatus.purchased ||
@@ -59,9 +59,7 @@ class InAppPurchaseService {
           await InAppPurchase.instance.completePurchase(purchaseDetails);
         }
 
-        await _tootService.rewardAll();
-        _tootService.loading$.add(false);
-        _navService.current.pushNamed(TootScreen.route);
+        await _reward();
       }
     }
   }
@@ -71,14 +69,14 @@ class InAppPurchaseService {
     if (!available) {
       // The store cannot be reached or accessed.
       ToastService.error(message: "The App Store cannot be reached.");
-      _tootService.loading$.add(false);
+      _cancel();
     }
 
     final ProductDetails? productDetails = await getProduct();
 
     if (productDetails == null) {
       ToastService.error(message: "The App Store couldn't find this product.");
-      _tootService.loading$.add(false);
+      _cancel();
       return;
     }
 
@@ -111,5 +109,15 @@ class InAppPurchaseService {
     }
 
     return null;
+  }
+
+  void _cancel() {
+    _tootService.loading$.add(false);
+  }
+
+  Future<void> _reward() async {
+    await _tootService.rewardAll();
+    _tootService.loading$.add(false);
+    _navService.current.pushNamed(TootScreen.route);
   }
 }

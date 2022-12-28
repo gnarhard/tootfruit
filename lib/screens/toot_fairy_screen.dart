@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/services/ad_service.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/google_ad_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/widgets/cloud.dart';
 import 'package:tootfruit/widgets/rotating_fruit.dart';
