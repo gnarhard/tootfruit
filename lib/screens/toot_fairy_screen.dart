@@ -143,7 +143,22 @@ class TootFairyScreen extends StatelessWidget {
                   ],
                 ),
                 _tootService.ownsEveryToot
-                    ? Container()
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 24.0),
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Column(
+                            children: const [
+                              Spacer(),
+                              Text('YOU OWN EVERY TOOT FRUIT!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: _backgroundColor, fontSize: 20)),
+                              Text('😊 check back later for more 😊',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.black54, fontSize: 16)),
+                            ],
+                          ),
+                        ))
                     : Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Column(
