@@ -46,6 +46,26 @@ dependencies:
   google_mobile_ads: ^2.3.0
   in_app_purchase: ^3.1.0
   path_provider: ^2.0.11
+  ad_service:
+    git:
+      url: https://github.com/gnarhard/ad_service.git
+      ref: main
+  toast_service:
+    git:
+      url: https://github.com/gnarhard/toast_service.git
+      ref: main
+  navigation_service:
+    git:
+      url: https://github.com/gnarhard/navigation_service.git
+      ref: main
+  connectivity_service:
+    git:
+      url: https://github.com/gnarhard/connectivity_service.git
+      ref: main
+  in_app_purchase_service:
+    git:
+      url: https://github.com/gnarhard/in_app_purchase_service.git
+      ref: main
 
 dev_dependencies:
   flutter_test:

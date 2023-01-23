@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:navigation_service/navigation_service.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
 import '../models/toot.dart';
@@ -40,7 +40,8 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   static const double swipeSensitivity = 800;
   late Toot toot;
 
-  Color _textColor(Toot toot) => toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
+  Color _textColor(Toot toot) =>
+      toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
   Color _contrastTextColor(Toot toot) =>
       toot.darkText ? toot.color.darken(50) : toot.color.lighten(50);
 
@@ -52,7 +53,8 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
     final rotateTween = Tween(begin: _angle, end: .5);
     _scaleController = AnimationController(duration: _quick, vsync: this);
     _rotationController = AnimationController(duration: _quicker, vsync: this);
-    _opacityController = AnimationController(duration: _long, vsync: this)..repeat(reverse: true);
+    _opacityController = AnimationController(duration: _long, vsync: this)
+      ..repeat(reverse: true);
 
     _scaleAnimation = scaleTween.animate(
       CurvedAnimation(
@@ -136,7 +138,8 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                 colorBlendMode: BlendMode.srcATop,
                                 fit: BoxFit.fitWidth,
                               ),
-                              Text('swipe', style: TextStyle(color: _textColor(toot))),
+                              Text('swipe',
+                                  style: TextStyle(color: _textColor(toot))),
                             ],
                           ),
                         ),
@@ -172,7 +175,9 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                 size: 14,
                               ),
                               Text('tap that',
-                                  style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
+                                  style: TextStyle(
+                                      color: _contrastTextColor(toot),
+                                      fontSize: 20)),
                             ],
                           ),
                         ),
@@ -212,20 +217,25 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                         height: 16,
                                         decoration: BoxDecoration(
                                           color: Colors.redAccent,
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         child: const Center(
                                             child: Text('!',
-                                                style:
-                                                    TextStyle(color: Colors.white, fontSize: 10))),
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10))),
                                       ),
                                     ),
-                              _tootService.ownsEveryToot ? Container() : const SizedBox(width: 4),
+                              _tootService.ownsEveryToot
+                                  ? Container()
+                                  : const SizedBox(width: 4),
                               Text(
                                   _tootService.ownsEveryToot
                                       ? 'VISIT THE TOOT FAIRY'
                                       : 'GET MORE TOOT FRUIT',
-                                  style: TextStyle(color: _textColor(toot), fontSize: 12)),
+                                  style: TextStyle(
+                                      color: _textColor(toot), fontSize: 12)),
                             ],
                           ),
                         )),
@@ -247,8 +257,11 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   }
 
   void _animate() {
-    _rotationController.repeat(reverse: true).timeout(toot.duration!, onTimeout: () {
-      _rotationController.reverse(from: .5).whenComplete(() => _rotationController.stop());
+    _rotationController.repeat(reverse: true).timeout(toot.duration!,
+        onTimeout: () {
+      _rotationController
+          .reverse(from: .5)
+          .whenComplete(() => _rotationController.stop());
     });
 
     _scaleController.forward().whenComplete(() => _scaleController.reverse());

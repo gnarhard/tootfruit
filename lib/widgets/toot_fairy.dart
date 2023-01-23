@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:navigation_service/navigation_service.dart';
+import 'package:toast_service/toast_service.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
 import '../screens/toot_screen.dart';
-import '../services/toast_service.dart';
 
 class TootFairy extends StatefulWidget {
   const TootFairy({Key? key}) : super(key: key);
@@ -22,6 +22,7 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
   late final _audioService = Locator.get<AudioService>();
   late final _tootService = Locator.get<TootService>();
   late final _navService = Locator.get<NavigationService>();
+  late final _toastService = Locator.get<ToastService>();
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
@@ -100,7 +101,7 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
               await _audioService.stop();
               await _tootService.rewardAll();
               _navService.current.pushNamed(TootScreen.route);
-              ToastService.success(message: "Whoa! You know the secret!");
+              _toastService.success(message: "Whoa! You know the secret!");
             })
           },
           onPanEnd: (details) => _timer!.cancel(),
@@ -119,8 +120,11 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
   }
 
   void _animate() {
-    _rotationController.repeat(reverse: true).timeout(_audioDuration!, onTimeout: () {
-      _rotationController.reverse(from: .5).whenComplete(() => _rotationController.stop());
+    _rotationController.repeat(reverse: true).timeout(_audioDuration!,
+        onTimeout: () {
+      _rotationController
+          .reverse(from: .5)
+          .whenComplete(() => _rotationController.stop());
     });
 
     _scaleController.forward().whenComplete(() => _scaleController.reverse());
@@ -133,7 +137,8 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
     // if the user tapped the screen right after the app was loaded.
     // Keeping all of this synchronous is crucial for responsiveness.
     if (!_audioLoaded) {
-      _audioDuration = await _audioService.setAudio('asset:///assets/audio/toot_fairy.m4a');
+      _audioDuration =
+          await _audioService.setAudio('asset:///assets/audio/toot_fairy.m4a');
       _audioLoaded = true;
     }
 
