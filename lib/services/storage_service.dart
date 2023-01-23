@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:tootfruit/services/toast_service.dart';
+import 'package:toast_service/toast_service.dart';
+import 'package:tootfruit/locator.dart';
 
 class StorageService {
+  late final _toastService = Locator.get<ToastService>();
+
   static const _fileName = 'storage.json';
 
   static const _cacheExpirationDays = Duration(days: 1);
@@ -15,7 +18,8 @@ class StorageService {
   DateTime get _expirationDate => DateTime.now().add(_cacheExpirationDays);
 
   DateTime _setNewExpirationDate(expiration) =>
-      DateTime(expiration.year, expiration.month, expiration.day).add(_cacheExpirationDays);
+      DateTime(expiration.year, expiration.month, expiration.day)
+          .add(_cacheExpirationDays);
 
   /// Checks first if data and store exists then checks if the cache is expired and wipes data if it is.
   bool exists(key) {
@@ -117,7 +121,8 @@ class StorageService {
         storage = json.decode(jsonString);
       }
     } catch (err) {
-      ToastService.error(message: "Failed to store data.", devError: err.toString());
+      _toastService.error(
+          message: "Failed to store data.", devError: err.toString());
     }
 
     cachedStorage = storage;

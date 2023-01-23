@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:navigation_service/navigation_service.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/widgets/screen_title.dart';
 
@@ -20,7 +20,8 @@ class TootLootScreen extends StatefulWidget {
   State<TootLootScreen> createState() => _TootLootScreenState();
 }
 
-class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStateMixin {
+class _TootLootScreenState extends State<TootLootScreen>
+    with TickerProviderStateMixin {
   late final _tootService = Locator.get<TootService>();
   late final _navService = Locator.get<NavigationService>();
   late final _audioService = Locator.get<AudioService>();
@@ -46,7 +47,8 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   static const int _starPointCount = 10;
   late Toot toot;
 
-  Color _textColor(Toot toot) => toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
+  Color _textColor(Toot toot) =>
+      toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
   Color _contrastTextColor(Toot toot) =>
       toot.darkText ? toot.color.darken(50) : toot.color.lighten(50);
 
@@ -56,7 +58,8 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
 
     final scaleTween = Tween(begin: _scale, end: .8);
     final rotateTween = Tween(begin: _angle, end: .2);
-    _scaleController = AnimationController(duration: _quick, vsync: this)..repeat(reverse: true);
+    _scaleController = AnimationController(duration: _quick, vsync: this)
+      ..repeat(reverse: true);
     _rotationController = AnimationController(duration: _quicker, vsync: this)
       ..repeat(reverse: true);
 
@@ -166,7 +169,8 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(toot.title.toUpperCase(),
-                        style: TextStyle(color: _contrastTextColor(toot), fontSize: 20)),
+                        style: TextStyle(
+                            color: _contrastTextColor(toot), fontSize: 20)),
                   ),
                   const Spacer(),
                 ],
@@ -177,7 +181,8 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
   List<Widget> _buildStarPattern() {
     return [
       RotationTransition(
-        turns: Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController),
+        turns:
+            Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController),
         child: Center(
           child: ClipPath(
             clipper: StarClipper(_starPointCount),
@@ -190,66 +195,76 @@ class _TootLootScreenState extends State<TootLootScreen> with TickerProviderStat
         ),
       ),
       RotationTransition(
-        turns: Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController2),
+        turns:
+            Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController2),
         child: Center(
           child: ClipPath(
             clipper: StarClipper(_starPointCount),
             child: Container(
               width: _baseSize,
               height: _baseSize,
-              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier)),
+              color:
+                  Colors.white.withOpacity(_baseOpacity + (_opacityModifier)),
             ),
           ),
         ),
       ),
       RotationTransition(
-        turns: Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController3),
+        turns:
+            Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController3),
         child: Center(
           child: ClipPath(
             clipper: StarClipper(_starPointCount),
             child: Container(
               width: _baseSize / 1.25,
               height: _baseSize / 1.25,
-              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 2)),
+              color: Colors.white
+                  .withOpacity(_baseOpacity + (_opacityModifier * 2)),
             ),
           ),
         ),
       ),
       RotationTransition(
-        turns: Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController4),
+        turns:
+            Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController4),
         child: Center(
           child: ClipPath(
             clipper: StarClipper(_starPointCount),
             child: Container(
               width: _baseSize / 1.5,
               height: _baseSize / 1.5,
-              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 3)),
+              color: Colors.white
+                  .withOpacity(_baseOpacity + (_opacityModifier * 3)),
             ),
           ),
         ),
       ),
       RotationTransition(
-        turns: Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController5),
+        turns:
+            Tween(begin: 1.0, end: 0.0).animate(_explosionRotationController5),
         child: Center(
           child: ClipPath(
             clipper: StarClipper(_starPointCount),
             child: Container(
               width: _baseSize / 1.75,
               height: _baseSize / 1.75,
-              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 4)),
+              color: Colors.white
+                  .withOpacity(_baseOpacity + (_opacityModifier * 4)),
             ),
           ),
         ),
       ),
       RotationTransition(
-        turns: Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController6),
+        turns:
+            Tween(begin: 0.0, end: 1.0).animate(_explosionRotationController6),
         child: Center(
           child: ClipPath(
             clipper: StarClipper(_starPointCount),
             child: Container(
               width: _baseSize / 2,
               height: _baseSize / 2,
-              color: Colors.white.withOpacity(_baseOpacity + (_opacityModifier * 5)),
+              color: Colors.white
+                  .withOpacity(_baseOpacity + (_opacityModifier * 5)),
             ),
           ),
         ),

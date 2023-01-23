@@ -1,11 +1,11 @@
 import 'dart:math';
 
+import 'package:in_app_purchase_service/in_app_purchase_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/models/user.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/in_app_purchase_service.dart';
 import 'package:tootfruit/services/storage_service.dart';
 import 'package:tootfruit/services/user_service.dart';
 
@@ -28,7 +28,8 @@ class TootService {
 
   Future<void> init() async {
     User user = _userService.current!;
-    final toot = toots.firstWhere((element) => element.fruit == user.currentFruit);
+    final toot =
+        toots.firstWhere((element) => element.fruit == user.currentFruit);
     owned = [];
 
     for (String fruit in user.ownedFruit) {
@@ -44,8 +45,8 @@ class TootService {
   }
 
   Future<void> set(Toot toot) async {
-    toot.duration =
-        await _audioService.setAudio('asset:///assets/audio/${toot.fruit}.${toot.fileExtension}');
+    toot.duration = await _audioService
+        .setAudio('asset:///assets/audio/${toot.fruit}.${toot.fileExtension}');
     current = toot;
 
     _userService.current!.currentFruit = toot.fruit;
@@ -53,7 +54,8 @@ class TootService {
   }
 
   Future<void> increment() async {
-    final int currentIndex = owned.indexWhere((toot) => toot.fruit == current.fruit);
+    final int currentIndex =
+        owned.indexWhere((toot) => toot.fruit == current.fruit);
     int nextIndex = currentIndex + 1;
     if (nextIndex > owned.length - 1) {
       nextIndex = 0;
@@ -63,7 +65,8 @@ class TootService {
   }
 
   Future<void> decrement() async {
-    final int currentIndex = owned.indexWhere((toot) => toot.fruit == current.fruit);
+    final int currentIndex =
+        owned.indexWhere((toot) => toot.fruit == current.fruit);
     int nextIndex = currentIndex - 1;
     if (nextIndex < 0) {
       nextIndex = owned.length - 1;

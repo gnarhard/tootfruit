@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:ad_service/ad_service.dart';
 import 'package:flutter/material.dart';
 import 'package:tootfruit/locator.dart';
-import 'package:tootfruit/services/ad_service.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/widgets/cloud.dart';
@@ -25,10 +25,14 @@ class TootFairyScreen extends StatelessWidget {
   TootFairyScreen({Key? key}) : super(key: key);
 
   static Future<void> precacheImages(context) async {
-    await precacheImage(const AssetImage('assets/images/all_fruits.png'), context);
-    await precacheImage(const AssetImage('assets/images/clouds_bottom_smaller.png'), context);
-    await precacheImage(const AssetImage('assets/images/clouds_top_smaller.png'), context);
-    await precacheImage(const AssetImage('assets/images/cloud_simple.png'), context);
+    await precacheImage(
+        const AssetImage('assets/images/all_fruits.png'), context);
+    await precacheImage(
+        const AssetImage('assets/images/clouds_bottom_smaller.png'), context);
+    await precacheImage(
+        const AssetImage('assets/images/clouds_top_smaller.png'), context);
+    await precacheImage(
+        const AssetImage('assets/images/cloud_simple.png'), context);
   }
 
   @override
@@ -86,14 +90,16 @@ class TootFairyScreen extends StatelessWidget {
                             color: Colors.black.withOpacity(0.2),
                             spreadRadius: 2,
                             blurRadius: 5,
-                            offset: const Offset(0, 3), // changes position of shadow
+                            offset: const Offset(
+                                0, 3), // changes position of shadow
                           ),
                         ],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('${_tootService.owned.length} / ${_tootService.all.length}',
+                          Text(
+                              '${_tootService.owned.length} / ${_tootService.all.length}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.white,
@@ -134,7 +140,8 @@ class TootFairyScreen extends StatelessWidget {
                           bottom: MediaQuery.of(context).padding.top +
                               MediaQuery.of(context).padding.bottom +
                               AppBar().preferredSize.height),
-                      child: Stack(alignment: Alignment.center, children: const [
+                      child:
+                          Stack(alignment: Alignment.center, children: const [
                         RotatingFruits(),
                         Cloud(),
                         TootFairy(),
@@ -152,10 +159,12 @@ class TootFairyScreen extends StatelessWidget {
                               Spacer(),
                               Text('YOU OWN EVERY TOOT FRUIT!',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: _backgroundColor, fontSize: 20)),
+                                  style: TextStyle(
+                                      color: _backgroundColor, fontSize: 20)),
                               Text('😊 check back later for more 😊',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.black54, fontSize: 16)),
+                                  style: TextStyle(
+                                      color: Colors.black54, fontSize: 16)),
                             ],
                           ),
                         ))
@@ -164,35 +173,41 @@ class TootFairyScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    await _audioService.stop();
-                                    _adService.showRewardedAd();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      shape: BeveledRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      side: const BorderSide(
-                                        width: 2,
-                                        color: Colors.white,
-                                      ),
-                                      elevation: 10,
-                                      backgroundColor: _buttonColor,
-                                      padding:
-                                          const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                      textStyle: const TextStyle(
-                                          fontSize: 24, fontWeight: FontWeight.bold)),
-                                  child: const Text("COLLECT MORE",
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            ]),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        await _audioService.stop();
+                                        _adService.showRewardedAd();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          shape: BeveledRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          side: const BorderSide(
+                                            width: 2,
+                                            color: Colors.white,
+                                          ),
+                                          elevation: 10,
+                                          backgroundColor: _buttonColor,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 24, vertical: 16),
+                                          textStyle: const TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold)),
+                                      child: const Text("COLLECT MORE",
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                    ),
+                                  ),
+                                ]),
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0, top: 4),
+                              padding:
+                                  const EdgeInsets.only(bottom: 8.0, top: 4),
                               child: Text('watch ad for new fruit or',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
@@ -203,7 +218,8 @@ class TootFairyScreen extends StatelessWidget {
                                         color: Color.fromARGB(50, 0, 0, 255),
                                       ),
                                     ],
-                                    color: _backgroundColorSecondary.withOpacity(.7),
+                                    color: _backgroundColorSecondary
+                                        .withOpacity(.7),
                                   )),
                             ),
                             OutlinedButton(
@@ -219,14 +235,16 @@ class TootFairyScreen extends StatelessWidget {
                                       width: 2,
                                       color: _backgroundColorSecondary,
                                     ),
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                    textStyle:
-                                        const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 16),
+                                    textStyle: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold)),
                                 child: StreamBuilder<bool>(
                                     stream: _tootService.loading$,
                                     builder: (context, snapshot) {
-                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
                                         return Container();
                                       }
 
@@ -234,11 +252,13 @@ class TootFairyScreen extends StatelessWidget {
                                           ? const SizedBox(
                                               width: 20,
                                               height: 20,
-                                              child: CircularProgressIndicator())
+                                              child:
+                                                  CircularProgressIndicator())
                                           : const Text(
                                               "BUY ALL",
                                               style: TextStyle(
-                                                color: _backgroundColorSecondary,
+                                                color:
+                                                    _backgroundColorSecondary,
                                                 fontSize: 18,
                                               ),
                                             );
