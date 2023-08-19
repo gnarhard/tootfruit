@@ -50,7 +50,7 @@ android {
 
     defaultConfig {
         applicationId "com.gnarhard.tootfruit"
-        minSdkVersion 19
+        minSdkVersion 33
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
