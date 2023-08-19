@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:navigation_service/navigation_service.dart';
 import 'package:tootfruit/routes.dart';
 import 'package:tootfruit/screens/launch_screen.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
 import 'env.dart';

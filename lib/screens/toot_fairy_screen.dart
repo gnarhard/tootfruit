@@ -141,7 +141,7 @@ class TootFairyScreen extends StatelessWidget {
                               MediaQuery.of(context).padding.bottom +
                               AppBar().preferredSize.height),
                       child:
-                          Stack(alignment: Alignment.center, children: const [
+                          const Stack(alignment: Alignment.center, children: [
                         RotatingFruits(),
                         Cloud(),
                         TootFairy(),
@@ -150,12 +150,12 @@ class TootFairyScreen extends StatelessWidget {
                   ],
                 ),
                 _tootService.ownsEveryToot
-                    ? Padding(
-                        padding: const EdgeInsets.only(bottom: 24.0),
+                    ? const Padding(
+                        padding: EdgeInsets.only(bottom: 24.0),
                         child: Align(
                           alignment: Alignment.bottomCenter,
                           child: Column(
-                            children: const [
+                            children: [
                               Spacer(),
                               Text('YOU OWN EVERY TOOT FRUIT!',
                                   textAlign: TextAlign.center,

@@ -5,13 +5,13 @@ import 'package:connectivity_service/connectivity_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase_service/in_app_purchase_service.dart';
-import 'package:navigation_service/navigation_service.dart';
 import 'package:tootfruit/services/storage_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/services/user_service.dart';
 
 import '../locator.dart';
 import '../screens/toot_screen.dart';
+import 'navigation_service.dart';
 
 class InitService {
   late final _navService = Locator.get<NavigationService>();

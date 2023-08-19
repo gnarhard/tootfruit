@@ -30,9 +30,9 @@ class LaunchScreenState extends State<LaunchScreen> {
 
     return Container(
       color: _firstColor,
-      child: Scaffold(
+      child: const Scaffold(
         backgroundColor: Colors.transparent,
-        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
+        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Align(
             alignment: Alignment.center,
             child: SizedBox(

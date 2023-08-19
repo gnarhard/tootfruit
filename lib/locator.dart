@@ -1,14 +1,15 @@
 import 'package:ad_service/ad_service.dart';
 import 'package:connectivity_service/connectivity_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase_service/in_app_purchase_service.dart';
-import 'package:navigation_service/navigation_service.dart';
 import 'package:toast_service/toast_service.dart';
 import 'package:tootfruit/screens/toot_loot_screen.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/init_service.dart';
+import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/storage_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/services/user_service.dart';
@@ -36,12 +37,12 @@ class Locator {
 
   static void registerAll() {
     if (_initialized) {
-      final toastService = Locator.get<ToastService>();
-      toastService.error(message: 'Services already registered.');
+      debugPrint('Services already initialized.');
       return;
     }
 
     // Order is important.
+    Locator.register(ToastService());
     Locator.register(UserService());
     Locator.register(InitService());
     Locator.registerLazy(() => NavigationService());

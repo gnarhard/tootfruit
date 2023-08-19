@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:navigation_service/navigation_service.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
@@ -9,6 +8,7 @@ import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/widgets/screen_title.dart';
 
 import '../models/toot.dart';
+import '../services/navigation_service.dart';
 import '../widgets/star.dart';
 
 class TootLootScreen extends StatefulWidget {

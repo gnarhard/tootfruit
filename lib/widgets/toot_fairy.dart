@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:navigation_service/navigation_service.dart';
 import 'package:toast_service/toast_service.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
 import '../screens/toot_screen.dart';
+import '../services/navigation_service.dart';
 
 class TootFairy extends StatefulWidget {
   const TootFairy({Key? key}) : super(key: key);

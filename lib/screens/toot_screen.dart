@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:navigation_service/navigation_service.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
@@ -8,6 +7,7 @@ import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
 
 import '../models/toot.dart';
+import '../services/navigation_service.dart';
 import '../widgets/screen_title.dart';
 import '../widgets/star.dart';
 
@@ -113,6 +113,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
             }
           },
           child: Scaffold(
+            key: const Key('tootScreen'),
             backgroundColor: toot.color,
             appBar: AppBar(
               leading: Container(),
