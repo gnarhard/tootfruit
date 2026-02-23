@@ -1,3 +1,4 @@
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:tootfruit/interfaces/i_audio_player.dart';
@@ -33,6 +34,22 @@ class AudioService implements IAudioPlayer {
     _soloud = SoLoud.instance;
 
     try {
+      final session = await AudioSession.instance;
+      await session.configure(
+        const AudioSessionConfiguration(
+          androidWillPauseWhenDucked: true,
+          androidAudioAttributes: AndroidAudioAttributes(
+            usage: AndroidAudioUsage.media,
+            contentType: AndroidAudioContentType.music,
+          ),
+          androidAudioFocusGainType:
+              AndroidAudioFocusGainType.gainTransientMayDuck,
+          avAudioSessionCategory: AVAudioSessionCategory.playback,
+          avAudioSessionCategoryOptions:
+              AVAudioSessionCategoryOptions.mixWithOthers,
+        ),
+      );
+
       await _soloud.init();
       _soloud.setGlobalVolume(1.0);
       _isInitialized = true;

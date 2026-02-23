@@ -37,6 +37,7 @@ dependencies:
   connectivity_plus: ^7.0.0
   fluttertoast: ^9.0.0
   flutter_soloud: ^3.4.10
+  audio_session: ^0.2.2
   json_serializable: ^6.5.4
   json_annotation: ^4.7.0
   tinycolor2: ^3.0.1
