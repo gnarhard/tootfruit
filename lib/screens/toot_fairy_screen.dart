@@ -97,21 +97,19 @@ class _TootFairyScreenState extends State<TootFairyScreen> {
               backgroundColor: Colors.transparent,
               centerTitle: true,
               elevation: 0,
-              actions: [
-                IconButton(
-                  key: const Key('tootFairyBackButton'),
-                  icon: const Icon(Icons.arrow_back),
-                  color: _backgroundColor,
-                  onPressed: () {
-                    final navigator = Navigator.of(context);
-                    if (navigator.canPop()) {
-                      navigator.pop();
-                    } else {
-                      navigator.pushReplacementNamed(TootScreen.route);
-                    }
-                  },
-                ),
-              ],
+              leading: IconButton(
+                key: const Key('tootFairyBackButton'),
+                icon: const Icon(Icons.arrow_back),
+                color: _backgroundColor,
+                onPressed: () {
+                  final navigator = Navigator.of(context);
+                  if (navigator.canPop()) {
+                    navigator.pop();
+                  } else {
+                    navigator.pushReplacementNamed(TootScreen.route);
+                  }
+                },
+              ),
               title: AppScreenTitle(
                 title: 'TOOT FAIRY',
                 color: _backgroundColorSecondary.withValues(alpha: .6),
