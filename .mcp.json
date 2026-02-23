@@ -1,0 +1,14 @@
+{
+  "dart": {
+    "type": "stdio",
+    "command": "dart",
+    "args": ["mcp-server"],
+    "env": {}
+  },
+  "playwright": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["@playwright/mcp@latest"],
+    "env": {}
+  }
+}
