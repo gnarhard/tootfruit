@@ -26,7 +26,7 @@ class InitService {
       await Future<void>.delayed(const Duration(milliseconds: 16));
     }
     final currentFruitPath =
-        '${TootScreen.route}/${_di.tootService.current.fruit}';
+        '${TootScreen.route}/${_di.tootService.current.fruit.toLowerCase()}';
     _di.navigationService.current.pushReplacement(
       buildInitialTootScreenRoute(routeName: currentFruitPath),
     );

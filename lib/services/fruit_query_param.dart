@@ -14,6 +14,7 @@ const Set<String> _reservedRouteSegments = <String>{
   'toot',
   'toot_fairy',
 };
+const String _rootRoutePath = '/';
 const String _tootRouteSegment = 'toot';
 
 String? readFruitQueryParam() {
@@ -71,8 +72,9 @@ Uri? buildFruitQueryUri(Uri currentUri, String fruit) {
     userInfo: currentUri.userInfo,
     host: currentUri.host,
     port: currentUri.hasPort ? currentUri.port : null,
-    path: canonicalTootPath,
+    path: _rootRoutePath,
     queryParameters: nextQuery.isEmpty ? null : nextQuery,
+    fragment: canonicalTootPath,
   );
 }
 
@@ -180,5 +182,5 @@ String? _normalizedFruit(String? value) {
   if (trimmed == null || trimmed.isEmpty) {
     return null;
   }
-  return trimmed;
+  return trimmed.toLowerCase();
 }
