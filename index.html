@@ -16,6 +16,16 @@
   -->
   <base href="/">
 
+  <script>
+    (function () {
+      try {
+        window.sessionStorage.setItem('__tootfruitInitialUrl', window.location.href);
+      } catch (_) {
+        // Best-effort only.
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="This fruity little fart app allows you to swipe between different fruit images and revel in a carefully curated collection of scatalogical delights.">
