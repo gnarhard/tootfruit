@@ -29,6 +29,8 @@ class _AppState extends State<App> {
       navigatorKey: _navService.navigatorKey,
       initialRoute: LaunchScreen.route,
       routes: routes,
+      onGenerateRoute: onGenerateAppRoute,
+      onUnknownRoute: onUnknownAppRoute,
       navigatorObservers: [SwitchAudioObserver()],
     );
   }
