@@ -19,6 +19,17 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="This fruity little fart app allows you to swipe between different fruit images and revel in a carefully curated collection of scatalogical delights.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Toot Fruit">
+  <meta property="og:description" content="This fruity little fart app allows you to swipe between different fruit images and revel in a carefully curated collection of scatalogical delights.">
+  <meta property="og:image" content="assets/images/app_icon_512x512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:image:alt" content="Toot Fruit app icon">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Toot Fruit">
+  <meta name="twitter:description" content="This fruity little fart app allows you to swipe between different fruit images and revel in a carefully curated collection of scatalogical delights.">
+  <meta name="twitter:image" content="assets/images/app_icon_512x512.png">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -33,6 +44,106 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <script>
+    (function () {
+      const userAgent = navigator.userAgent || '';
+      const isIos =
+        /iPad|iPhone|iPod/.test(userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      if (!isIos) {
+        return;
+      }
+
+      const activationEvents = ['touchend', 'pointerup', 'click', 'keydown'];
+      let didConfigureAudioSession = false;
+      let didRunLegacyUnlock = false;
+
+      function removeActivationListeners() {
+        activationEvents.forEach((eventName) => {
+          window.removeEventListener(eventName, handleActivation, true);
+        });
+      }
+
+      function configurePlaybackAudioSession() {
+        const audioSession = navigator.audioSession;
+        if (!audioSession) {
+          return false;
+        }
+
+        try {
+          audioSession.type = 'playback';
+          didConfigureAudioSession = audioSession.type === 'playback';
+          if (didConfigureAudioSession) {
+            removeActivationListeners();
+          }
+          return didConfigureAudioSession;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function legacyUnlockWebAudio() {
+        if (didRunLegacyUnlock) {
+          return;
+        }
+        didRunLegacyUnlock = true;
+        removeActivationListeners();
+
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            const context = new AudioContext();
+            const source = context.createBufferSource();
+            source.buffer = context.createBuffer(1, 1, 22050);
+            source.connect(context.destination);
+            source.start(0);
+            if (context.state !== 'running') {
+              source.disconnect();
+              void context.close();
+            }
+          }
+
+          const audio = document.createElement('audio');
+          audio.setAttribute('x-webkit-airplay', 'deny');
+          audio.preload = 'auto';
+          audio.loop = true;
+          audio.src =
+            'data:audio/wav;base64,UklGRisAAABXQVZFZm10IBAAAAABAAEAESsAAESsAAABAAgAZGF0YQcAAACAgICAgICAAAA=';
+          audio.load();
+          const playPromise = audio.play();
+          if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch(() => {});
+          }
+        } catch (_) {
+          // Best-effort only.
+        }
+      }
+
+      function handleActivation() {
+        if (didConfigureAudioSession || didRunLegacyUnlock) {
+          return;
+        }
+
+        const configured = configurePlaybackAudioSession();
+        if (!configured) {
+          legacyUnlockWebAudio();
+        }
+      }
+
+      handleActivation();
+
+      activationEvents.forEach((eventName) => {
+        window.addEventListener(eventName, handleActivation, true);
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          handleActivation();
+        }
+      });
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
   <script src="assets/packages/flutter_soloud/web/libflutter_soloud_plugin.js" defer></script>
   <script src="assets/packages/flutter_soloud/web/init_module.dart.js" defer></script>
