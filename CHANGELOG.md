@@ -4,3 +4,4 @@
 
 - All toot fruits are now free and immediately accessible!
 - Instant toot sounds for fruit tap spamming
+- UI polishes
