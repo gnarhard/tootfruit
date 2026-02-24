@@ -466,3 +466,14 @@ The codebase is currently in **transition** from old patterns to SOLID architect
 ### Getting Help
 
 - **Flutter rules**: See `.rules/flutter.md`
+
+## Testing Requirements
+
+- Always create or update automated tests for every code change.
+- For bug fixes, add a regression test that fails before the fix and passes after the fix.
+- Do not consider a task complete until relevant tests pass locally.
+
+## UI Transition Requirements
+
+- Render every fruit inside the same fixed square constraints so visual fruit sizes stay consistent across fruits.
+- On fruit/page changes, linearly interpolate both page colors and fruit visuals (no ease-in/ease-out curves for these transitions).

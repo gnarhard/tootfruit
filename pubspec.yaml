@@ -43,6 +43,7 @@ dependencies:
   tinycolor2: ^3.0.1
   flutter_svg: ^2.0.7
   path_provider: ^2.0.11
+  web: ^1.1.1
 
 dev_dependencies:
   integration_test:

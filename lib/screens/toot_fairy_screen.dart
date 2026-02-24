@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/image_precache_service.dart';
 import 'package:tootfruit/widgets/cloud.dart';
 import 'package:tootfruit/widgets/rotating_fruit.dart';
 import 'package:tootfruit/widgets/toot_fairy.dart';
@@ -16,21 +17,7 @@ class TootFairyScreen extends StatefulWidget {
   const TootFairyScreen({super.key});
 
   static Future<void> precacheImages(BuildContext context) async {
-    await Future.wait([
-      precacheImage(const AssetImage('assets/images/all_fruits.png'), context),
-      precacheImage(
-        const AssetImage('assets/images/clouds_bottom_smaller.png'),
-        context,
-      ),
-      precacheImage(
-        const AssetImage('assets/images/clouds_top_smaller.png'),
-        context,
-      ),
-      precacheImage(
-        const AssetImage('assets/images/cloud_simple.png'),
-        context,
-      ),
-    ]);
+    await ImagePrecacheService().precacheLaunchImages(context);
   }
 
   @override

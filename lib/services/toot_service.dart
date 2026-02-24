@@ -6,11 +6,22 @@ import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/models/user.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/fruit_query_param.dart';
+import 'package:tootfruit/services/fruit_query_param.dart' as fruit_query_param;
 import 'package:tootfruit/services/storage_service.dart';
 import 'package:tootfruit/services/user_service.dart';
 
 class TootService {
+  final String? Function() _readFruitQueryParam;
+  final void Function(String fruit) _writeFruitQueryParam;
+
+  TootService({
+    String? Function()? readFruitQueryParam,
+    void Function(String fruit)? writeFruitQueryParam,
+  }) : _readFruitQueryParam =
+           readFruitQueryParam ?? fruit_query_param.readFruitQueryParam,
+       _writeFruitQueryParam =
+           writeFruitQueryParam ?? fruit_query_param.writeFruitQueryParam;
+
   late final _audioService = Locator.get<AudioService>();
   late final _userService = Locator.get<UserService>();
   late final _storageService = Locator.get<StorageService>();
@@ -44,7 +55,7 @@ class TootService {
         .map((fruit) => toots.firstWhere((element) => element.fruit == fruit))
         .toList();
 
-    final requestedFruit = _normalizedFruit(readFruitQueryParam());
+    final requestedFruit = _normalizedFruit(_readFruitQueryParam());
     if (requestedFruit != null) {
       toot = _findOwnedTootByFruit(requestedFruit) ?? toot;
     }
@@ -60,9 +71,7 @@ class TootService {
     // Set current fruit immediately so app reopen does not visually jump fruits.
     current = toot;
     try {
-      toot.duration = await _audioService.setAudio(
-        'asset:///assets/audio/${toot.fruit}.${toot.fileExtension}',
-      );
+      toot.duration = await _audioService.setAudio(_audioAssetPathFor(toot));
     } catch (error, stackTrace) {
       debugPrint(
         'TootService.set: Failed to set audio for ${toot.fruit}: $error',
@@ -74,7 +83,34 @@ class TootService {
     final user = _currentUser;
     user.currentFruit = toot.fruit;
     await _storageService.set(StorageKeys.user, user);
-    writeFruitQueryParam(toot.fruit);
+    try {
+      _writeFruitQueryParam(toot.fruit);
+    } catch (error, stackTrace) {
+      debugPrint(
+        'TootService.set: Failed to update fruit query param for ${toot.fruit}: $error',
+      );
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
+
+  Future<void> ensureCurrentAudioPrepared() async {
+    final duration = current.duration;
+    if (duration != null && duration > Duration.zero) {
+      return;
+    }
+
+    try {
+      current.duration = await _audioService.setAudio(
+        _audioAssetPathFor(current),
+      );
+    } catch (error, stackTrace) {
+      debugPrint(
+        'TootService.ensureCurrentAudioPrepared: '
+        'Failed to prepare audio for ${current.fruit}: $error',
+      );
+      debugPrintStack(stackTrace: stackTrace);
+      current.duration = Duration.zero;
+    }
   }
 
   /// Navigate to the next or previous toot in the owned list
@@ -145,5 +181,9 @@ class TootService {
       }
     }
     return null;
+  }
+
+  String _audioAssetPathFor(Toot toot) {
+    return 'asset:///assets/audio/${toot.fruit}.${toot.fileExtension}';
   }
 }

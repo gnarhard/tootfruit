@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/services/init_service.dart';
+import 'package:tootfruit/services/image_precache_service.dart';
 
 import '../locator.dart';
 
@@ -17,30 +17,34 @@ class LaunchScreen extends StatefulWidget {
 
 class LaunchScreenState extends State<LaunchScreen> {
   late final _initService = Locator.get<InitService>();
+  late final _imagePrecacheService = Locator.get<ImagePrecacheService>();
 
   static const _firstColor = Colors.pink;
-  bool _didPrecacheImages = false;
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_initService.init());
-  }
+  bool _didStartBootstrap = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_didPrecacheImages) {
+    if (_didStartBootstrap) {
       return;
     }
 
-    _didPrecacheImages = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      unawaited(TootFairyScreen.precacheImages(context));
-    });
+    _didStartBootstrap = true;
+    unawaited(_bootstrap());
+  }
+
+  Future<void> _bootstrap() async {
+    try {
+      await _imagePrecacheService.precacheLaunchImages(context);
+    } catch (error, stackTrace) {
+      debugPrint('LaunchScreen: Failed to precache launch images: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+
+    if (!mounted) {
+      return;
+    }
+    await _initService.init();
   }
 
   @override

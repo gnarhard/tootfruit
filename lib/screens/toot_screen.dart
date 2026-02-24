@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
+import 'package:tootfruit/services/toot_transition.dart';
+import 'package:tootfruit/widgets/fruit_asset.dart';
 
 import '../models/toot.dart';
 import '../services/navigation_service.dart';
@@ -39,7 +43,12 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   double _angle = 0.0;
   static const double swipeSensitivity = 300;
   static const double desktopWebBreakpoint = 1024;
+  static const Duration _pageTransitionDuration = Duration(milliseconds: 320);
   late Toot toot;
+  late Toot _fromToot;
+  int _transitionTick = 0;
+  bool _keyboardHandlerAttached = false;
+  bool _isKeyboardNavigating = false;
 
   Color _textColor(Toot toot) =>
       toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
@@ -78,10 +87,22 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
       parent: _opacityController,
       curve: Curves.easeIn,
     );
+
+    toot = _tootService.current;
+    _fromToot = toot;
+
+    if (_supportsSpacebarActivation) {
+      HardwareKeyboard.instance.addHandler(_handleGlobalKeyEvent);
+      _keyboardHandlerAttached = true;
+    }
   }
 
   @override
   void dispose() {
+    if (_keyboardHandlerAttached) {
+      HardwareKeyboard.instance.removeHandler(_handleGlobalKeyEvent);
+      _keyboardHandlerAttached = false;
+    }
     _scaleController.dispose();
     _rotationController.dispose();
     _opacityController.dispose();
@@ -90,207 +111,296 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    toot = _tootService.current;
+    final fromToot = _fromToot;
+    final toToot = toot;
 
-    return PopScope(
-      canPop: false,
-      child: GestureDetector(
-        key: const Key('tootGestureSurface'),
-        onHorizontalDragEnd: (details) async {
-          if (details.velocity.pixelsPerSecond.dx < -swipeSensitivity) {
-            await _showNextToot();
-          } else if (details.velocity.pixelsPerSecond.dx > swipeSensitivity) {
-            await _showPreviousToot();
-          }
-        },
-        child: Scaffold(
-          key: const Key('tootScreen'),
-          backgroundColor: toot.color,
-          appBar: AppBar(
-            leading: Container(),
-            centerTitle: true,
-            elevation: 0,
-            title: AppScreenTitle(title: toot.title, color: _textColor(toot)),
-            backgroundColor: toot.color,
-          ),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final showDesktopWebNavButtons =
-                  kIsWeb && constraints.maxWidth > desktopWebBreakpoint;
+    return TweenAnimationBuilder<double>(
+      key: ValueKey<int>(_transitionTick),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: _pageTransitionDuration,
+      curve: Curves.linear,
+      builder: (context, animationValue, _) {
+        final fruitTransitionProgress = linearFruitTransitionProgress(
+          fromFruit: fromToot.fruit,
+          toFruit: toToot.fruit,
+          animationValue: animationValue,
+        );
+        final backgroundColor = lerpFruitPageColor(
+          fromColor: fromToot.color,
+          toColor: toToot.color,
+          progress: fruitTransitionProgress,
+        );
+        final textColor = lerpFruitPageColor(
+          fromColor: _textColor(fromToot),
+          toColor: _textColor(toToot),
+          progress: fruitTransitionProgress,
+        );
+        final contrastTextColor = lerpFruitPageColor(
+          fromColor: _contrastTextColor(fromToot),
+          toColor: _contrastTextColor(toToot),
+          progress: fruitTransitionProgress,
+        );
 
-              return Stack(
-                children: [
-                  FadeTransition(
-                    opacity: _opacityAnimation,
-                    child: _tootService.owned.length < 2
-                        ? Container()
-                        : Center(
-                            child: Column(
-                              children: [
-                                Image.asset(
-                                  'assets/images/swipe.png',
-                                  height: 48,
-                                  width: 48,
-                                  color: _textColor(toot),
-                                  colorBlendMode: BlendMode.srcATop,
-                                  fit: BoxFit.fitWidth,
-                                ),
-                                Text(
-                                  'swipe',
-                                  style: TextStyle(color: _textColor(toot)),
-                                ),
-                              ],
-                            ),
-                          ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 48),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        const minImageSize = 120.0;
-                        const maxImageSize = 420.0;
-                        const guidanceHeight = 48.0;
-                        final maxHeightBasedSize =
-                            constraints.maxHeight - guidanceHeight;
-                        final maxWidthBasedSize = constraints.maxWidth * 0.7;
-                        final preferredImageSize =
-                            maxHeightBasedSize < maxWidthBasedSize
-                            ? maxHeightBasedSize
-                            : maxWidthBasedSize;
-                        final imageSize = preferredImageSize
-                            .clamp(minImageSize, maxImageSize)
-                            .toDouble();
+        return PopScope(
+          canPop: false,
+          child: GestureDetector(
+            key: const Key('tootGestureSurface'),
+            onHorizontalDragEnd: (details) async {
+              if (details.velocity.pixelsPerSecond.dx < -swipeSensitivity) {
+                await _showNextToot();
+              } else if (details.velocity.pixelsPerSecond.dx >
+                  swipeSensitivity) {
+                await _showPreviousToot();
+              }
+            },
+            child: Scaffold(
+              key: const Key('tootScreen'),
+              backgroundColor: backgroundColor,
+              appBar: AppBar(
+                leading: Container(),
+                centerTitle: true,
+                elevation: 0,
+                title: AppScreenTitle(title: toToot.title, color: textColor),
+                backgroundColor: backgroundColor,
+              ),
+              body: LayoutBuilder(
+                builder: (context, constraints) {
+                  final showDesktopWebNavButtons =
+                      kIsWeb && constraints.maxWidth > desktopWebBreakpoint;
 
-                        return Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Transform.rotate(
-                                angle: _angle,
-                                child: Transform.scale(
-                                  scale: _scale,
-                                  child: GestureDetector(
-                                    onTap: () => _tootAndAnimate(),
-                                    onLongPress: () => _tootAndAnimate(),
-                                    child: SizedBox(
-                                      width: imageSize,
-                                      height: imageSize,
-                                      child: AnimatedSwitcher(
-                                        duration: const Duration(
-                                          milliseconds: 320,
-                                        ),
-                                        switchInCurve: Curves.easeOut,
-                                        switchOutCurve: Curves.easeOut,
-                                        transitionBuilder: (child, animation) =>
-                                            FadeTransition(
-                                              opacity: animation,
-                                              child: child,
-                                            ),
-                                        child: SvgPicture.asset(
-                                          'assets/images/fruit/${toot.fruit}.svg',
-                                          key: ValueKey<String>(toot.fruit),
-                                          fit: BoxFit.contain,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              FittedBox(
-                                fit: BoxFit.cover,
+                  return Stack(
+                    children: [
+                      FadeTransition(
+                        opacity: _opacityAnimation,
+                        child: _tootService.owned.length < 2
+                            ? Container()
+                            : Center(
                                 child: Column(
                                   children: [
-                                    Icon(
-                                      Icons.arrow_upward,
-                                      semanticLabel: 'Up arrow',
-                                      color: _contrastTextColor(toot),
-                                      size: 14,
+                                    Image.asset(
+                                      'assets/images/swipe.png',
+                                      height: 48,
+                                      width: 48,
+                                      color: textColor,
+                                      colorBlendMode: BlendMode.srcATop,
+                                      fit: BoxFit.fitWidth,
                                     ),
                                     Text(
-                                      'tap that',
-                                      style: TextStyle(
-                                        color: _contrastTextColor(toot),
-                                        fontSize: 20,
-                                      ),
+                                      'swipe',
+                                      style: TextStyle(color: textColor),
                                     ),
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (showDesktopWebNavButtons)
-                    _DesktopWebFruitNavButton(
-                      key: const Key('desktopPrevFruitButton'),
-                      alignment: Alignment.centerLeft,
-                      icon: Icons.chevron_left,
-                      onPressed: _showPreviousToot,
-                      color: _textColor(toot),
-                    ),
-                  if (showDesktopWebNavButtons)
-                    _DesktopWebFruitNavButton(
-                      key: const Key('desktopNextFruitButton'),
-                      alignment: Alignment.centerRight,
-                      icon: Icons.chevron_right,
-                      onPressed: _showNextToot,
-                      color: _textColor(toot),
-                    ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: OutlinedButton(
-                        key: const Key('visitTootFairyButton'),
-                        onPressed: () {
-                          _navService.current.pushNamed(TootFairyScreen.route);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: BeveledRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          side: BorderSide(width: 1, color: _textColor(toot)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 48),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            const minImageSize = 120.0;
+                            const maxImageSize = 420.0;
+                            const guidanceHeight = 48.0;
+                            final maxHeightBasedSize =
+                                constraints.maxHeight - guidanceHeight;
+                            final maxWidthBasedSize =
+                                constraints.maxWidth * 0.7;
+                            final preferredImageSize =
+                                maxHeightBasedSize < maxWidthBasedSize
+                                ? maxHeightBasedSize
+                                : maxWidthBasedSize;
+                            final imageSize = preferredImageSize
+                                .clamp(minImageSize, maxImageSize)
+                                .toDouble();
+
+                            return Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Transform.rotate(
+                                    angle: _angle,
+                                    child: Transform.scale(
+                                      key: const Key('fruitScaleTransform'),
+                                      scale: _scale,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          unawaited(_tootAndAnimate());
+                                        },
+                                        onLongPress: () {
+                                          unawaited(_tootAndAnimate());
+                                        },
+                                        child: SizedBox(
+                                          width: imageSize,
+                                          height: imageSize,
+                                          child: _buildTransitioningFruit(
+                                            fromToot: fromToot,
+                                            toToot: toToot,
+                                            progress: fruitTransitionProgress,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  FittedBox(
+                                    fit: BoxFit.cover,
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.arrow_upward,
+                                          semanticLabel: 'Up arrow',
+                                          color: contrastTextColor,
+                                          size: 14,
+                                        ),
+                                        Text(
+                                          'tap that',
+                                          style: TextStyle(
+                                            color: contrastTextColor,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        child: SizedBox(
-                          width: 180,
-                          height: 24,
-                          child: Center(
-                            child: Text(
-                              'visit the toot fairy',
-                              style: TextStyle(
-                                color: _textColor(toot),
-                                fontSize: 12,
+                      ),
+                      if (showDesktopWebNavButtons)
+                        _DesktopWebFruitNavButton(
+                          key: const Key('desktopPrevFruitButton'),
+                          alignment: Alignment.centerLeft,
+                          icon: Icons.chevron_left,
+                          onPressed: _showPreviousToot,
+                          color: textColor,
+                        ),
+                      if (showDesktopWebNavButtons)
+                        _DesktopWebFruitNavButton(
+                          key: const Key('desktopNextFruitButton'),
+                          alignment: Alignment.centerRight,
+                          icon: Icons.chevron_right,
+                          onPressed: _showNextToot,
+                          color: textColor,
+                        ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: OutlinedButton(
+                            key: const Key('visitTootFairyButton'),
+                            onPressed: () {
+                              _navService.current.pushNamed(
+                                TootFairyScreen.route,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: BeveledRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              side: BorderSide(width: 1, color: textColor),
+                            ),
+                            child: SizedBox(
+                              width: 180,
+                              height: 24,
+                              child: Center(
+                                child: Text(
+                                  'visit the toot fairy',
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              );
-            },
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTransitioningFruit({
+    required Toot fromToot,
+    required Toot toToot,
+    required double progress,
+  }) {
+    if (fromToot.fruit == toToot.fruit) {
+      return FruitAsset(
+        key: ValueKey<String>('fruit-${toToot.fruit}'),
+        fruit: toToot.fruit,
+        svgKey: ValueKey<String>('fruit-svg-${toToot.fruit}'),
+      );
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Opacity(
+          opacity: 1.0 - progress,
+          child: IgnorePointer(
+            child: FruitAsset(
+              key: ValueKey<String>(
+                'fruit-from-${fromToot.fruit}-$_transitionTick',
+              ),
+              fruit: fromToot.fruit,
+              svgKey: ValueKey<String>(
+                'fruit-from-svg-${fromToot.fruit}-$_transitionTick',
+              ),
+            ),
           ),
         ),
-      ),
+        Opacity(
+          opacity: progress,
+          child: Transform.rotate(
+            angle: fadeInFruitRotationRadians(progress: progress),
+            child: Transform.scale(
+              scale: fadeInFruitScale(progress: progress),
+              child: FruitAsset(
+                key: ValueKey<String>(
+                  'fruit-to-${toToot.fruit}-$_transitionTick',
+                ),
+                fruit: toToot.fruit,
+                svgKey: ValueKey<String>(
+                  'fruit-to-svg-${toToot.fruit}-$_transitionTick',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Future<void> _showNextToot() async {
+    final previousToot = toot;
     _resetAnimations();
     await _tootService.increment();
     if (mounted) {
-      setState(() {});
+      setState(() {
+        _fromToot = previousToot;
+        toot = _tootService.current;
+        _transitionTick++;
+      });
     }
   }
 
   Future<void> _showPreviousToot() async {
+    final previousToot = toot;
     _resetAnimations();
     await _tootService.decrement();
     if (mounted) {
-      setState(() {});
+      setState(() {
+        _fromToot = previousToot;
+        toot = _tootService.current;
+        _transitionTick++;
+      });
     }
   }
 
@@ -322,9 +432,61 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
     _scaleController.forward().whenComplete(() => _scaleController.reverse());
   }
 
-  void _tootAndAnimate() {
+  Future<void> _tootAndAnimate() async {
+    await _tootService.ensureCurrentAudioPrepared();
+    if (!mounted) {
+      return;
+    }
     _audioService.play();
     _animate();
+  }
+
+  bool get _supportsSpacebarActivation =>
+      kIsWeb ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.windows;
+
+  bool _handleGlobalKeyEvent(KeyEvent event) {
+    if (!_supportsSpacebarActivation || !mounted) {
+      return false;
+    }
+
+    final isSpace = event.logicalKey == LogicalKeyboardKey.space;
+    final isRightArrow = event.logicalKey == LogicalKeyboardKey.arrowRight;
+    final isLeftArrow = event.logicalKey == LogicalKeyboardKey.arrowLeft;
+
+    if (isSpace) {
+      final isPress = event is KeyDownEvent || event is KeyRepeatEvent;
+      if (!isPress) {
+        return false;
+      }
+      unawaited(_tootAndAnimate());
+      return true;
+    }
+
+    if (!isRightArrow && !isLeftArrow) {
+      return false;
+    }
+
+    // Keep keyboard navigation deterministic and prevent overlapping transitions.
+    if (event is! KeyDownEvent) {
+      return true;
+    }
+    if (_isKeyboardNavigating) {
+      return true;
+    }
+
+    _isKeyboardNavigating = true;
+    final navigationFuture = isRightArrow
+        ? _showNextToot()
+        : _showPreviousToot();
+    unawaited(
+      navigationFuture.whenComplete(() {
+        _isKeyboardNavigating = false;
+      }),
+    );
+    return true;
   }
 }
 
