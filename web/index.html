@@ -18,8 +18,22 @@
 
   <script>
     (function () {
+      const initialUrlStorageKey = '__tootfruitInitialUrl';
+      const pendingInitialUrlStorageKey = '__tootfruitPendingInitialUrl';
+
       try {
-        window.sessionStorage.setItem('__tootfruitInitialUrl', window.location.href);
+        const pendingInitialUrl = window.sessionStorage.getItem(
+          pendingInitialUrlStorageKey,
+        );
+        if (pendingInitialUrl !== null) {
+          window.sessionStorage.removeItem(pendingInitialUrlStorageKey);
+        }
+        if (pendingInitialUrl && pendingInitialUrl.trim() !== '') {
+          window.sessionStorage.setItem(initialUrlStorageKey, pendingInitialUrl);
+          return;
+        }
+
+        window.sessionStorage.setItem(initialUrlStorageKey, window.location.href);
       } catch (_) {
         // Best-effort only.
       }

@@ -48,6 +48,37 @@ void main() {
       );
     });
 
+    test('index.html handles deep-link URL handed off by 404 redirect', () {
+      final html = File('web/index.html').readAsStringSync();
+
+      expect(html, contains("const initialUrlStorageKey ="));
+      expect(html, contains("const pendingInitialUrlStorageKey ="));
+      expect(html, contains("window.sessionStorage.getItem("));
+      expect(
+        html,
+        contains(
+          "window.sessionStorage.removeItem(pendingInitialUrlStorageKey);",
+        ),
+      );
+      expect(
+        html,
+        contains("window.sessionStorage.setItem(initialUrlStorageKey,"),
+      );
+    });
+
+    test('404.html preserves deep-link URL and redirects to root', () {
+      final html404 = File('web/404.html').readAsStringSync();
+
+      expect(html404, contains("const pendingInitialUrlStorageKey ="));
+      expect(html404, contains("window.sessionStorage.setItem("));
+      expect(html404, contains('window.location.href'));
+      expect(html404, contains("window.location.replace('/');"));
+      expect(
+        html404,
+        contains('<meta http-equiv="refresh" content="0;url=/">'),
+      );
+    });
+
     test('index.html and manifest use Icon-512.png for web icons', () {
       final html = File('web/index.html').readAsStringSync();
       final manifestJson =
