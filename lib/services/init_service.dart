@@ -5,9 +5,9 @@ import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/connectivity_service.dart';
 import 'package:tootfruit/services/storage_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
+import 'package:tootfruit/services/toot_screen_route.dart';
 import 'package:tootfruit/services/user_service.dart';
 import '../locator.dart';
-import '../screens/toot_screen.dart';
 import 'navigation_service.dart';
 
 class InitService {
@@ -42,6 +42,6 @@ class InitService {
     while (_navService.navigatorKey.currentState == null) {
       await Future<void>.delayed(const Duration(milliseconds: 16));
     }
-    _navService.current.pushNamed(TootScreen.route);
+    _navService.current.pushReplacement(buildInitialTootScreenRoute());
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/repositories/storage_repository.dart';
-import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/toot_screen_route.dart';
 
 /// Refactored InitService following Single Responsibility Principle
 /// Responsibility: Initialize app services in correct order
@@ -39,6 +39,8 @@ class InitService {
     while (_di.navigationService.navigatorKey.currentState == null) {
       await Future<void>.delayed(const Duration(milliseconds: 16));
     }
-    _di.navigationService.current.pushNamed(TootScreen.route);
+    _di.navigationService.current.pushReplacement(
+      buildInitialTootScreenRoute(),
+    );
   }
 }

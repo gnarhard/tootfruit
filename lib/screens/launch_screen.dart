@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tootfruit/models/toot.dart';
+import 'package:tootfruit/services/fruit_query_param.dart';
 import 'package:tootfruit/services/init_service.dart';
 import 'package:tootfruit/services/image_precache_service.dart';
 
@@ -19,7 +21,7 @@ class LaunchScreenState extends State<LaunchScreen> {
   late final _initService = Locator.get<InitService>();
   late final _imagePrecacheService = Locator.get<ImagePrecacheService>();
 
-  static const _firstColor = Colors.pink;
+  late final Color _backgroundColor = resolveLaunchBackgroundColor(Uri.base);
   bool _didStartBootstrap = false;
 
   @override
@@ -50,7 +52,7 @@ class LaunchScreenState extends State<LaunchScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: _firstColor,
+      color: _backgroundColor,
       child: const Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
@@ -69,4 +71,20 @@ class LaunchScreenState extends State<LaunchScreen> {
       ),
     );
   }
+}
+
+Color resolveLaunchBackgroundColor(Uri uri) {
+  final requestedFruit = readFruitQueryParamFromUri(uri);
+  if (requestedFruit == null) {
+    return toots.first.color;
+  }
+
+  final normalizedRequestedFruit = requestedFruit.toLowerCase();
+  for (final toot in toots) {
+    if (toot.fruit.toLowerCase() == normalizedRequestedFruit) {
+      return toot.color;
+    }
+  }
+
+  return toots.first.color;
 }
