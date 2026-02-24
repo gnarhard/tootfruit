@@ -4,7 +4,7 @@ This file provides guidance to AI agents when working with code in this reposito
 
 ## Project Overview
 
-Toot Fruit is a Flutter mobile app that combines fruit imagery with curated fart sounds. Users swipe between different fruit characters, each with unique audio and visual themes. The app includes in-app purchases for unlocking all fruits and displays ads for earning new fruits.
+Toot Fruit is a Flutter app that combines fruit imagery with curated fart sounds. Users swipe between different fruit characters (17 total), each with unique audio and visual themes. All fruits are freely available.
 
 **IMPORTANT:** Read `.rules/flutter.md` for Flutter-specific guidelines.
 
@@ -13,11 +13,11 @@ Toot Fruit is a Flutter mobile app that combines fruit imagery with curated fart
 ### Code Quality Philosophy
 This codebase follows **professional software engineering principles**:
 
-✅ **SOLID Principles** - All new code must follow SOLID design patterns
-✅ **No Code Smells** - Code smells are identified and eliminated immediately
-✅ **Clean Architecture** - Clear separation of concerns (UI → Business Logic → Data)
-✅ **Type Safety** - Explicit types, no dynamic unless necessary
-✅ **Testability** - All business logic must be easily testable
+- **SOLID Principles** - All code follows SOLID design patterns
+- **No Code Smells** - Code smells are identified and eliminated immediately
+- **Clean Architecture** - Clear separation of concerns (UI -> Business Logic -> Data)
+- **Type Safety** - Explicit types, no dynamic unless necessary
+- **Testability** - All business logic is easily testable
 
 ### Coding Standards
 
@@ -28,13 +28,10 @@ This codebase follows **professional software engineering principles**:
 - Use constants for magic strings/numbers (see `/lib/constants/`)
 - Add proper null safety checks
 - Write clear, descriptive variable/method names
-- Use ValueNotifier for state management (Flutter built-in)
 - Format code with `dart format` before committing
 - Run `flutter analyze` and fix all issues
 
 **DON'T:**
-- Use service locator pattern for new code (being phased out)
-- Use RxDart for new code (replaced with ValueNotifier)
 - Create god objects or classes with multiple responsibilities
 - Use magic strings or hardcoded values
 - Force-unwrap nullables without proper checks
@@ -58,19 +55,12 @@ This project has the following MCP servers installed:
 - E2E testing capabilities
 - Form testing and validation
 
-See `MCP_SETUP.md` for usage examples.
-
 ## Development Commands
 
 ### Running the App
 ```bash
-# Run on connected device/emulator
 flutter run
-
-# Run on specific device
 flutter run -d <device_id>
-
-# List available devices
 flutter devices
 ```
 
@@ -85,15 +75,15 @@ flutter build ios
 ```
 
 ### Code Generation
-When modifying models with `@JsonSerializable()` annotations (User, Settings), regenerate the `*.g.dart` files:
+When modifying models with `@JsonSerializable()` annotations (User), regenerate the `*.g.dart` files:
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### Testing
 ```bash
-# Run unit tests (58 tests covering repositories and services)
-flutter test test/repositories/ test/services/
+# Run all unit tests (67 tests)
+flutter test
 
 # Run with coverage
 flutter test --coverage
@@ -102,41 +92,32 @@ flutter test --coverage
 flutter drive --target=integration_test/screen_visibility_integration_test.dart
 
 # Generate mocks (after modifying interfaces)
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 ```
 
-**Test Coverage**: 100% of SOLID-refactored business logic (repositories and services)
-
-See `TEST_COVERAGE_SUMMARY.md` for detailed test documentation.
+**Test Coverage**: 100% of business logic (repositories and services)
 
 ### Dependency Management
 ```bash
-# Get dependencies
 flutter pub get
-
-# Update dependencies
 flutter pub upgrade
-
-# Analyze code
 flutter analyze
 ```
 
 ## Architecture
 
-### Overview - SOLID Principles Applied
-
-This codebase has been refactored to follow **SOLID principles** with clean architecture:
+### Overview
 
 ```
 ┌─────────────────────────────────────────┐
 │      Presentation Layer (UI)            │
-│   Screens, Widgets, State Management   │
+│   Screens, Widgets                      │
 └──────────────┬──────────────────────────┘
                │ depends on
                ▼
 ┌─────────────────────────────────────────┐
 │      Business Logic Layer               │
-│   Services (TootService, etc.)          │
+│   Services (TootService, InitService)   │
 │      depends on ▼ interfaces            │
 └──────────────┬──────────────────────────┘
                │ implemented by
@@ -149,7 +130,7 @@ This codebase has been refactored to follow **SOLID principles** with clean arch
                ▼
 ┌─────────────────────────────────────────┐
 │      Infrastructure Layer               │
-│   Storage, Network, Audio, Ads          │
+│   Storage, Audio                        │
 └─────────────────────────────────────────┘
 ```
 
@@ -158,47 +139,52 @@ This codebase has been refactored to follow **SOLID principles** with clean arch
 ```
 lib/
 ├── constants/           # All constants (no magic strings!)
-│   ├── storage_keys.dart        # Storage key constants
-│   └── purchase_constants.dart  # IAP product IDs, types
+│   └── storage_keys.dart        # Storage key constants
 ├── interfaces/          # Abstractions (DIP)
 │   ├── i_audio_player.dart
 │   ├── i_storage_repository.dart
 │   ├── i_user_repository.dart
-│   ├── i_toot_repository.dart
-│   └── i_toast_service.dart
+│   └── i_toot_repository.dart
 ├── repositories/        # Data access layer (SRP)
 │   ├── storage_repository.dart  # File-based storage
 │   ├── user_repository.dart     # User data persistence
 │   └── toot_repository.dart     # Toot data access
 ├── services/            # Business logic layer
-│   ├── toot_service_refactored.dart     # ✅ SOLID (use this)
-│   ├── init_service_refactored.dart     # ✅ SOLID (use this)
-│   ├── audio_service.dart               # ✅ Implements IAudioPlayer
-│   ├── toast_service.dart               # ✅ Implements IToastService
-│   ├── connectivity_service.dart        # ✅ Uses ValueNotifier
-│   ├── in_app_purchase_service.dart     # IAP wrapper
-│   ├── ad_service.dart                  # Ads wrapper
-│   ├── new_fruit_ad_service.dart        # Extends AdService
-│   ├── navigation_service.dart          # Navigation
-│   ├── toot_service.dart                # ⚠️ OLD (being phased out)
-│   ├── init_service.dart                # ⚠️ OLD (being phased out)
-│   ├── user_service.dart                # ⚠️ OLD (being phased out)
-│   └── storage_service.dart             # ⚠️ OLD (being phased out)
+│   ├── toot_service.dart              # Toot selection, navigation, audio
+│   ├── init_service.dart              # App initialization
+│   ├── audio_service.dart             # Implements IAudioPlayer
+│   ├── navigation_service.dart        # Navigation
+│   ├── image_precache_service.dart    # Image preloading
+│   ├── fruit_query_param.dart         # Web URL fruit param sync
+│   ├── toot_transition.dart           # Fruit transition animations
+│   └── toot_screen_route.dart         # Route builder for TootScreen
 ├── core/
-│   └── dependency_injection.dart  # ✅ DI Container (replaces Locator)
+│   └── dependency_injection.dart  # DI Container (singleton)
 ├── screens/             # UI layer
+│   ├── launch_screen.dart       # Splash/loading, runs InitService
+│   ├── toot_screen.dart         # Main screen, swipe between fruits
+│   └── toot_fairy_screen.dart   # Fairy screen with secret easter egg
 ├── widgets/             # Reusable UI components
+│   ├── fruit_asset.dart         # SVG fruit rendering
+│   ├── cloud.dart               # Cloud animation
+│   ├── rotating_fruit.dart      # Rotating fruit ring
+│   ├── toot_fairy.dart          # Fairy widget with secret timer
+│   └── screen_title.dart        # App bar title styling
 ├── models/              # Data models
-├── locator.dart         # ⚠️ OLD Service Locator (being phased out)
-└── routes.dart          # Route definitions
+│   ├── toot.dart                # Fruit character (17 total)
+│   ├── user.dart                # User preferences (currentFruit)
+│   └── user.g.dart              # Generated JSON serialization
+├── app.dart             # MaterialApp with SwitchAudioObserver
+├── main.dart            # Entry point, DI initialization
+├── routes.dart          # Route definitions
+└── env.dart             # App constants
 ```
 
-### Dependency Injection (New Pattern)
+### Dependency Injection
 
-**Use this for new code:**
+The app uses a singleton DI container:
 ```dart
-// Get DI container
-final di = DependencyInjection();
+final di = DI();
 
 // Access services
 final tootService = di.tootService;
@@ -206,50 +192,18 @@ final audioPlayer = di.audioPlayer;
 final userRepo = di.userRepository;
 ```
 
-**Old pattern (being phased out):**
-```dart
-// DON'T use this for new code
-final service = Locator.get<ServiceType>();
-```
-
-### State Management
-
-**Current Standard: ValueNotifier** (Flutter built-in)
-```dart
-// In service
-final loading = ValueNotifier<bool>(false);
-
-// In UI
-ValueListenableBuilder<bool>(
-  valueListenable: service.loading,
-  builder: (context, value, child) {
-    return value ? LoadingSpinner() : Content();
-  },
-)
-```
-
-**Old Pattern (being phased out):**
-```dart
-// DON'T use RxDart for new code
-final loading$ = BehaviorSubject<bool>.seeded(false);
-```
+The DI container fields are `late` (not `late final`) to support test `reset()`.
 
 ### Repository Pattern (Data Access)
 
-All data access goes through repositories:
-
 **UserRepository** (`IUserRepository`)
-- `loadUser()` - Load user from storage
+- `loadUser()` - Load user from storage, validates currentFruit against known fruits
 - `saveUser(User)` - Persist user
 - `updateCurrentFruit(String)` - Update current fruit
-- `addOwnedFruit(String)` - Add owned fruit
-- `setAllFruitsOwned(List<String>)` - Unlock all
 
 **TootRepository** (`ITootRepository`)
-- `getAllToots()` - Get all toots
-- `getTootByFruit(String)` - Find toot by name
-- `getOwnedToots(List<String>)` - Get user's toots
-- `getRandomUnclaimedToot(List<String>)` - Random reward
+- `getAllToots()` - Get all 17 toots
+- `getTootByFruit(String)` - Find toot by name (falls back to first)
 
 **StorageRepository** (`IStorageRepository`)
 - `get<T>(String key)` - Get value
@@ -259,56 +213,38 @@ All data access goes through repositories:
 
 ### Service Layer (Business Logic)
 
-**TootService** (Refactored - SOLID)
-- Single responsibility: Toot selection and navigation
-- Constructor injection (no service locator)
-- Depends on interfaces, not concrete classes
-- Easy to test with mocks
+**TootService**
+- Toot selection and navigation (increment/decrement through all fruits)
+- Audio loading via IAudioPlayer
+- Query param reading/writing for web deep links
+- `ensureCurrentAudioPrepared()` for retry on failed audio loads
+- `shuffle()` for random fruit selection
 
-**InitService** (Refactored - SOLID)
-- Single responsibility: App initialization
-- Clean, focused initialization logic
-- Uses DI container
+**InitService**
+- App initialization sequence
+- Loads user, initializes audio, precaches images, initializes TootService
 
 **AudioService** (`IAudioPlayer`)
 - Uses **flutter_soloud** for high-performance audio playback
-- **Audio pooling**: All 18 audio files preloaded on app startup for instant playback
-- Implements interface for testability
+- All audio files preloaded on app startup for instant playback
 - Must call `init()` before use (done in InitService)
 
-**ToastService** (`IToastService`)
-- Shows notifications
-- Implements interface for swapping implementations
-
 ### Navigation
-- Routes defined in `lib/routes.dart`
+- Routes defined in `lib/routes.dart`: `/launch`, `/toot`, `/toot_fairy`
 - NavigationService provides access to navigator key
-- SwitchAudioObserver monitors route changes
+- SwitchAudioObserver monitors route changes to reset audio
 - Web route names are normalized via `normalizeRouteName(...)` so query/hash forms
   like `/#/toot?fruit=banana` resolve to canonical routes (e.g. `/toot`)
 - `MaterialApp` uses `onGenerateRoute`/`onUnknownRoute` for resilient route
   resolution and safe fallback to launch
-- Initial app bootstrap navigation (`LaunchScreen` -> `TootScreen`) uses a
+- Initial app bootstrap navigation (LaunchScreen -> TootScreen) uses a
   fade-only transition route from `buildInitialTootScreenRoute()`
-
-### Services (Internalized)
-
-Previously external git dependencies, now internalized:
-- `ad_service.dart` - Google Mobile Ads wrapper
-- `toast_service.dart` - Fluttertoast wrapper
-- `connectivity_service.dart` - Network monitoring
-- `in_app_purchase_service.dart` - IAP wrapper
-
-All implement interfaces for dependency inversion.
 
 ## Screens Flow
 
 1. **LaunchScreen** (`/launch`) - Initial splash/loading screen, runs InitService
 2. **TootScreen** (`/toot`) - Main screen, displays current fruit with swipe gestures, plays audio on tap
-3. **TootFairyScreen** (`/toot_fairy`) - Reward screen for earning new fruits via ads
-4. **TootLootScreen** (`/toot_loot`) - In-app purchase screen for unlocking all fruits
-
-Navigation uses named routes. AppDrawer provides access to TootScreen and SettingsScreen.
+3. **TootFairyScreen** (`/toot_fairy`) - Fairy character with animations; secret: hold fairy 3 seconds to navigate back to TootScreen
 
 ## Key Models
 
@@ -317,14 +253,9 @@ Represents a fruit character with associated sound. Contains static list of all 
 
 ### User (lib/models/user.dart)
 Serializable model tracking:
-- `ownedFruit` - list of unlocked fruit names
-- `currentFruit` - currently selected fruit
-- `settings` - user preferences
+- `currentFruit` - currently selected fruit (defaults to 'peach')
 
-Uses json_serializable for JSON conversion. Defaults to owning 'peach' fruit.
-
-### Settings (lib/models/settings.dart)
-User preferences (structure not detailed, but serializable).
+Uses json_serializable for JSON conversion.
 
 ## Android Build Configuration
 
@@ -357,91 +288,61 @@ assets/
 
 ### Service Access Pattern
 ```dart
-final service = Locator.get<ServiceType>();
+final di = DI();
+final tootService = di.tootService;
 ```
 
 ### Audio System (flutter_soloud)
 
 **Audio Pooling Architecture:**
-- All 18 audio files (17 toots + 1 toot fairy intro) are **preloaded on app startup**
+- All 18 audio files (17 toots + 1 toot fairy intro) are preloaded on app startup
 - Uses `flutter_soloud` for zero-latency playback from memory pools
 - AudioService must be initialized via `audioService.init()` before use
-- Init is called automatically in both `InitService` implementations
+- Init is called automatically in InitService
 
 **Playback Pattern:**
 1. `AudioService.init()` - Preloads all audio files into memory (called on app startup)
 2. `setAudio(path)` - Sets current audio from preloaded pool (instant, no I/O)
-3. `play()` - Plays from pooled source (instant playback, ~0ms latency)
+3. `play()` - Plays from pooled source (instant playback)
 4. `stop()` - Stops current playback
 
-**Performance Benefits:**
-- ✅ Instant playback (no loading delay when switching toots)
-- ✅ Zero latency (audio already in memory)
-- ✅ Efficient pooling (single AudioSource per file, reused)
+### Testing Pattern
 
-### Testing Pattern (New Code)
-
-**Write testable code using dependency injection:**
 ```dart
-test('increment toot navigates to next', () {
-  // Arrange
-  final mockTootRepo = MockTootRepository();
-  final mockUserRepo = MockUserRepository();
-  final mockAudio = MockAudioPlayer();
-  final mockPurchase = MockPurchaseService();
+test('increment toot navigates to next', () async {
+  final mockTootRepo = MockITootRepository();
+  final mockUserRepo = MockIUserRepository();
+  final mockAudio = MockIAudioPlayer();
 
-  when(mockTootRepo.getOwnedToots(any)).thenReturn([toot1, toot2]);
+  when(mockTootRepo.getAllToots()).thenReturn(testToots);
 
   final service = TootService(
     tootRepository: mockTootRepo,
     userRepository: mockUserRepo,
     audioPlayer: mockAudio,
-    purchaseService: mockPurchase,
+    readFruitQueryParam: () => null,
+    writeFruitQueryParam: (_) {},
   );
 
-  // Act
   await service.increment();
 
-  // Assert
-  verify(mockUserRepo.updateCurrentFruit(toot2.fruit)).called(1);
-  expect(service.current, equals(toot2));
+  verify(mockUserRepo.updateCurrentFruit(testToots[1].fruit)).called(1);
+  expect(service.current, equals(testToots[1]));
 });
 ```
-
-## Migration Status
-
-The codebase is currently in **transition** from old patterns to SOLID architecture:
-
-### ✅ Complete
-- SOLID architecture designed and implemented
-- Interfaces created for all dependencies
-- Repositories implemented
-- DI container created
-- Constants extracted (no magic strings)
-- Code smells eliminated
-- RxDart replaced with ValueNotifier
-- Git dependencies internalized
-
-### 🔄 In Progress
-- Gradual migration from Locator to DI container
-- Screens being updated to use new services
-- Tests being added for new architecture
 
 ## Important Notes
 
 ### Critical Rules
 - **ALWAYS** run `flutter analyze` before committing - zero errors/warnings required
 - **ALWAYS** use constants instead of magic strings (see `/lib/constants/`)
-- **NEVER** use service locator pattern for new code (use DI instead)
-- **NEVER** use RxDart for new code (use ValueNotifier instead)
 - **NEVER** create code smells (duplicate code, long methods, god objects)
 - **NEVER** skip null safety checks or use force unwrap without validation
+- Generated files (`*.g.dart`) should not be manually edited
 
 ### App Behavior
 - The app locks orientation to portrait mode only (set in main.dart)
-- New fruits unlocked via ads (NewFruitAdService) or IAP
-- Product ID for all fruits: `PurchaseConstants.allTootFruitsProductId`
-- Generated files (`*.g.dart`) should not be manually edited
+- All fruits are freely available to all users
 - Launch screen background color resolves from the selected fruit query param
   (if present/valid), otherwise defaults to peach
 - Startup fruit selection honors `fruit` query params for any valid fruit name;
@@ -454,7 +355,6 @@ The codebase is currently in **transition** from old patterns to SOLID architect
 - Interfaces go in `/lib/interfaces/`
 - Repositories go in `/lib/repositories/`
 - Business logic stays in `/lib/services/`
-- New services use `_refactored.dart` suffix during migration
 
 ## Quick Reference
 

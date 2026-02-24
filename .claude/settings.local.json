@@ -14,7 +14,13 @@
       "WebFetch(domain:pub.dev)",
       "WebFetch(domain:docs.page)",
       "Bash(flutter doctor:*)",
-      "Bash(flutter build:*)"
+      "Bash(flutter build:*)",
+      "Bash(tail:*)",
+      "Bash(dart run:*)",
+      "mcp__dart__analyze_files",
+      "mcp__dart__run_tests",
+      "mcp__dart__dart_format",
+      "mcp__dart__pub"
     ]
   }
 }

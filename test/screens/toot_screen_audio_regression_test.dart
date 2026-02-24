@@ -1,57 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
-import 'package:tootfruit/constants/storage_keys.dart';
-import 'package:tootfruit/models/settings.dart';
-import 'package:tootfruit/models/user.dart';
+import 'package:mockito/mockito.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
+import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
-import 'package:tootfruit/services/audio_service.dart';
 import 'package:tootfruit/services/navigation_service.dart';
-import 'package:tootfruit/services/storage_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
-import 'package:tootfruit/services/user_service.dart';
 import 'package:tootfruit/widgets/fruit_asset.dart';
+
+import '../test_helpers.dart';
+import '../test_helpers.mocks.dart';
 
 void main() {
   group('TootScreen first fruit audio', () {
-    tearDown(() async {
-      await GetIt.I.reset();
+    late MockITootRepository mockTootRepo;
+    late MockIUserRepository mockUserRepo;
+    late MockIAudioPlayer mockAudioPlayer;
+    late DI di;
+
+    setUp(() {
+      mockTootRepo = MockITootRepository();
+      mockUserRepo = MockIUserRepository();
+      mockAudioPlayer = MockIAudioPlayer();
+      di = DI();
+      di.reset();
     });
 
     testWidgets(
       'prepares and plays on first interaction when initial audio load returned zero',
       (WidgetTester tester) async {
-        final audioService = _FakeAudioService(
-          setAudioResults: <Duration>[
-            Duration.zero,
-            const Duration(milliseconds: 250),
-          ],
-        );
-        final userService = _FakeUserService(
-          User(
-            settings: Settings(),
-            currentFruit: 'peach',
-            ownedFruit: const ['peach', 'banana', 'strawberry'],
-          ),
-        );
-        final storageService = _FakeStorageService();
+        final setAudioResults = <Duration>[
+          Duration.zero,
+          const Duration(milliseconds: 250),
+        ];
+        var setAudioCalls = 0;
+        var playCalls = 0;
+
+        when(mockAudioPlayer.setAudio(any)).thenAnswer((_) async {
+          setAudioCalls++;
+          if (setAudioResults.isNotEmpty) {
+            return setAudioResults.removeAt(0);
+          }
+          return const Duration(milliseconds: 250);
+        });
+        when(mockAudioPlayer.play()).thenAnswer((_) {
+          playCalls++;
+        });
+        when(mockAudioPlayer.init()).thenAnswer((_) async {});
+
+        final testUser = TestData.createUser(currentFruit: 'peach');
+        when(mockUserRepo.currentUser).thenReturn(testUser);
+        when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async {});
+        when(mockTootRepo.getAllToots()).thenReturn(toots);
+        when(mockTootRepo.getTootByFruit('peach')).thenReturn(toots.first);
+
         final navigationService = NavigationService();
 
-        GetIt.I.registerSingleton<AudioService>(audioService);
-        GetIt.I.registerSingleton<UserService>(userService);
-        GetIt.I.registerSingleton<StorageService>(storageService);
-        GetIt.I.registerSingleton<NavigationService>(navigationService);
-
-        final tootService = TootService(
+        di.tootRepository = mockTootRepo;
+        di.userRepository = mockUserRepo;
+        di.audioPlayer = mockAudioPlayer;
+        di.navigationService = navigationService;
+        di.tootService = TootService(
+          tootRepository: mockTootRepo,
+          userRepository: mockUserRepo,
+          audioPlayer: mockAudioPlayer,
           readFruitQueryParam: () => null,
           writeFruitQueryParam: (_) {},
         );
-        GetIt.I.registerSingleton<TootService>(tootService);
 
-        await tootService.init();
-        expect(tootService.current.duration, equals(Duration.zero));
-        expect(audioService.setAudioCalls, equals(1));
-        expect(audioService.playCalls, equals(0));
+        await di.tootService.init();
+        expect(di.tootService.current.duration, equals(Duration.zero));
+        expect(setAudioCalls, equals(1));
+        expect(playCalls, equals(0));
 
         await tester.pumpWidget(
           MaterialApp(
@@ -65,64 +85,13 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 320));
 
-        expect(audioService.setAudioCalls, equals(2));
-        expect(audioService.playCalls, equals(1));
+        expect(setAudioCalls, equals(2));
+        expect(playCalls, equals(1));
         expect(
-          tootService.current.duration,
+          di.tootService.current.duration,
           equals(const Duration(milliseconds: 250)),
         );
       },
     );
   });
-}
-
-class _FakeAudioService extends AudioService {
-  final List<Duration> _setAudioResults;
-  int setAudioCalls = 0;
-  int playCalls = 0;
-  bool _isPrepared = false;
-
-  _FakeAudioService({required List<Duration> setAudioResults})
-    : _setAudioResults = List<Duration>.from(setAudioResults);
-
-  @override
-  Future<Duration> setAudio(String assetPath) async {
-    setAudioCalls++;
-    final result = _setAudioResults.isNotEmpty
-        ? _setAudioResults.removeAt(0)
-        : const Duration(milliseconds: 250);
-    _isPrepared = result > Duration.zero;
-    return result;
-  }
-
-  @override
-  void play() {
-    if (_isPrepared) {
-      playCalls++;
-    }
-  }
-}
-
-class _FakeUserService extends UserService {
-  _FakeUserService(User user) {
-    current = user;
-  }
-}
-
-class _FakeStorageService extends StorageService {
-  final writes = <String, dynamic>{};
-
-  @override
-  Future<dynamic> get(String key) async {
-    return writes[key];
-  }
-
-  @override
-  Future<void> set(String key, dynamic value) async {
-    writes[key] = value;
-    if (key == StorageKeys.user && value is User) {
-      final expirationKey = StorageKeys.expirationKey(key);
-      writes[expirationKey] = DateTime.now().toIso8601String();
-    }
-  }
 }

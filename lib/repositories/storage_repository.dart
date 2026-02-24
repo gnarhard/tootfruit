@@ -1,27 +1,26 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:path_provider/path_provider.dart';
 import 'package:tootfruit/constants/storage_keys.dart';
 import 'package:tootfruit/interfaces/i_storage_repository.dart';
-import 'package:tootfruit/interfaces/i_toast_service.dart';
 
 /// File-based storage repository implementation
 /// Single responsibility: File-based data persistence
 class FileStorageRepository implements IStorageRepository {
-  final IToastService _toastService;
   static const _fileName = 'storage.json';
   static const _cacheExpirationDays = Duration(days: 1);
 
   Map<String, dynamic>? _cachedStorage;
 
-  FileStorageRepository(this._toastService);
-
   DateTime get _expirationDate => DateTime.now().add(_cacheExpirationDays);
 
-  DateTime _setNewExpirationDate(DateTime expiration) =>
-      DateTime(expiration.year, expiration.month, expiration.day)
-          .add(_cacheExpirationDays);
+  DateTime _setNewExpirationDate(DateTime expiration) => DateTime(
+    expiration.year,
+    expiration.month,
+    expiration.day,
+  ).add(_cacheExpirationDays);
 
   @override
   Future<bool> exists(String key) async {
@@ -90,7 +89,7 @@ class FileStorageRepository implements IStorageRepository {
       final jsonString = await storageFile.readAsString();
       _cachedStorage = jsonString.isEmpty ? {} : json.decode(jsonString);
     } catch (err) {
-      _toastService.error("Failed to load data.", devError: err.toString());
+      debugPrint('FileStorageRepository: Failed to load data: $err');
       _cachedStorage = {};
     }
 

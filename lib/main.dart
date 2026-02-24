@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
-import 'locator.dart';
+import 'core/dependency_injection.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Locator.registerAll();
+  DI().initialize();
   runApp(const App());
   unawaited(
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),

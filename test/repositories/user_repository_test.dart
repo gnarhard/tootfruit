@@ -11,7 +11,6 @@ void main() {
   group('UserRepository', () {
     late UserRepository repository;
     late MockIStorageRepository mockStorage;
-    final allFruitNames = toots.map((toot) => toot.fruit).toList();
 
     setUp(() {
       mockStorage = MockIStorageRepository();
@@ -46,16 +45,12 @@ void main() {
         final user = await repository.loadUser();
 
         expect(user, isNotNull);
-        expect(user.ownedFruit, equals(allFruitNames));
         expect(user.currentFruit, equals('peach'));
         verify(mockStorage.set(StorageKeys.user, any)).called(1);
       });
 
       test('loads existing user from storage', () async {
-        final storedUser = TestData.createUser(
-          ownedFruit: ['peach', 'banana'],
-          currentFruit: 'banana',
-        );
+        final storedUser = TestData.createUser(currentFruit: 'banana');
         when(
           mockStorage.get<dynamic>(StorageKeys.user),
         ).thenAnswer((_) async => storedUser);
@@ -63,15 +58,12 @@ void main() {
 
         final user = await repository.loadUser();
 
-        expect(user.ownedFruit, equals(allFruitNames));
         expect(user.currentFruit, equals('banana'));
       });
 
       test('deserializes user from JSON', () async {
         final userJson = <String, dynamic>{
-          'ownedFruit': ['peach', 'cherry'],
           'currentFruit': 'cherry',
-          'settings': <String, dynamic>{},
         };
         when(
           mockStorage.get<dynamic>(StorageKeys.user),
@@ -80,8 +72,22 @@ void main() {
 
         final user = await repository.loadUser();
 
-        expect(user.ownedFruit, equals(allFruitNames));
         expect(user.currentFruit, equals('cherry'));
+      });
+
+      test('resets invalid currentFruit to first fruit', () async {
+        final userJson = <String, dynamic>{
+          'currentFruit': 'nonexistent_fruit',
+        };
+        when(
+          mockStorage.get<dynamic>(StorageKeys.user),
+        ).thenAnswer((_) async => userJson);
+        when(mockStorage.set(any, any)).thenAnswer((_) async => {});
+
+        final user = await repository.loadUser();
+
+        final allFruitNames = toots.map((toot) => toot.fruit).toList();
+        expect(user.currentFruit, equals(allFruitNames.first));
       });
 
       test('saves user after loading', () async {
@@ -149,77 +155,6 @@ void main() {
             ),
           ),
         );
-      });
-    });
-
-    group('addOwnedFruit', () {
-      test('adds fruit to owned list', () async {
-        final user = TestData.createUser(ownedFruit: ['peach']);
-        when(
-          mockStorage.get<dynamic>(StorageKeys.user),
-        ).thenAnswer((_) async => user);
-        when(mockStorage.set(any, any)).thenAnswer((_) async => {});
-
-        await repository.loadUser();
-        await repository.addOwnedFruit('banana');
-
-        expect(repository.currentUser!.ownedFruit, contains('banana'));
-        expect(
-          repository.currentUser!.ownedFruit.length,
-          equals(allFruitNames.length + 1),
-        );
-      });
-
-      test('saves user after adding fruit', () async {
-        final user = TestData.createUser(ownedFruit: ['peach']);
-        when(
-          mockStorage.get<dynamic>(StorageKeys.user),
-        ).thenAnswer((_) async => user);
-        when(mockStorage.set(any, any)).thenAnswer((_) async => {});
-
-        await repository.loadUser();
-        await repository.addOwnedFruit('banana');
-
-        verify(mockStorage.set(StorageKeys.user, any)).called(2);
-      });
-
-      test('throws StateError when user not loaded', () async {
-        expect(() => repository.addOwnedFruit('banana'), throwsStateError);
-      });
-    });
-
-    group('setAllFruitsOwned', () {
-      test('replaces owned fruit list', () async {
-        final user = TestData.createUser(ownedFruit: ['peach']);
-        when(
-          mockStorage.get<dynamic>(StorageKeys.user),
-        ).thenAnswer((_) async => user);
-        when(mockStorage.set(any, any)).thenAnswer((_) async => {});
-
-        await repository.loadUser();
-        await repository.setAllFruitsOwned(['peach', 'banana', 'cherry']);
-
-        expect(
-          repository.currentUser!.ownedFruit,
-          equals(['peach', 'banana', 'cherry']),
-        );
-      });
-
-      test('saves user after setting fruits', () async {
-        final user = TestData.createUser();
-        when(
-          mockStorage.get<dynamic>(StorageKeys.user),
-        ).thenAnswer((_) async => user);
-        when(mockStorage.set(any, any)).thenAnswer((_) async => {});
-
-        await repository.loadUser();
-        await repository.setAllFruitsOwned(['peach', 'banana']);
-
-        verify(mockStorage.set(StorageKeys.user, any)).called(2);
-      });
-
-      test('throws StateError when user not loaded', () async {
-        expect(() => repository.setAllFruitsOwned(['peach']), throwsStateError);
       });
     });
   });

@@ -1,13 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:tootfruit/services/toast_service.dart';
-import 'package:tootfruit/locator.dart';
-import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/toot_service.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
 
 import '../screens/toot_screen.dart';
-import '../services/navigation_service.dart';
 
 class TootFairy extends StatefulWidget {
   const TootFairy({super.key});
@@ -19,10 +15,7 @@ class TootFairy extends StatefulWidget {
 }
 
 class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
-  late final _audioService = Locator.get<AudioService>();
-  late final _tootService = Locator.get<TootService>();
-  late final _navService = Locator.get<NavigationService>();
-  late final _toastService = Locator.get<ToastService>();
+  final _di = DI();
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
@@ -81,10 +74,7 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
     _cancelSecretTimer();
     _fairyAnimationController.dispose();
     _scaleController.dispose();
-    _scaleController.removeStatusListener((listener) => {});
     _rotationController.dispose();
-    _rotationController.removeStatusListener((listener) => {});
-
     super.dispose();
   }
 
@@ -102,13 +92,8 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
               if (!mounted) {
                 return;
               }
-              await _audioService.stop();
-              await _tootService.rewardAll();
-              if (!mounted) {
-                return;
-              }
-              _navService.current.pushNamed(TootScreen.route);
-              _toastService.success("Whoa! You know the secret!");
+              await _di.audioPlayer.stop();
+              _di.navigationService.current.pushNamed(TootScreen.route);
             });
           },
           onPanCancel: _cancelSecretTimer,
@@ -147,17 +132,14 @@ class _TootFairyState extends State<TootFairy> with TickerProviderStateMixin {
   void _tootAndAnimate() async {
     _cancelSecretTimer();
 
-    // NOTE: I encountered an issue where the toot wouldn't play
-    // if the user tapped the screen right after the app was loaded.
-    // Keeping all of this synchronous is crucial for responsiveness.
     if (!_audioLoaded) {
-      _audioDuration = await _audioService.setAudio(
+      _audioDuration = await _di.audioPlayer.setAudio(
         'asset:///assets/audio/toot_fairy.mp3',
       );
       _audioLoaded = true;
     }
 
-    _audioService.play();
+    _di.audioPlayer.play();
     _animate();
   }
 

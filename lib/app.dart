@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/routes.dart';
 import 'package:tootfruit/screens/launch_screen.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
-import 'package:tootfruit/services/navigation_service.dart';
-import 'package:tootfruit/services/toot_service.dart';
 
 import 'env.dart';
-import 'locator.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -18,7 +16,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final _navService = Locator.get<NavigationService>();
+  final _di = DI();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +24,7 @@ class _AppState extends State<App> {
       debugShowCheckedModeBanner: false,
       title: Env.title,
       themeMode: ThemeMode.dark,
-      navigatorKey: _navService.navigatorKey,
+      navigatorKey: _di.navigationService.navigatorKey,
       initialRoute: LaunchScreen.route,
       routes: routes,
       onGenerateRoute: onGenerateAppRoute,
@@ -37,7 +35,7 @@ class _AppState extends State<App> {
 }
 
 class SwitchAudioObserver extends NavigatorObserver {
-  late final _tootService = Locator.get<TootService>();
+  final _tootService = DI().tootService;
 
   @override
   void didPop(Route route, Route? previousRoute) {

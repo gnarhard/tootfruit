@@ -14,10 +14,4 @@ abstract class IUserRepository {
 
   /// Update current fruit for user
   Future<void> updateCurrentFruit(String fruit);
-
-  /// Add a fruit to user's owned fruits
-  Future<void> addOwnedFruit(String fruit);
-
-  /// Set all fruits as owned
-  Future<void> setAllFruitsOwned(List<String> fruits);
 }

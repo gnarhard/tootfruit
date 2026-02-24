@@ -9,12 +9,11 @@ import 'package:flutter/cupertino.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:tootfruit/interfaces/i_audio_player.dart' as _i5;
 import 'package:tootfruit/interfaces/i_storage_repository.dart' as _i7;
-import 'package:tootfruit/interfaces/i_toast_service.dart' as _i8;
-import 'package:tootfruit/interfaces/i_toot_repository.dart' as _i9;
-import 'package:tootfruit/interfaces/i_user_repository.dart' as _i10;
+import 'package:tootfruit/interfaces/i_toot_repository.dart' as _i8;
+import 'package:tootfruit/interfaces/i_user_repository.dart' as _i9;
 import 'package:tootfruit/models/toot.dart' as _i2;
 import 'package:tootfruit/models/user.dart' as _i3;
-import 'package:tootfruit/services/navigation_service.dart' as _i11;
+import 'package:tootfruit/services/navigation_service.dart' as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -165,42 +164,10 @@ class MockIStorageRepository extends _i1.Mock
           as _i6.Future<void>);
 }
 
-/// A class which mocks [IToastService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockIToastService extends _i1.Mock implements _i8.IToastService {
-  MockIToastService() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  void error(String? message, {String? devError, dynamic response}) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #error,
-          [message],
-          {#devError: devError, #response: response},
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void success(String? message) => super.noSuchMethod(
-    Invocation.method(#success, [message]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void warning(String? message) => super.noSuchMethod(
-    Invocation.method(#warning, [message]),
-    returnValueForMissingStub: null,
-  );
-}
-
 /// A class which mocks [ITootRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockITootRepository extends _i1.Mock implements _i9.ITootRepository {
+class MockITootRepository extends _i1.Mock implements _i8.ITootRepository {
   MockITootRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -223,39 +190,12 @@ class MockITootRepository extends _i1.Mock implements _i9.ITootRepository {
             ),
           )
           as _i2.Toot);
-
-  @override
-  List<_i2.Toot> getOwnedToots(List<String>? ownedFruits) =>
-      (super.noSuchMethod(
-            Invocation.method(#getOwnedToots, [ownedFruits]),
-            returnValue: <_i2.Toot>[],
-          )
-          as List<_i2.Toot>);
-
-  @override
-  List<_i2.Toot> getUnclaimedToots(List<String>? ownedFruits) =>
-      (super.noSuchMethod(
-            Invocation.method(#getUnclaimedToots, [ownedFruits]),
-            returnValue: <_i2.Toot>[],
-          )
-          as List<_i2.Toot>);
-
-  @override
-  _i2.Toot getRandomUnclaimedToot(List<String>? ownedFruits) =>
-      (super.noSuchMethod(
-            Invocation.method(#getRandomUnclaimedToot, [ownedFruits]),
-            returnValue: _FakeToot_1(
-              this,
-              Invocation.method(#getRandomUnclaimedToot, [ownedFruits]),
-            ),
-          )
-          as _i2.Toot);
 }
 
 /// A class which mocks [IUserRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockIUserRepository extends _i1.Mock implements _i10.IUserRepository {
+class MockIUserRepository extends _i1.Mock implements _i9.IUserRepository {
   MockIUserRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -287,30 +227,12 @@ class MockIUserRepository extends _i1.Mock implements _i10.IUserRepository {
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
-
-  @override
-  _i6.Future<void> addOwnedFruit(String? fruit) =>
-      (super.noSuchMethod(
-            Invocation.method(#addOwnedFruit, [fruit]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
-
-  @override
-  _i6.Future<void> setAllFruitsOwned(List<String>? fruits) =>
-      (super.noSuchMethod(
-            Invocation.method(#setAllFruitsOwned, [fruits]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
 }
 
 /// A class which mocks [NavigationService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNavigationService extends _i1.Mock implements _i11.NavigationService {
+class MockNavigationService extends _i1.Mock implements _i10.NavigationService {
   MockNavigationService() {
     _i1.throwOnMissingStub(this);
   }

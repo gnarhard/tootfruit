@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/models/user.dart';
-import 'package:tootfruit/services/toot_service_refactored.dart';
+import 'package:tootfruit/services/toot_service.dart';
 
 import '../test_helpers.dart';
 import '../test_helpers.mocks.dart';
@@ -22,29 +22,21 @@ void main() {
       mockUserRepo = MockIUserRepository();
       mockAudioPlayer = MockIAudioPlayer();
 
-      // Stub the audio player init method
       when(mockAudioPlayer.init()).thenAnswer((_) async => {});
 
       testToots = TestData.createTootList();
-      testUser = TestData.createUser(
-        ownedFruit: ['peach', 'apple'],
-        currentFruit: 'peach',
-      );
+      testUser = TestData.createUser(currentFruit: 'peach');
 
       service = TootService(
         tootRepository: mockTootRepo,
         userRepository: mockUserRepo,
         audioPlayer: mockAudioPlayer,
+        readFruitQueryParam: () => null,
+        writeFruitQueryParam: (_) {},
       );
     });
 
     group('initialization', () {
-      test('starts with default values', () {
-        expect(service.loading.value, isFalse);
-        expect(service.isRewarded, isFalse);
-        expect(service.newLoot, isNull);
-      });
-
       test('current getter returns first toot when not initialized', () {
         when(mockTootRepo.getAllToots()).thenReturn(testToots);
 
@@ -55,26 +47,8 @@ void main() {
     });
 
     group('init', () {
-      test('loads owned toots for user', () async {
-        when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(
-          mockTootRepo.getOwnedToots(['peach', 'apple']),
-        ).thenReturn([testToots[0], testToots[1]]);
-        when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
-        when(
-          mockAudioPlayer.setAudio(any),
-        ).thenAnswer((_) async => testDuration);
-        when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
-
-        await service.init();
-
-        expect(service.owned.length, equals(2));
-        verify(mockTootRepo.getOwnedToots(['peach', 'apple'])).called(1);
-      });
-
       test('sets current toot from user', () async {
         when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(mockTootRepo.getOwnedToots(any)).thenReturn([testToots[0]]);
         when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
         when(
           mockAudioPlayer.setAudio(any),
@@ -102,7 +76,7 @@ void main() {
       });
     });
 
-    group('setCurrentToot', () {
+    group('set', () {
       test('loads audio for toot', () async {
         final toot = testToots[0];
         when(
@@ -110,7 +84,7 @@ void main() {
         ).thenAnswer((_) async => testDuration);
         when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
 
-        await service.setCurrentToot(toot);
+        await service.set(toot);
 
         verify(
           mockAudioPlayer.setAudio('asset:///assets/audio/peach.mp3'),
@@ -124,7 +98,7 @@ void main() {
         ).thenAnswer((_) async => testDuration);
         when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
 
-        await service.setCurrentToot(toot);
+        await service.set(toot);
 
         expect(toot.duration, equals(testDuration));
       });
@@ -136,7 +110,7 @@ void main() {
         ).thenAnswer((_) async => testDuration);
         when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
 
-        await service.setCurrentToot(toot);
+        await service.set(toot);
 
         verify(mockUserRepo.updateCurrentFruit('apple')).called(1);
       });
@@ -145,9 +119,7 @@ void main() {
     group('increment', () {
       setUp(() async {
         when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(
-          mockTootRepo.getOwnedToots(any),
-        ).thenReturn([testToots[0], testToots[1]]);
+        when(mockTootRepo.getAllToots()).thenReturn(testToots);
         when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
         when(
           mockAudioPlayer.setAudio(any),
@@ -165,6 +137,7 @@ void main() {
 
       test('wraps around to first toot', () async {
         await service.increment(); // to apple
+        await service.increment(); // to banana
         await service.increment(); // wraps to peach
 
         expect(service.current.fruit, equals('peach'));
@@ -180,9 +153,7 @@ void main() {
     group('decrement', () {
       setUp(() async {
         when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(
-          mockTootRepo.getOwnedToots(any),
-        ).thenReturn([testToots[0], testToots[1]]);
+        when(mockTootRepo.getAllToots()).thenReturn(testToots);
         when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
         when(
           mockAudioPlayer.setAudio(any),
@@ -192,175 +163,17 @@ void main() {
         await service.init();
       });
 
-      test('moves to previous toot', () async {
+      test('moves to previous toot (wraps to last)', () async {
         await service.decrement();
 
-        expect(service.current.fruit, equals('apple'));
+        expect(service.current.fruit, equals('banana'));
       });
 
-      test('wraps around to last toot', () async {
+      test('wraps around correctly', () async {
         await service.increment(); // to apple
         await service.decrement(); // back to peach
 
         expect(service.current.fruit, equals('peach'));
-      });
-    });
-
-    group('reward', () {
-      setUp(() async {
-        when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(mockTootRepo.getAllToots()).thenReturn(testToots);
-        when(
-          mockTootRepo.getOwnedToots(['peach', 'apple']),
-        ).thenReturn([testToots[0], testToots[1]]);
-        when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
-        when(
-          mockAudioPlayer.setAudio(any),
-        ).thenAnswer((_) async => testDuration);
-        when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
-        when(mockUserRepo.addOwnedFruit(any)).thenAnswer((_) async => {});
-
-        await service.init();
-      });
-
-      test('gets random unclaimed toot', () async {
-        when(
-          mockTootRepo.getRandomUnclaimedToot(['peach', 'apple']),
-        ).thenReturn(testToots[2]); // banana
-
-        await service.reward();
-
-        expect(service.newLoot!.fruit, equals('banana'));
-      });
-
-      test('adds fruit to user repository', () async {
-        when(mockTootRepo.getRandomUnclaimedToot(any)).thenReturn(testToots[2]);
-        when(
-          mockTootRepo.getOwnedToots(any),
-        ).thenReturn([testToots[0], testToots[1], testToots[2]]);
-
-        await service.reward();
-
-        verify(mockUserRepo.addOwnedFruit('banana')).called(1);
-      });
-
-      test('sets isRewarded flag', () async {
-        when(mockTootRepo.getRandomUnclaimedToot(any)).thenReturn(testToots[2]);
-        when(mockTootRepo.getOwnedToots(any)).thenReturn(testToots);
-
-        await service.reward();
-
-        expect(service.isRewarded, isTrue);
-      });
-
-      test('updates owned toots list', () async {
-        when(mockTootRepo.getRandomUnclaimedToot(any)).thenReturn(testToots[2]);
-        // Use any matcher since mock userRepo doesn't modify the actual user object
-        when(mockTootRepo.getOwnedToots(any)).thenReturn(testToots);
-
-        await service.reward();
-
-        expect(service.owned.length, equals(3));
-      });
-    });
-
-    group('rewardAll', () {
-      setUp(() async {
-        when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(mockTootRepo.getAllToots()).thenReturn(testToots);
-        when(mockTootRepo.getOwnedToots(any)).thenReturn([testToots[0]]);
-        when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
-        when(
-          mockAudioPlayer.setAudio(any),
-        ).thenAnswer((_) async => testDuration);
-        when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
-        when(mockUserRepo.setAllFruitsOwned(any)).thenAnswer((_) async => {});
-
-        await service.init();
-      });
-
-      test('sets all fruits as owned', () async {
-        await service.rewardAll();
-
-        verify(
-          mockUserRepo.setAllFruitsOwned(['peach', 'apple', 'banana']),
-        ).called(1);
-      });
-
-      test('updates owned toots to all toots', () async {
-        when(mockTootRepo.getOwnedToots(any)).thenReturn(testToots);
-
-        await service.rewardAll();
-
-        expect(service.owned.length, equals(3));
-        expect(service.ownsEveryToot, isTrue);
-      });
-
-      test('sets current to last toot', () async {
-        await service.rewardAll();
-
-        expect(service.current.fruit, equals('banana'));
-      });
-    });
-
-    group('purchaseAll', () {
-      setUp(() async {
-        when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(mockTootRepo.getAllToots()).thenReturn(testToots);
-        when(mockTootRepo.getOwnedToots(any)).thenReturn([testToots[0]]);
-        when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
-        when(
-          mockAudioPlayer.setAudio(any),
-        ).thenAnswer((_) async => testDuration);
-        when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
-        when(mockUserRepo.setAllFruitsOwned(any)).thenAnswer((_) async => {});
-
-        await service.init();
-      });
-
-      test('unlocks all fruits when not loading', () async {
-        await service.purchaseAll();
-
-        verify(
-          mockUserRepo.setAllFruitsOwned(['peach', 'apple', 'banana']),
-        ).called(1);
-      });
-
-      test('resets loading flag after completion', () async {
-        await service.purchaseAll();
-
-        expect(service.loading.value, isFalse);
-      });
-
-      test('does not start purchase when already loading', () async {
-        service.loading.value = true;
-
-        await service.purchaseAll();
-
-        verifyNever(mockUserRepo.setAllFruitsOwned(any));
-      });
-    });
-
-    group('ownsEveryToot', () {
-      test('returns false when not all toots owned', () {
-        when(mockTootRepo.getAllToots()).thenReturn(testToots);
-
-        expect(service.ownsEveryToot, isFalse);
-      });
-
-      test('returns true when all toots owned', () async {
-        when(mockUserRepo.currentUser).thenReturn(testUser);
-        when(mockTootRepo.getAllToots()).thenReturn(testToots);
-        when(mockTootRepo.getOwnedToots(any)).thenReturn(testToots);
-        when(mockTootRepo.getTootByFruit('peach')).thenReturn(testToots[0]);
-        when(
-          mockAudioPlayer.setAudio(any),
-        ).thenAnswer((_) async => testDuration);
-        when(mockUserRepo.updateCurrentFruit(any)).thenAnswer((_) async => {});
-
-        await service.init();
-
-        expect(service.ownsEveryToot, isTrue);
       });
     });
   });

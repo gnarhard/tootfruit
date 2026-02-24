@@ -2,30 +2,25 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
+import 'package:tootfruit/repositories/storage_repository.dart';
 import 'package:tootfruit/routes.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
-import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/navigation_service.dart';
-import 'package:tootfruit/services/storage_service.dart';
-import 'package:tootfruit/services/toot_service.dart';
-import 'package:tootfruit/services/user_service.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Unlocked Toot Flow', () {
     testWidgets(
-      'all fruits are unlocked, restore loads last fruit, and gestures/taps work',
+      'all fruits available, restore loads last fruit, and gestures/taps work',
       (WidgetTester tester) async {
-        await _initializeUnlockedState(tester);
-        final tootService = Locator.get<TootService>();
+        final di = await _initializeState(tester);
         final routeSpy = _RouteSpy();
 
         await tester.pumpWidget(
           MaterialApp(
-            navigatorKey: Locator.get<NavigationService>().navigatorKey,
+            navigatorKey: di.navigationService.navigatorKey,
             initialRoute: TootScreen.route,
             routes: routes,
             navigatorObservers: [routeSpy],
@@ -33,13 +28,17 @@ void main() {
         );
 
         expect(find.byKey(const Key('tootScreen')), findsOneWidget);
-        expect(tootService.owned.length, equals(tootService.all.length));
-        expect(tootService.ownsEveryToot, isTrue);
         expect(find.text('visit the toot fairy'), findsOneWidget);
-        expect(tootService.current.fruit, equals(tootService.all[4].fruit));
+        expect(
+          di.tootService.current.fruit,
+          equals(di.tootService.all[4].fruit),
+        );
 
         await _waitForLiveApp(duration: const Duration(seconds: 1));
-        expect(tootService.current.fruit, equals(tootService.all[4].fruit));
+        expect(
+          di.tootService.current.fruit,
+          equals(di.tootService.all[4].fruit),
+        );
 
         if (kIsWeb) {
           expect(
@@ -60,10 +59,10 @@ void main() {
             matching: find.byType(IconButton),
           );
 
-          final currentFruit = tootService.current.fruit;
+          final currentFruit = di.tootService.current.fruit;
           await tester.tap(nextButton);
           await _waitForLiveApp();
-          expect(tootService.current.fruit, isNot(equals(currentFruit)));
+          expect(di.tootService.current.fruit, isNot(equals(currentFruit)));
 
           await tester.tap(prevButton);
           await _waitForLiveApp();
@@ -89,12 +88,12 @@ void main() {
     testWidgets(
       'toot fairy has back button, no monetization controls, and back returns to toot',
       (WidgetTester tester) async {
-        await _initializeUnlockedState(tester);
+        final di = await _initializeState(tester);
         final routeSpy = _RouteSpy();
 
         await tester.pumpWidget(
           MaterialApp(
-            navigatorKey: Locator.get<NavigationService>().navigatorKey,
+            navigatorKey: di.navigationService.navigatorKey,
             initialRoute: TootFairyScreen.route,
             routes: routes,
             navigatorObservers: [routeSpy],
@@ -136,23 +135,22 @@ class _RouteSpy extends NavigatorObserver {
   }
 }
 
-Future<void> _initializeUnlockedState(WidgetTester tester) async {
-  Locator.registerAll();
-
-  final storageService = Locator.get<StorageService>();
-  final audioService = Locator.get<AudioService>();
-  final userService = Locator.get<UserService>();
-  final tootService = Locator.get<TootService>();
+Future<DI> _initializeState(WidgetTester tester) async {
+  final di = DI();
+  di.initialize();
 
   await tester.runAsync(() async {
-    await storageService.deleteStorageFile();
-    await audioService.init();
-    await userService.init();
-    await tootService.init();
-    await tootService.set(tootService.all[4]);
-    await userService.init();
-    await tootService.init();
+    final storage = di.storageRepository as FileStorageRepository;
+    await storage.deleteStorageFile();
+    await di.audioPlayer.init();
+    await di.userRepository.loadUser();
+    await di.tootService.init();
+    await di.tootService.set(di.tootService.all[4]);
+    await di.userRepository.loadUser();
+    await di.tootService.init();
   });
+
+  return di;
 }
 
 Future<void> _waitForLiveApp({

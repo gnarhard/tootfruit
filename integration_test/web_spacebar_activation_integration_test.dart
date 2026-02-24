@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
+import 'package:tootfruit/repositories/storage_repository.dart';
 import 'package:tootfruit/routes.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/navigation_service.dart';
-import 'package:tootfruit/services/storage_service.dart';
-import 'package:tootfruit/services/toot_service.dart';
-import 'package:tootfruit/services/user_service.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -22,12 +19,12 @@ void main() {
       return;
     }
 
-    await _initializeUnlockedState(tester);
-    final audioService = Locator.get<AudioService>();
+    final di = await _initializeUnlockedState(tester);
+    final audioService = di.audioPlayer as AudioService;
 
     await tester.pumpWidget(
       MaterialApp(
-        navigatorKey: Locator.get<NavigationService>().navigatorKey,
+        navigatorKey: di.navigationService.navigatorKey,
         initialRoute: TootScreen.route,
         routes: routes,
       ),
@@ -47,23 +44,22 @@ void main() {
   });
 }
 
-Future<void> _initializeUnlockedState(WidgetTester tester) async {
-  Locator.registerAll();
-
-  final storageService = Locator.get<StorageService>();
-  final audioService = Locator.get<AudioService>();
-  final userService = Locator.get<UserService>();
-  final tootService = Locator.get<TootService>();
+Future<DI> _initializeUnlockedState(WidgetTester tester) async {
+  final di = DI();
+  di.initialize();
 
   await tester.runAsync(() async {
-    await storageService.deleteStorageFile();
-    await audioService.init();
-    await userService.init();
-    await tootService.init();
-    await tootService.set(tootService.all[0]);
-    await userService.init();
-    await tootService.init();
+    final storage = di.storageRepository as FileStorageRepository;
+    await storage.deleteStorageFile();
+    await di.audioPlayer.init();
+    await di.userRepository.loadUser();
+    await di.tootService.init();
+    await di.tootService.set(di.tootService.all[0]);
+    await di.userRepository.loadUser();
+    await di.tootService.init();
   });
+
+  return di;
 }
 
 Future<void> _waitForLiveApp({

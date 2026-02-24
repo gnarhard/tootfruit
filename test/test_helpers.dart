@@ -3,28 +3,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:tootfruit/interfaces/i_audio_player.dart';
 import 'package:tootfruit/interfaces/i_storage_repository.dart';
-import 'package:tootfruit/interfaces/i_toast_service.dart';
 import 'package:tootfruit/interfaces/i_toot_repository.dart';
 import 'package:tootfruit/interfaces/i_user_repository.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/models/user.dart';
-import 'package:tootfruit/models/settings.dart';
 import 'package:tootfruit/services/navigation_service.dart';
 
-/// Test helpers and common utilities for testing
-
-// Generate mocks for all interfaces
 @GenerateMocks([
   IAudioPlayer,
   IStorageRepository,
-  IToastService,
   ITootRepository,
   IUserRepository,
   NavigationService,
 ])
 void main() {}
 
-/// Test data builders
 class TestData {
   static Toot createToot({
     String fruit = 'apple',
@@ -42,13 +35,10 @@ class TestData {
   }
 
   static User createUser({
-    List<String>? ownedFruit,
     String currentFruit = 'peach',
   }) {
     return User(
-      ownedFruit: ownedFruit ?? ['peach'],
       currentFruit: currentFruit,
-      settings: Settings(),
     );
   }
 
@@ -61,7 +51,6 @@ class TestData {
   }
 }
 
-/// Custom matchers
 class IsToot extends Matcher {
   final String fruit;
 
@@ -78,9 +67,4 @@ class IsToot extends Matcher {
   }
 }
 
-/// Verify helpers - Re-export from mockito for convenience
-// Note: verifyNever and verifyInOrder are already exported by mockito/mockito.dart
-// so we don't need custom wrappers
-
-/// Useful constants
 const testDuration = Duration(seconds: 3);

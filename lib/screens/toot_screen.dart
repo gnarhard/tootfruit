@@ -4,15 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tinycolor2/tinycolor2.dart';
-import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
-import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/toot_service.dart';
 import 'package:tootfruit/services/toot_transition.dart';
 import 'package:tootfruit/widgets/fruit_asset.dart';
 
 import '../models/toot.dart';
-import '../services/navigation_service.dart';
 import '../widgets/screen_title.dart';
 
 class TootScreen extends StatefulWidget {
@@ -26,9 +23,7 @@ class TootScreen extends StatefulWidget {
 }
 
 class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
-  final _audioService = Locator.get<AudioService>();
-  final _tootService = Locator.get<TootService>();
-  late final _navService = Locator.get<NavigationService>();
+  final _di = DI();
 
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
@@ -89,7 +84,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
       curve: Curves.easeIn,
     );
 
-    toot = _tootService.current;
+    toot = _di.tootService.current;
     _fromToot = toot;
 
     if (_supportsSpacebarActivation) {
@@ -174,7 +169,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                     children: [
                       FadeTransition(
                         opacity: _opacityAnimation,
-                        child: _tootService.owned.length < 2
+                        child: _di.tootService.all.length < 2
                             ? Container()
                             : Center(
                                 child: Column(
@@ -291,7 +286,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                           child: OutlinedButton(
                             key: const Key('visitTootFairyButton'),
                             onPressed: () {
-                              _navService.current.pushNamed(
+                              _di.navigationService.current.pushNamed(
                                 TootFairyScreen.route,
                               );
                             },
@@ -383,11 +378,11 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   Future<void> _showNextToot() async {
     final previousToot = toot;
     _resetAnimations();
-    await _tootService.increment();
+    await _di.tootService.increment();
     if (mounted) {
       setState(() {
         _fromToot = previousToot;
-        toot = _tootService.current;
+        toot = _di.tootService.current;
         _transitionTick++;
       });
     }
@@ -396,11 +391,11 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   Future<void> _showPreviousToot() async {
     final previousToot = toot;
     _resetAnimations();
-    await _tootService.decrement();
+    await _di.tootService.decrement();
     if (mounted) {
       setState(() {
         _fromToot = previousToot;
-        toot = _tootService.current;
+        toot = _di.tootService.current;
         _transitionTick++;
       });
     }
@@ -446,11 +441,11 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _tootAndAnimate() async {
-    await _tootService.ensureCurrentAudioPrepared();
+    await _di.tootService.ensureCurrentAudioPrepared();
     if (!mounted) {
       return;
     }
-    _audioService.play();
+    _di.audioPlayer.play();
     _animate();
   }
 
@@ -482,7 +477,6 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
       return false;
     }
 
-    // Keep keyboard navigation deterministic and prevent overlapping transitions.
     if (event is! KeyDownEvent) {
       return true;
     }

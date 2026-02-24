@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/services/fruit_query_param.dart';
 import 'package:tootfruit/services/init_service.dart';
-import 'package:tootfruit/services/image_precache_service.dart';
-
-import '../locator.dart';
 
 class LaunchScreen extends StatefulWidget {
   static const route = '/launch';
@@ -18,9 +16,7 @@ class LaunchScreen extends StatefulWidget {
 }
 
 class LaunchScreenState extends State<LaunchScreen> {
-  late final _initService = Locator.get<InitService>();
-  late final _imagePrecacheService = Locator.get<ImagePrecacheService>();
-
+  final _di = DI();
   late final Color _backgroundColor = resolveLaunchBackgroundColor(Uri.base);
   bool _didStartBootstrap = false;
 
@@ -37,7 +33,7 @@ class LaunchScreenState extends State<LaunchScreen> {
 
   Future<void> _bootstrap() async {
     try {
-      await _imagePrecacheService.precacheLaunchImages(context);
+      await _di.imagePrecacheService.precacheLaunchImages(context);
     } catch (error, stackTrace) {
       debugPrint('LaunchScreen: Failed to precache launch images: $error');
       debugPrintStack(stackTrace: stackTrace);
@@ -46,7 +42,7 @@ class LaunchScreenState extends State<LaunchScreen> {
     if (!mounted) {
       return;
     }
-    await _initService.init();
+    await InitService().init();
   }
 
   @override

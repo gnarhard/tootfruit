@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:tootfruit/locator.dart';
+import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
-import 'package:tootfruit/services/audio_service.dart';
-import 'package:tootfruit/services/image_precache_service.dart';
 import 'package:tootfruit/widgets/cloud.dart';
 import 'package:tootfruit/widgets/rotating_fruit.dart';
 import 'package:tootfruit/widgets/toot_fairy.dart';
@@ -16,16 +14,12 @@ class TootFairyScreen extends StatefulWidget {
 
   const TootFairyScreen({super.key});
 
-  static Future<void> precacheImages(BuildContext context) async {
-    await ImagePrecacheService().precacheLaunchImages(context);
-  }
-
   @override
   State<TootFairyScreen> createState() => _TootFairyScreenState();
 }
 
 class _TootFairyScreenState extends State<TootFairyScreen> {
-  final _audioService = Locator.get<AudioService>();
+  final _di = DI();
 
   static const Color _backgroundColor = Color(0xff53BAF3);
   static const Color _backgroundColorSecondary = Color(0xff43b6f6);
@@ -159,9 +153,11 @@ class _TootFairyScreenState extends State<TootFairyScreen> {
     }
     _hasStartedAudio = true;
 
-    await _audioService.setAudio('asset:///assets/audio/toot_fairy_intro.mp3');
+    await _di.audioPlayer.setAudio(
+      'asset:///assets/audio/toot_fairy_intro.mp3',
+    );
     if (mounted) {
-      _audioService.play();
+      _di.audioPlayer.play();
     }
   }
 }
