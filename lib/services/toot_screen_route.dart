@@ -3,9 +3,9 @@ import 'package:tootfruit/screens/toot_screen.dart';
 
 const Duration _initialTootScreenFadeDuration = Duration(milliseconds: 240);
 
-Route<void> buildInitialTootScreenRoute() {
+Route<void> buildInitialTootScreenRoute({String routeName = TootScreen.route}) {
   return PageRouteBuilder<void>(
-    settings: const RouteSettings(name: TootScreen.route),
+    settings: RouteSettings(name: routeName),
     transitionDuration: _initialTootScreenFadeDuration,
     reverseTransitionDuration: _initialTootScreenFadeDuration,
     pageBuilder: (context, animation, secondaryAnimation) {

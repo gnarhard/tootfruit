@@ -6,13 +6,20 @@ import 'package:path_provider/path_provider.dart';
 import 'package:tootfruit/constants/storage_keys.dart';
 import 'package:tootfruit/interfaces/i_storage_repository.dart';
 
+typedef StorageDirectoryProvider = Future<String> Function();
+
 /// File-based storage repository implementation
 /// Single responsibility: File-based data persistence
 class FileStorageRepository implements IStorageRepository {
   static const _fileName = 'storage.json';
   static const _cacheExpirationDays = Duration(days: 1);
 
+  final StorageDirectoryProvider _storageDirectoryProvider;
   Map<String, dynamic>? _cachedStorage;
+
+  FileStorageRepository({StorageDirectoryProvider? storageDirectoryProvider})
+    : _storageDirectoryProvider =
+          storageDirectoryProvider ?? _defaultStorageDirectoryProvider;
 
   DateTime get _expirationDate => DateTime.now().add(_cacheExpirationDays);
 
@@ -78,7 +85,16 @@ class FileStorageRepository implements IStorageRepository {
       return _cachedStorage!;
     }
 
-    final storageFile = await _getStorageFile();
+    File storageFile;
+    try {
+      storageFile = await _getStorageFile();
+    } catch (err) {
+      debugPrint(
+        'FileStorageRepository: Falling back to in-memory storage: $err',
+      );
+      _cachedStorage = {};
+      return _cachedStorage!;
+    }
 
     if (!await storageFile.exists()) {
       _cachedStorage = {};
@@ -98,19 +114,31 @@ class FileStorageRepository implements IStorageRepository {
 
   Future<void> _saveStorage(Map<String, dynamic> storage) async {
     final jsonString = json.encode(storage);
-    final storageFile = await _getStorageFile();
+    try {
+      final storageFile = await _getStorageFile();
 
-    if (!await storageFile.exists()) {
-      await storageFile.create();
+      if (!await storageFile.exists()) {
+        await storageFile.create(recursive: true);
+      }
+
+      await storageFile.writeAsString(jsonString);
+    } catch (err) {
+      debugPrint(
+        'FileStorageRepository: Failed to persist storage to disk: $err',
+      );
     }
 
-    await storageFile.writeAsString(jsonString);
     _cachedStorage = storage;
   }
 
   Future<File> _getStorageFile() async {
+    final directory = await _storageDirectoryProvider();
+    return File('$directory/$_fileName');
+  }
+
+  static Future<String> _defaultStorageDirectoryProvider() async {
     final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/$_fileName');
+    return dir.path;
   }
 
   /// Delete the storage file (for debug purposes)

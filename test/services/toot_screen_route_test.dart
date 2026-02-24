@@ -35,5 +35,29 @@ void main() {
       expect(transitionWidget, isA<FadeTransition>());
       expect((transitionWidget as FadeTransition).opacity.value, equals(0.5));
     });
+
+    testWidgets('supports canonical toot deep-link route names', (
+      WidgetTester tester,
+    ) async {
+      final route =
+          buildInitialTootScreenRoute(routeName: '/toot/strawberry')
+              as PageRouteBuilder<void>;
+
+      expect(route.settings.name, equals('/toot/strawberry'));
+
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: SizedBox())),
+      );
+      final context = tester.element(find.byType(SizedBox));
+
+      final transitionWidget = route.transitionsBuilder(
+        context,
+        const AlwaysStoppedAnimation<double>(0.5),
+        const AlwaysStoppedAnimation<double>(0.0),
+        const SizedBox(),
+      );
+
+      expect(transitionWidget, isA<FadeTransition>());
+    });
   });
 }

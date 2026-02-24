@@ -13,25 +13,25 @@ void main() {
       expect(color, equals(toots.first.color));
     });
 
-    test('uses fruit color when fruit query parameter is valid', () {
+    test('uses fruit color when fruit path parameter is valid', () {
       final color = resolveLaunchBackgroundColor(
-        Uri.parse('https://tootfruit.test/?fruit=banana'),
+        Uri.parse('https://tootfruit.test/banana'),
       );
 
       expect(color, equals(const Color(0xfffff263)));
     });
 
-    test('uses fruit color from hash-based query parameter', () {
+    test('uses fruit color from hash-based path parameter', () {
       final color = resolveLaunchBackgroundColor(
-        Uri.parse('https://tootfruit.test/#/toot?fruit=kiwi'),
+        Uri.parse('https://tootfruit.test/#/kiwi'),
       );
 
       expect(color, equals(const Color(0xffB9CA50)));
     });
 
-    test('falls back to peach when fruit query parameter is unknown', () {
+    test('falls back to peach when fruit path parameter is unknown', () {
       final color = resolveLaunchBackgroundColor(
-        Uri.parse('https://tootfruit.test/?fruit=dragonfruit'),
+        Uri.parse('https://tootfruit.test/dragonfruit'),
       );
 
       expect(color, equals(toots.first.color));

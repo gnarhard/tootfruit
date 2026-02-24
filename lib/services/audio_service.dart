@@ -8,7 +8,7 @@ import 'package:tootfruit/models/toot.dart';
 /// Provides audio pooling for all toot sounds for instant playback
 class AudioService implements IAudioPlayer {
   bool hasPlayed = false;
-  late final SoLoud _soloud;
+  SoLoud? _soloud;
 
   // Audio sources cached by normalized asset path (without asset:/// prefix)
   final Map<String, AudioSource> _audioSources = {};
@@ -23,15 +23,29 @@ class AudioService implements IAudioPlayer {
   bool _isInitialized = false;
   bool _isDisposed = false;
   Future<void>? _warmupFuture;
+  Future<void>? _initFuture;
 
   /// Initialize SoLoud and start background warm-up of all audio files.
   @override
   Future<void> init() async {
-    if (_isInitialized) {
+    if (_isInitialized || _isDisposed) {
       return;
     }
 
-    _soloud = SoLoud.instance;
+    final existingInitFuture = _initFuture;
+    if (existingInitFuture != null) {
+      await existingInitFuture;
+      return;
+    }
+
+    final initFuture = _initializeSoLoud();
+    _initFuture = initFuture;
+    await initFuture;
+  }
+
+  Future<void> _initializeSoLoud() async {
+    _soloud ??= SoLoud.instance;
+    final soloud = _soloud!;
 
     try {
       final session = await AudioSession.instance;
@@ -50,8 +64,8 @@ class AudioService implements IAudioPlayer {
         ),
       );
 
-      await _soloud.init();
-      _soloud.setGlobalVolume(1.0);
+      await soloud.init();
+      soloud.setGlobalVolume(1.0);
       _isInitialized = true;
 
       // Warm up sources in the background so app launch is not blocked.
@@ -61,6 +75,8 @@ class AudioService implements IAudioPlayer {
       _log('AudioService: Stack trace: $stackTrace');
       // Keep app startup resilient when audio backend is unavailable (e.g. web).
       _isInitialized = false;
+    } finally {
+      _initFuture = null;
     }
   }
 
@@ -100,9 +116,9 @@ class AudioService implements IAudioPlayer {
         return null;
       }
 
-      final source = await _soloud.loadAsset(normalizedPath);
+      final source = await _soloud!.loadAsset(normalizedPath);
       if (_isDisposed) {
-        _soloud.disposeSource(source);
+        _soloud!.disposeSource(source);
         return null;
       }
 
@@ -137,7 +153,7 @@ class AudioService implements IAudioPlayer {
     }
 
     _currentAssetPath = normalizedPath;
-    return _soloud.getLength(source);
+    return _soloud!.getLength(source);
   }
 
   @override
@@ -168,11 +184,11 @@ class AudioService implements IAudioPlayer {
       }
 
       if (_currentHandle != null) {
-        _soloud.stop(_currentHandle!);
+        _soloud!.stop(_currentHandle!);
         _currentHandle = null;
       }
 
-      _currentHandle = await _soloud.play(source, volume: 1.0);
+      _currentHandle = await _soloud!.play(source, volume: 1.0);
       hasPlayed = true;
     } catch (e, stackTrace) {
       debugPrint('AudioService: Error playing audio: $e');
@@ -184,7 +200,7 @@ class AudioService implements IAudioPlayer {
   Future<void> stop() async {
     if (_currentHandle != null) {
       try {
-        _soloud.stop(_currentHandle!);
+        _soloud!.stop(_currentHandle!);
         _currentHandle = null;
       } catch (e) {
         debugPrint('AudioService: Error stopping audio: $e');
@@ -196,21 +212,24 @@ class AudioService implements IAudioPlayer {
   void dispose() {
     _isDisposed = true;
 
+    final soloud = _soloud;
+
     if (_currentHandle != null) {
-      _soloud.stop(_currentHandle!);
+      soloud?.stop(_currentHandle!);
       _currentHandle = null;
     }
 
     final uniqueSources = _audioSources.values.toSet();
     for (final source in uniqueSources) {
-      _soloud.disposeSource(source);
+      soloud?.disposeSource(source);
     }
     _audioSources.clear();
     _loadingSources.clear();
     _warmupFuture = null;
+    _initFuture = null;
 
-    if (_isInitialized) {
-      _soloud.deinit();
+    if (_isInitialized && soloud != null) {
+      soloud.deinit();
       _isInitialized = false;
     }
   }

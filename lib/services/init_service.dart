@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/repositories/storage_repository.dart';
+import 'package:tootfruit/screens/toot_screen.dart';
+import 'package:tootfruit/services/fruit_query_param.dart' as fruit_query_param;
 import 'package:tootfruit/services/toot_screen_route.dart';
 
 class InitService {
@@ -23,8 +25,12 @@ class InitService {
     while (_di.navigationService.navigatorKey.currentState == null) {
       await Future<void>.delayed(const Duration(milliseconds: 16));
     }
+    final currentFruitPath =
+        '${TootScreen.route}/${_di.tootService.current.fruit}';
     _di.navigationService.current.pushReplacement(
-      buildInitialTootScreenRoute(),
+      buildInitialTootScreenRoute(routeName: currentFruitPath),
     );
+
+    fruit_query_param.writeFruitQueryParam(_di.tootService.current.fruit);
   }
 }

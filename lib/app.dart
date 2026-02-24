@@ -18,6 +18,19 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final _di = DI();
 
+  List<Route<dynamic>> _onGenerateInitialRoutes(String initialRouteName) {
+    debugPrint('Initial route name: $initialRouteName');
+    final trimmed = initialRouteName.trim();
+    final routeName = trimmed.isEmpty ? LaunchScreen.route : trimmed;
+
+    return <Route<dynamic>>[
+      MaterialPageRoute<dynamic>(
+        settings: RouteSettings(name: routeName),
+        builder: (context) => const LaunchScreen(),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,7 +38,7 @@ class _AppState extends State<App> {
       title: Env.title,
       themeMode: ThemeMode.dark,
       navigatorKey: _di.navigationService.navigatorKey,
-      initialRoute: LaunchScreen.route,
+      onGenerateInitialRoutes: _onGenerateInitialRoutes,
       routes: routes,
       onGenerateRoute: onGenerateAppRoute,
       onUnknownRoute: onUnknownAppRoute,
@@ -39,7 +52,7 @@ class SwitchAudioObserver extends NavigatorObserver {
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    if (previousRoute?.settings.name == TootScreen.route) {
+    if (normalizeRouteName(previousRoute?.settings.name) == TootScreen.route) {
       unawaited(
         _tootService.set(_tootService.current).catchError((
           Object error,
