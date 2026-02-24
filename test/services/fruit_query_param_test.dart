@@ -19,6 +19,19 @@ void main() {
       expect(fruit, equals('kiwi'));
     });
 
+    test(
+      'prefers fragment fruit when both standard and fragment queries are present',
+      () {
+        final uri = Uri.parse(
+          'https://tootfruit.test/?fruit=banana#/toot?fruit=kiwi',
+        );
+
+        final fruit = readFruitQueryParamFromUri(uri);
+
+        expect(fruit, equals('kiwi'));
+      },
+    );
+
     test('builds uri with fruit while preserving fragment and path', () {
       final current = Uri.parse('https://tootfruit.test/#/toot');
 
@@ -27,9 +40,24 @@ void main() {
       expect(next, isNotNull);
       expect(
         next!.toString(),
-        equals('https://tootfruit.test/?fruit=mango#/toot'),
+        equals('https://tootfruit.test/#/toot?fruit=mango'),
       );
     });
+
+    test(
+      'builds uri for hash routes and removes stale root fruit query parameter',
+      () {
+        final current = Uri.parse('https://tootfruit.test/?fruit=kiwi#/toot');
+
+        final next = buildFruitQueryUri(current, 'mango');
+
+        expect(next, isNotNull);
+        expect(
+          next!.toString(),
+          equals('https://tootfruit.test/#/toot?fruit=mango'),
+        );
+      },
+    );
 
     test('returns null when attempting to build uri for empty fruit', () {
       final current = Uri.parse('https://tootfruit.test/#/toot');

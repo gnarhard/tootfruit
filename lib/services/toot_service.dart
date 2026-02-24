@@ -57,7 +57,7 @@ class TootService {
 
     final requestedFruit = _normalizedFruit(_readFruitQueryParam());
     if (requestedFruit != null) {
-      toot = _findOwnedTootByFruit(requestedFruit) ?? toot;
+      toot = _findTootByFruit(requestedFruit) ?? toot;
     }
 
     await set(toot);
@@ -118,7 +118,8 @@ class TootService {
     final currentIndex = owned.indexWhere(
       (toot) => toot.fruit == current.fruit,
     );
-    final nextIndex = (currentIndex + direction) % owned.length;
+    final safeCurrentIndex = currentIndex >= 0 ? currentIndex : 0;
+    final nextIndex = (safeCurrentIndex + direction) % owned.length;
     await set(owned[nextIndex]);
   }
 
@@ -173,9 +174,9 @@ class TootService {
     return trimmed;
   }
 
-  Toot? _findOwnedTootByFruit(String fruit) {
+  Toot? _findTootByFruit(String fruit) {
     final normalizedFruit = fruit.toLowerCase();
-    for (final toot in owned) {
+    for (final toot in all) {
       if (toot.fruit.toLowerCase() == normalizedFruit) {
         return toot;
       }

@@ -46,7 +46,18 @@ void main() {
       expect(service.current.fruit, equals('banana'));
     });
 
-    test('init ignores query parameter fruit that is not owned', () async {
+    test('init picks fruit from query parameter even when not owned', () async {
+      final service = TootService(
+        readFruitQueryParam: () => 'blueberry',
+        writeFruitQueryParam: (_) {},
+      );
+
+      await service.init();
+
+      expect(service.current.fruit, equals('blueberry'));
+    });
+
+    test('init ignores unknown query parameter fruit', () async {
       final service = TootService(
         readFruitQueryParam: () => 'dragonfruit',
         writeFruitQueryParam: (_) {},
@@ -56,6 +67,23 @@ void main() {
 
       expect(service.current.fruit, equals('peach'));
     });
+
+    test(
+      'increment from deep-linked unowned fruit stays deterministic',
+      () async {
+        final service = TootService(
+          readFruitQueryParam: () => 'blueberry',
+          writeFruitQueryParam: (_) {},
+        );
+
+        await service.init();
+        expect(service.current.fruit, equals('blueberry'));
+
+        await service.increment();
+
+        expect(service.current.fruit, equals('banana'));
+      },
+    );
 
     test('set writes the selected fruit to query parameter writer', () async {
       String? writtenFruit;
