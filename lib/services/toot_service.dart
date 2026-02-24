@@ -6,6 +6,7 @@ import 'package:tootfruit/locator.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/models/user.dart';
 import 'package:tootfruit/services/audio_service.dart';
+import 'package:tootfruit/services/fruit_query_param.dart';
 import 'package:tootfruit/services/storage_service.dart';
 import 'package:tootfruit/services/user_service.dart';
 
@@ -36,12 +37,17 @@ class TootService {
 
   Future<void> init() async {
     final user = _currentUser;
-    final toot = toots.firstWhere(
+    var toot = toots.firstWhere(
       (element) => element.fruit == user.currentFruit,
     );
     owned = user.ownedFruit
         .map((fruit) => toots.firstWhere((element) => element.fruit == fruit))
         .toList();
+
+    final requestedFruit = _normalizedFruit(readFruitQueryParam());
+    if (requestedFruit != null) {
+      toot = _findOwnedTootByFruit(requestedFruit) ?? toot;
+    }
 
     await set(toot);
   }
@@ -68,6 +74,7 @@ class TootService {
     final user = _currentUser;
     user.currentFruit = toot.fruit;
     await _storageService.set(StorageKeys.user, user);
+    writeFruitQueryParam(toot.fruit);
   }
 
   /// Navigate to the next or previous toot in the owned list
@@ -120,5 +127,23 @@ class TootService {
     } finally {
       loading.value = false;
     }
+  }
+
+  String? _normalizedFruit(String? fruit) {
+    final trimmed = fruit?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  Toot? _findOwnedTootByFruit(String fruit) {
+    final normalizedFruit = fruit.toLowerCase();
+    for (final toot in owned) {
+      if (toot.fruit.toLowerCase() == normalizedFruit) {
+        return toot;
+      }
+    }
+    return null;
   }
 }

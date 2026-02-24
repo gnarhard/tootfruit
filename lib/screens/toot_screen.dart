@@ -175,9 +175,22 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                     child: SizedBox(
                                       width: imageSize,
                                       height: imageSize,
-                                      child: SvgPicture.asset(
-                                        'assets/images/fruit/${toot.fruit}.svg',
-                                        fit: BoxFit.contain,
+                                      child: AnimatedSwitcher(
+                                        duration: const Duration(
+                                          milliseconds: 320,
+                                        ),
+                                        switchInCurve: Curves.easeOut,
+                                        switchOutCurve: Curves.easeOut,
+                                        transitionBuilder: (child, animation) =>
+                                            FadeTransition(
+                                              opacity: animation,
+                                              child: child,
+                                            ),
+                                        child: SvgPicture.asset(
+                                          'assets/images/fruit/${toot.fruit}.svg',
+                                          key: ValueKey<String>(toot.fruit),
+                                          fit: BoxFit.contain,
+                                        ),
                                       ),
                                     ),
                                   ),
