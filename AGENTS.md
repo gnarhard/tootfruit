@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI agents when working with code in this repository.
 
 ## Project Overview
 
@@ -284,6 +284,12 @@ All data access goes through repositories:
 - Routes defined in `lib/routes.dart`
 - NavigationService provides access to navigator key
 - SwitchAudioObserver monitors route changes
+- Web route names are normalized via `normalizeRouteName(...)` so query/hash forms
+  like `/#/toot?fruit=banana` resolve to canonical routes (e.g. `/toot`)
+- `MaterialApp` uses `onGenerateRoute`/`onUnknownRoute` for resilient route
+  resolution and safe fallback to launch
+- Initial app bootstrap navigation (`LaunchScreen` -> `TootScreen`) uses a
+  fade-only transition route from `buildInitialTootScreenRoute()`
 
 ### Services (Internalized)
 
@@ -436,6 +442,12 @@ The codebase is currently in **transition** from old patterns to SOLID architect
 - New fruits unlocked via ads (NewFruitAdService) or IAP
 - Product ID for all fruits: `PurchaseConstants.allTootFruitsProductId`
 - Generated files (`*.g.dart`) should not be manually edited
+- Launch screen background color resolves from the selected fruit query param
+  (if present/valid), otherwise defaults to peach
+- Startup fruit selection honors `fruit` query params for any valid fruit name;
+  unknown values fall back to persisted/current fruit
+- Web URL syncing writes fruit query params in the hash route when a fragment
+  route is used (`#/toot?fruit=...`) and removes stale root `?fruit=...`
 
 ### File Organization
 - Constants go in `/lib/constants/`
