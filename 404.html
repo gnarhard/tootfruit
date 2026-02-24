@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=/">
+  </noscript>
+  <title>Toot Fruit</title>
+  <script>
+    (function () {
+      const pendingInitialUrlStorageKey = '__tootfruitPendingInitialUrl';
+
+      try {
+        window.sessionStorage.setItem(
+          pendingInitialUrlStorageKey,
+          window.location.href,
+        );
+      } catch (_) {
+        // Best-effort only.
+      }
+
+      window.location.replace('/');
+    })();
+  </script>
+</head>
+<body>
+</body>
+</html>
