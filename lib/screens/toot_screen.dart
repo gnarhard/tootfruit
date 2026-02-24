@@ -49,6 +49,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   int _transitionTick = 0;
   bool _keyboardHandlerAttached = false;
   bool _isKeyboardNavigating = false;
+  bool _isDisposed = false;
 
   Color _textColor(Toot toot) =>
       toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
@@ -99,6 +100,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _isDisposed = true;
     if (_keyboardHandlerAttached) {
       HardwareKeyboard.instance.removeHandler(_handleGlobalKeyEvent);
       _keyboardHandlerAttached = false;
@@ -423,13 +425,24 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
         .timeout(
           duration,
           onTimeout: () {
-            _rotationController
-                .reverse(from: .5)
-                .whenComplete(() => _rotationController.stop());
+            if (!mounted || _isDisposed) {
+              return;
+            }
+            _rotationController.reverse(from: .5).whenComplete(() {
+              if (!mounted || _isDisposed) {
+                return;
+              }
+              _rotationController.stop();
+            });
           },
         );
 
-    _scaleController.forward().whenComplete(() => _scaleController.reverse());
+    _scaleController.forward().whenComplete(() {
+      if (!mounted || _isDisposed) {
+        return;
+      }
+      _scaleController.reverse();
+    });
   }
 
   Future<void> _tootAndAnimate() async {
