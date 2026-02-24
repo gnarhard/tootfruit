@@ -35,7 +35,7 @@ void main() {
         expect(find.byKey(const Key('tootScreen')), findsOneWidget);
         expect(tootService.owned.length, equals(tootService.all.length));
         expect(tootService.ownsEveryToot, isTrue);
-        expect(find.text('visit the toot fairy.'), findsOneWidget);
+        expect(find.text('visit the toot fairy'), findsOneWidget);
         expect(tootService.current.fruit, equals(tootService.all[4].fruit));
 
         await _waitForLiveApp(duration: const Duration(seconds: 1));

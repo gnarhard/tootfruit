@@ -258,7 +258,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                           height: 24,
                           child: Center(
                             child: Text(
-                              'visit the toot fairy.',
+                              'visit the toot fairy',
                               style: TextStyle(
                                 color: _textColor(toot),
                                 fontSize: 12,
