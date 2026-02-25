@@ -6,7 +6,6 @@ import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
 import 'package:tootfruit/services/navigation_service.dart';
 import 'package:tootfruit/services/toot_service.dart';
-import 'package:url_launcher/link.dart';
 
 import '../test_helpers.dart';
 import '../test_helpers.mocks.dart';
@@ -47,23 +46,27 @@ void main() {
       );
     });
 
-    testWidgets('renders gnarhard link as a new-tab Link widget', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('opens gnarhard link when tapped', (WidgetTester tester) async {
+      final openedUris = <Uri>[];
+
       await di.tootService.init();
 
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigationService.navigatorKey,
-          home: const TootScreen(),
+          home: TootScreen(
+            externalLinkOpener: (uri) async {
+              openedUris.add(uri);
+            },
+          ),
         ),
       );
       await tester.pump();
 
-      final link = tester.widget<Link>(find.byKey(const Key('gnarhardLink')));
+      await tester.tap(find.byKey(const Key('gnarhardLink')));
+      await tester.pump();
 
-      expect(link.uri, equals(Uri.parse('https://gnarhard.com')));
-      expect(link.target, equals(LinkTarget.blank));
+      expect(openedUris, equals([Uri.parse('https://gnarhard.com')]));
       expect(find.text('gnarhard'), findsOneWidget);
     });
   });

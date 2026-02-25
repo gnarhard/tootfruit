@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/models/toot.dart';
 import 'package:tootfruit/screens/toot_screen.dart';
@@ -372,15 +371,6 @@ class _TootFairyScreenState extends State<TootFairyScreen>
     });
   }
 
-  void _shareScore() {
-    SharePlus.instance.share(
-      ShareParams(
-        text:
-            'I tooted $_score fruits in Toot Fairy! \u{1F4A8}\u{1F9DA} Play at tootfruit.com',
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -731,34 +721,6 @@ class _TootFairyScreenState extends State<TootFairyScreen>
               opacity: _buttonsOpacity,
               child: Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: _buttonsOpacity > 0.5
-                        ? () {
-                            unawaited(_playButtonSound());
-                            _shareScore();
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: const BorderSide(width: 1, color: Colors.white),
-                    ),
-                    child: const SizedBox(
-                      width: 180,
-                      height: 24,
-                      child: Center(
-                        child: Text(
-                          'SHARE',
-                          style: TextStyle(
-                            color: _backgroundColor,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   TextButton(
                     onPressed: _buttonsOpacity > 0.5
                         ? () {

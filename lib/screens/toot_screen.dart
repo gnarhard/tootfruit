@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
+import 'package:tootfruit/services/external_link.dart';
 import 'package:tootfruit/services/toot_transition.dart';
-import 'package:url_launcher/link.dart';
 import 'package:tootfruit/widgets/fruit_asset.dart';
 
 import '../models/toot.dart';
@@ -15,8 +15,9 @@ import '../widgets/screen_title.dart';
 
 class TootScreen extends StatefulWidget {
   static const String route = '/toot';
+  final ExternalLinkOpener? externalLinkOpener;
 
-  const TootScreen({super.key});
+  const TootScreen({super.key, this.externalLinkOpener});
   static const double startingFontSize = 130;
 
   @override
@@ -52,6 +53,17 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
       toot.darkText ? toot.color.darken(30) : toot.color.lighten(30);
   Color _contrastTextColor(Toot toot) =>
       toot.darkText ? toot.color.darken(50) : toot.color.lighten(50);
+
+  Future<void> _openGnarhardLink() async {
+    final opener = widget.externalLinkOpener ?? openExternalLink;
+
+    try {
+      await opener(_gnarhardUri);
+    } catch (error, stackTrace) {
+      debugPrint('TootScreen: Failed to open external link: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
 
   @override
   void initState() {
@@ -350,31 +362,28 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                         fontSize: 10,
                                       ),
                                     ),
-                                    Link(
+                                    GestureDetector(
                                       key: const Key('gnarhardLink'),
-                                      uri: _gnarhardUri,
-                                      target: LinkTarget.blank,
-                                      builder: (context, followLink) =>
-                                          GestureDetector(
-                                            onTap: followLink,
-                                            child: DecoratedBox(
-                                              decoration: BoxDecoration(
-                                                border: Border(
-                                                  bottom: BorderSide(
-                                                    color: textColor,
-                                                    width: 0.5,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                'gnarhard',
-                                                style: TextStyle(
-                                                  color: textColor,
-                                                  fontSize: 10,
-                                                ),
-                                              ),
+                                      onTap: () {
+                                        unawaited(_openGnarhardLink());
+                                      },
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: textColor,
+                                              width: 0.5,
                                             ),
                                           ),
+                                        ),
+                                        child: Text(
+                                          'gnarhard',
+                                          style: TextStyle(
+                                            color: textColor,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
