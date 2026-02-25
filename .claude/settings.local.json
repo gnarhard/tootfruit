@@ -20,7 +20,10 @@
       "mcp__dart__analyze_files",
       "mcp__dart__run_tests",
       "mcp__dart__dart_format",
-      "mcp__dart__pub"
+      "mcp__dart__pub",
+      "Bash(flutter devices:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter config:*)"
     ]
   }
 }
