@@ -635,18 +635,7 @@ class _TootFairyScreenState extends State<TootFairyScreen>
   Widget _buildGameOverOverlay() {
     return Positioned.fill(
       child: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.center,
-            radius: .8,
-            colors: [
-              Colors.black.withValues(alpha: _overlayOpacity * 0.7),
-              Colors.black.withValues(alpha: _overlayOpacity * 0.3),
-              Colors.transparent,
-            ],
-            stops: const [0.0, 0.5, 1.0],
-          ),
-        ),
+        color: Colors.black.withValues(alpha: _overlayOpacity * 0.5),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
