@@ -7,7 +7,7 @@ import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/services/toot_transition.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/link.dart';
 import 'package:tootfruit/widgets/fruit_asset.dart';
 
 import '../models/toot.dart';
@@ -40,6 +40,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
   static const double swipeSensitivity = 300;
   static const double desktopWebBreakpoint = 1024;
   static const Duration _pageTransitionDuration = Duration(milliseconds: 320);
+  static final Uri _gnarhardUri = Uri.parse('https://gnarhard.com');
   late Toot toot;
   late Toot _fromToot;
   int _transitionTick = 0;
@@ -349,30 +350,31 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                         fontSize: 10,
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        launchUrl(
-                                          Uri.parse('https://gnarhard.com'),
-                                          webOnlyWindowName: '_blank',
-                                        );
-                                      },
-                                      child: DecoratedBox(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: textColor,
-                                              width: 0.5,
+                                    Link(
+                                      key: const Key('gnarhardLink'),
+                                      uri: _gnarhardUri,
+                                      target: LinkTarget.blank,
+                                      builder: (context, followLink) =>
+                                          GestureDetector(
+                                            onTap: followLink,
+                                            child: DecoratedBox(
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(
+                                                    color: textColor,
+                                                    width: 0.5,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                'gnarhard',
+                                                style: TextStyle(
+                                                  color: textColor,
+                                                  fontSize: 10,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        child: Text(
-                                          'gnarhard',
-                                          style: TextStyle(
-                                            color: textColor,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
                                     ),
                                   ],
                                 ),
