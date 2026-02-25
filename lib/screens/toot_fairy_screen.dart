@@ -417,7 +417,7 @@ class _TootFairyScreenState extends State<TootFairyScreen>
           ),
           child: Scaffold(
             key: const Key('tootFairyScreen'),
-            extendBodyBehindAppBar: false,
+            extendBodyBehindAppBar: true,
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               automaticallyImplyLeading: false,
@@ -426,7 +426,7 @@ class _TootFairyScreenState extends State<TootFairyScreen>
               surfaceTintColor: Colors.transparent,
               scrolledUnderElevation: 0,
               centerTitle: true,
-              toolbarHeight: 80,
+              toolbarHeight: 64,
               elevation: 0,
               leading: IconButton(
                 key: const Key('tootFairyBackButton'),
@@ -636,10 +636,9 @@ class _TootFairyScreenState extends State<TootFairyScreen>
     return Positioned.fill(
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: _overlayOpacity * 0.6),
           gradient: RadialGradient(
             center: Alignment.center,
-            radius: 0.8,
+            radius: .8,
             colors: [
               Colors.black.withValues(alpha: _overlayOpacity * 0.7),
               Colors.black.withValues(alpha: _overlayOpacity * 0.3),
@@ -718,16 +717,16 @@ class _TootFairyScreenState extends State<TootFairyScreen>
                     alignment: WrapAlignment.center,
                     children: [
                       ..._snaggedFruits
-                          .take(100)
+                          .take(60)
                           .map(
                             (t) => Text(
                               t.emoji,
                               style: const TextStyle(fontSize: 20),
                             ),
                           ),
-                      if (_snaggedFruits.length > 100)
+                      if (_snaggedFruits.length > 60)
                         Text(
-                          ' +${_snaggedFruits.length - 100} more',
+                          ' +${_snaggedFruits.length - 60} more',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.white70,
@@ -785,6 +784,13 @@ class _TootFairyScreenState extends State<TootFairyScreen>
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                         letterSpacing: 2,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(2, 2),
+                            blurRadius: 6.0,
+                            color: Color.fromARGB(120, 0, 0, 0),
+                          ),
+                        ],
                       ),
                     ),
                   ),
