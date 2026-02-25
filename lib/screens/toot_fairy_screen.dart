@@ -77,6 +77,7 @@ class _TootFairyScreenState extends State<TootFairyScreen> {
               iconTheme: const IconThemeData(color: _backgroundColor),
               backgroundColor: Colors.transparent,
               centerTitle: true,
+              toolbarHeight: 80,
               elevation: 0,
               leading: IconButton(
                 key: const Key('tootFairyBackButton'),
