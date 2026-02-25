@@ -157,6 +157,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                 leading: Container(),
                 centerTitle: true,
                 elevation: 0,
+                toolbarHeight: 80,
                 title: AppScreenTitle(title: toToot.title, color: textColor),
                 backgroundColor: backgroundColor,
               ),
