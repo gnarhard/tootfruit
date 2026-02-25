@@ -82,8 +82,8 @@
         }
 
         try {
-          audioSession.type = 'playback';
-          didConfigureAudioSession = audioSession.type === 'playback';
+          audioSession.type = 'ambient';
+          didConfigureAudioSession = audioSession.type === 'ambient';
           if (didConfigureAudioSession) {
             removeActivationListeners();
           }
@@ -114,17 +114,6 @@
             }
           }
 
-          const audio = document.createElement('audio');
-          audio.setAttribute('x-webkit-airplay', 'deny');
-          audio.preload = 'auto';
-          audio.loop = true;
-          audio.src =
-            'data:audio/wav;base64,UklGRisAAABXQVZFZm10IBAAAAABAAEAESsAAESsAAABAAgAZGF0YQcAAACAgICAgICAAAA=';
-          audio.load();
-          const playPromise = audio.play();
-          if (playPromise && typeof playPromise.catch === 'function') {
-            playPromise.catch(() => {});
-          }
         } catch (_) {
           // Best-effort only.
         }
