@@ -359,7 +359,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                       'an extremely serious project by ',
                                       style: TextStyle(
                                         color: textColor,
-                                        fontSize: 10,
+                                        fontSize: 16,
                                       ),
                                     ),
                                     GestureDetector(
@@ -380,7 +380,7 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                                           'gnarhard',
                                           style: TextStyle(
                                             color: textColor,
-                                            fontSize: 10,
+                                            fontSize: 16,
                                           ),
                                         ),
                                       ),
