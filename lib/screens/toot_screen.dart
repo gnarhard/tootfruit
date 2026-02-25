@@ -7,6 +7,7 @@ import 'package:tinycolor2/tinycolor2.dart';
 import 'package:tootfruit/core/dependency_injection.dart';
 import 'package:tootfruit/screens/toot_fairy_screen.dart';
 import 'package:tootfruit/services/toot_transition.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:tootfruit/widgets/fruit_asset.dart';
 
 import '../models/toot.dart';
@@ -284,32 +285,75 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                         alignment: Alignment.bottomCenter,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
-                          child: OutlinedButton(
-                            key: const Key('visitTootFairyButton'),
-                            onPressed: () {
-                              _di.navigationService.current.pushNamed(
-                                TootFairyScreen.route,
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: BeveledRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              side: BorderSide(width: 1, color: textColor),
-                            ),
-                            child: SizedBox(
-                              width: 180,
-                              height: 24,
-                              child: Center(
-                                child: Text(
-                                  'visit the toot fairy',
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontSize: 12,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              OutlinedButton(
+                                key: const Key('visitTootFairyButton'),
+                                onPressed: () {
+                                  _di.navigationService.current.pushNamed(
+                                    TootFairyScreen.route,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: BeveledRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  side: BorderSide(width: 1, color: textColor),
+                                ),
+                                child: SizedBox(
+                                  width: 180,
+                                  height: 24,
+                                  child: Center(
+                                    child: Text(
+                                      'visit the toot fairy',
+                                      style: TextStyle(
+                                        color: textColor,
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'an extremely serious project by ',
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      launchUrl(
+                                        Uri.parse('https://gnarhard.com'),
+                                        webOnlyWindowName: '_blank',
+                                      );
+                                    },
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: textColor,
+                                            width: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'gnarhard',
+                                        style: TextStyle(
+                                          color: textColor,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),
