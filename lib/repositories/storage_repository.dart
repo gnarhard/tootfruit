@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:path_provider/path_provider.dart';
 import 'package:tootfruit/constants/storage_keys.dart';
 import 'package:tootfruit/interfaces/i_storage_repository.dart';
@@ -16,6 +17,7 @@ class FileStorageRepository implements IStorageRepository {
 
   final StorageDirectoryProvider _storageDirectoryProvider;
   Map<String, dynamic>? _cachedStorage;
+  bool _supportsDiskPersistence = true;
 
   FileStorageRepository({StorageDirectoryProvider? storageDirectoryProvider})
     : _storageDirectoryProvider =
@@ -89,9 +91,7 @@ class FileStorageRepository implements IStorageRepository {
     try {
       storageFile = await _getStorageFile();
     } catch (err) {
-      debugPrint(
-        'FileStorageRepository: Falling back to in-memory storage: $err',
-      );
+      _disableDiskPersistence();
       _cachedStorage = {};
       return _cachedStorage!;
     }
@@ -113,6 +113,11 @@ class FileStorageRepository implements IStorageRepository {
   }
 
   Future<void> _saveStorage(Map<String, dynamic> storage) async {
+    if (!_supportsDiskPersistence) {
+      _cachedStorage = storage;
+      return;
+    }
+
     final jsonString = json.encode(storage);
     try {
       final storageFile = await _getStorageFile();
@@ -123,9 +128,13 @@ class FileStorageRepository implements IStorageRepository {
 
       await storageFile.writeAsString(jsonString);
     } catch (err) {
-      debugPrint(
-        'FileStorageRepository: Failed to persist storage to disk: $err',
-      );
+      if (_isExpectedUnavailableStorageError(err)) {
+        _disableDiskPersistence();
+      } else {
+        debugPrint(
+          'FileStorageRepository: Failed to persist storage to disk: $err',
+        );
+      }
     }
 
     _cachedStorage = storage;
@@ -137,6 +146,10 @@ class FileStorageRepository implements IStorageRepository {
   }
 
   static Future<String> _defaultStorageDirectoryProvider() async {
+    if (kIsWeb) {
+      throw UnsupportedError('File storage is not supported on web.');
+    }
+
     final dir = await getApplicationDocumentsDirectory();
     return dir.path;
   }
@@ -151,5 +164,12 @@ class FileStorageRepository implements IStorageRepository {
     } catch (e) {
       return false;
     }
+  }
+
+  bool _isExpectedUnavailableStorageError(Object err) =>
+      err is MissingPluginException || err is UnsupportedError;
+
+  void _disableDiskPersistence() {
+    _supportsDiskPersistence = false;
   }
 }

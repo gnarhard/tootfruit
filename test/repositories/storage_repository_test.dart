@@ -32,8 +32,10 @@ void main() {
     test(
       'falls back to in-memory storage when file storage is unavailable',
       () async {
+        var providerCallCount = 0;
         final repository = FileStorageRepository(
           storageDirectoryProvider: () async {
+            providerCallCount += 1;
             throw StateError('storage unavailable');
           },
         );
@@ -44,6 +46,7 @@ void main() {
 
         expect(fruit, equals('strawberry'));
         expect(exists, isTrue);
+        expect(providerCallCount, equals(1));
       },
     );
   });
