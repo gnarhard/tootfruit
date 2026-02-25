@@ -302,10 +302,15 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                               children: [
                                 OutlinedButton(
                                   key: const Key('visitTootFairyButton'),
-                                  onPressed: () {
-                                    _di.navigationService.current.pushNamed(
-                                      TootFairyScreen.route,
-                                    );
+                                  onPressed: () async {
+                                    await _di.navigationService.current
+                                        .pushNamed(TootFairyScreen.route);
+                                    if (!mounted) return;
+                                    // Reload the current fruit's audio after
+                                    // returning from the toot fairy screen.
+                                    toot.duration = null;
+                                    await _di.tootService
+                                        .ensureCurrentAudioPrepared();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     shape: BeveledRectangleBorder(
