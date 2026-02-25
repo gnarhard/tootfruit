@@ -151,215 +151,231 @@ class TootScreenState extends State<TootScreen> with TickerProviderStateMixin {
                 await _showPreviousToot();
               }
             },
-            child: Scaffold(
-              key: const Key('tootScreen'),
-              backgroundColor: backgroundColor,
-              appBar: AppBar(
-                leading: Container(),
-                centerTitle: true,
-                elevation: 0,
-                toolbarHeight: 80,
-                title: AppScreenTitle(title: toToot.title, color: textColor),
-                backgroundColor: backgroundColor,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerRight,
+                  end: Alignment.centerLeft,
+                  colors: [
+                    Color.lerp(backgroundColor, Colors.white, 0.15)!,
+                    backgroundColor,
+                    Color.lerp(backgroundColor, Colors.white, 0.15)!,
+                  ],
+                ),
               ),
-              body: LayoutBuilder(
-                builder: (context, constraints) {
-                  final showDesktopWebNavButtons =
-                      kIsWeb && constraints.maxWidth > desktopWebBreakpoint;
+              child: Scaffold(
+                key: const Key('tootScreen'),
+                backgroundColor: Colors.transparent,
+                appBar: AppBar(
+                  leading: Container(),
+                  centerTitle: true,
+                  elevation: 0,
+                  toolbarHeight: 80,
+                  title: AppScreenTitle(title: toToot.title, color: textColor),
+                  backgroundColor: Colors.transparent,
+                ),
+                body: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final showDesktopWebNavButtons =
+                        kIsWeb && constraints.maxWidth > desktopWebBreakpoint;
 
-                  return Stack(
-                    children: [
-                      FadeTransition(
-                        opacity: _opacityAnimation,
-                        child: _di.tootService.all.length < 2
-                            ? Container()
-                            : Center(
+                    return Stack(
+                      children: [
+                        FadeTransition(
+                          opacity: _opacityAnimation,
+                          child: _di.tootService.all.length < 2
+                              ? Container()
+                              : Center(
+                                  child: Column(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/swipe.png',
+                                        height: 48,
+                                        width: 48,
+                                        color: textColor,
+                                        colorBlendMode: BlendMode.srcATop,
+                                        fit: BoxFit.fitWidth,
+                                      ),
+                                      Text(
+                                        'swipe',
+                                        style: TextStyle(color: textColor),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 48),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              const minImageSize = 120.0;
+                              const maxImageSize = 420.0;
+                              const guidanceHeight = 48.0;
+                              final maxHeightBasedSize =
+                                  constraints.maxHeight - guidanceHeight;
+                              final maxWidthBasedSize =
+                                  constraints.maxWidth * 0.7;
+                              final preferredImageSize =
+                                  maxHeightBasedSize < maxWidthBasedSize
+                                  ? maxHeightBasedSize
+                                  : maxWidthBasedSize;
+                              final imageSize = preferredImageSize
+                                  .clamp(minImageSize, maxImageSize)
+                                  .toDouble();
+
+                              return Center(
                                 child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Image.asset(
-                                      'assets/images/swipe.png',
-                                      height: 48,
-                                      width: 48,
-                                      color: textColor,
-                                      colorBlendMode: BlendMode.srcATop,
-                                      fit: BoxFit.fitWidth,
+                                    Transform.rotate(
+                                      angle: _angle,
+                                      child: Transform.scale(
+                                        key: const Key('fruitScaleTransform'),
+                                        scale: _scale,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            unawaited(_tootAndAnimate());
+                                          },
+                                          onLongPress: () {
+                                            unawaited(_tootAndAnimate());
+                                          },
+                                          child: SizedBox(
+                                            width: imageSize,
+                                            height: imageSize,
+                                            child: _buildTransitioningFruit(
+                                              fromToot: fromToot,
+                                              toToot: toToot,
+                                              progress: fruitTransitionProgress,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    Text(
-                                      'swipe',
-                                      style: TextStyle(color: textColor),
+                                    FittedBox(
+                                      fit: BoxFit.cover,
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            Icons.arrow_upward,
+                                            semanticLabel: 'Up arrow',
+                                            color: contrastTextColor,
+                                            size: 14,
+                                          ),
+                                          Text(
+                                            'tap that',
+                                            style: TextStyle(
+                                              color: contrastTextColor,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 48),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            const minImageSize = 120.0;
-                            const maxImageSize = 420.0;
-                            const guidanceHeight = 48.0;
-                            final maxHeightBasedSize =
-                                constraints.maxHeight - guidanceHeight;
-                            final maxWidthBasedSize =
-                                constraints.maxWidth * 0.7;
-                            final preferredImageSize =
-                                maxHeightBasedSize < maxWidthBasedSize
-                                ? maxHeightBasedSize
-                                : maxWidthBasedSize;
-                            final imageSize = preferredImageSize
-                                .clamp(minImageSize, maxImageSize)
-                                .toDouble();
-
-                            return Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Transform.rotate(
-                                    angle: _angle,
-                                    child: Transform.scale(
-                                      key: const Key('fruitScaleTransform'),
-                                      scale: _scale,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          unawaited(_tootAndAnimate());
-                                        },
-                                        onLongPress: () {
-                                          unawaited(_tootAndAnimate());
-                                        },
-                                        child: SizedBox(
-                                          width: imageSize,
-                                          height: imageSize,
-                                          child: _buildTransitioningFruit(
-                                            fromToot: fromToot,
-                                            toToot: toToot,
-                                            progress: fruitTransitionProgress,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  FittedBox(
-                                    fit: BoxFit.cover,
-                                    child: Column(
-                                      children: [
-                                        Icon(
-                                          Icons.arrow_upward,
-                                          semanticLabel: 'Up arrow',
-                                          color: contrastTextColor,
-                                          size: 14,
-                                        ),
-                                        Text(
-                                          'tap that',
-                                          style: TextStyle(
-                                            color: contrastTextColor,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      if (showDesktopWebNavButtons)
-                        _DesktopWebFruitNavButton(
-                          key: const Key('desktopPrevFruitButton'),
-                          alignment: Alignment.centerLeft,
-                          icon: Icons.chevron_left,
-                          onPressed: _showPreviousToot,
-                          color: textColor,
-                        ),
-                      if (showDesktopWebNavButtons)
-                        _DesktopWebFruitNavButton(
-                          key: const Key('desktopNextFruitButton'),
-                          alignment: Alignment.centerRight,
-                          icon: Icons.chevron_right,
-                          onPressed: _showNextToot,
-                          color: textColor,
-                        ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              OutlinedButton(
-                                key: const Key('visitTootFairyButton'),
-                                onPressed: () {
-                                  _di.navigationService.current.pushNamed(
-                                    TootFairyScreen.route,
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: BeveledRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  side: BorderSide(width: 1, color: textColor),
-                                ),
-                                child: SizedBox(
-                                  width: 180,
-                                  height: 24,
-                                  child: Center(
-                                    child: Text(
-                                      'visit the toot fairy',
-                                      style: TextStyle(
-                                        color: textColor,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'an extremely serious project by ',
-                                    style: TextStyle(
-                                      color: textColor,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      launchUrl(
-                                        Uri.parse('https://gnarhard.com'),
-                                        webOnlyWindowName: '_blank',
-                                      );
-                                    },
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: textColor,
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'gnarhard',
-                                        style: TextStyle(
-                                          color: textColor,
-                                          fontSize: 10,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              );
+                            },
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+                        if (showDesktopWebNavButtons)
+                          _DesktopWebFruitNavButton(
+                            key: const Key('desktopPrevFruitButton'),
+                            alignment: Alignment.centerLeft,
+                            icon: Icons.chevron_left,
+                            onPressed: _showPreviousToot,
+                            color: textColor,
+                          ),
+                        if (showDesktopWebNavButtons)
+                          _DesktopWebFruitNavButton(
+                            key: const Key('desktopNextFruitButton'),
+                            alignment: Alignment.centerRight,
+                            icon: Icons.chevron_right,
+                            onPressed: _showNextToot,
+                            color: textColor,
+                          ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                OutlinedButton(
+                                  key: const Key('visitTootFairyButton'),
+                                  onPressed: () {
+                                    _di.navigationService.current.pushNamed(
+                                      TootFairyScreen.route,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    side: BorderSide(
+                                      width: 1,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                  child: SizedBox(
+                                    width: 180,
+                                    height: 24,
+                                    child: Center(
+                                      child: Text(
+                                        'visit the toot fairy',
+                                        style: TextStyle(
+                                          color: textColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'an extremely serious project by ',
+                                      style: TextStyle(
+                                        color: textColor,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        launchUrl(
+                                          Uri.parse('https://gnarhard.com'),
+                                          webOnlyWindowName: '_blank',
+                                        );
+                                      },
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: textColor,
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'gnarhard',
+                                          style: TextStyle(
+                                            color: textColor,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
