@@ -562,21 +562,28 @@ class _TootFairyScreenState extends State<TootFairyScreen>
 
         return Stack(
           children: [
-            // Falling fruits
+            // Falling fruits with circular hitboxes
             for (final fruit in _fruits)
-              Positioned(
-                left: fruit.x * (areaWidth - fruit.size),
-                top: fruit.y,
-                width: fruit.size,
-                height: fruit.size,
-                child: GestureDetector(
-                  onTap: () => _onFruitTap(fruit),
-                  child: Transform.rotate(
-                    angle: fruit.rotation,
-                    child: FruitAsset(fruit: fruit.toot.fruit),
+              () {
+                const hitPadding = 16.0;
+                final hitSize = fruit.size + hitPadding * 2;
+                return Positioned(
+                  left: fruit.x * (areaWidth - fruit.size) - hitPadding,
+                  top: fruit.y - hitPadding,
+                  width: hitSize,
+                  height: hitSize,
+                  child: _CircleHitBox(
+                    onTap: () => _onFruitTap(fruit),
+                    child: Padding(
+                      padding: const EdgeInsets.all(hitPadding),
+                      child: Transform.rotate(
+                        angle: fruit.rotation,
+                        child: FruitAsset(fruit: fruit.toot.fruit),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              }(),
 
             // Pop effects (fruit scaling up then vanishing)
             for (final pop in _pops)
@@ -786,6 +793,27 @@ class _TootFairyScreenState extends State<TootFairyScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// A widget that clips hit-testing to a circle, so only taps within the
+/// circular area register. Uses [GestureDetector] with opaque behavior
+/// so the full circle is tappable even on transparent pixels.
+class _CircleHitBox extends StatelessWidget {
+  final VoidCallback onTap;
+  final Widget child;
+
+  const _CircleHitBox({required this.onTap, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: child,
       ),
     );
   }
