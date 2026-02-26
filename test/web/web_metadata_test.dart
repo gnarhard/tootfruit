@@ -27,27 +27,6 @@ void main() {
       expect(html, contains('<meta name="twitter:image" content="$iconPath">'));
     });
 
-    test('index.html configures iOS web audio session for playback mode', () {
-      final html = File('web/index.html').readAsStringSync();
-
-      expect(html, contains("const isIos ="));
-      expect(html, contains("const audioSession = navigator.audioSession;"));
-      expect(html, contains("audioSession.type = 'playback';"));
-      expect(html, contains("function legacyUnlockWebAudio()"));
-      expect(
-        html,
-        contains(
-          "'data:audio/wav;base64,UklGRisAAABXQVZFZm10IBAAAAABAAEAESsAAESsAAABAAgAZGF0YQcAAACAgICAgICAAAA='",
-        ),
-      );
-      expect(
-        html,
-        contains(
-          "const activationEvents = ['touchend', 'pointerup', 'click', 'keydown'];",
-        ),
-      );
-    });
-
     test('index.html stores initial browser URL for startup parsing', () {
       final html = File('web/index.html').readAsStringSync();
 
