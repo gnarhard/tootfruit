@@ -54,6 +54,38 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <noscript>
+    <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#e0e0e0;font-family:system-ui,sans-serif;padding:2rem;text-align:center">
+      <div>
+        <p style="font-size:1.25rem;margin:0 0 1rem">This app requires JavaScript to run.</p>
+        <p style="margin:0">Please enable JavaScript in your browser settings.</p>
+      </div>
+    </div>
+  </noscript>
+
+  <div id="outdated-browser" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#e0e0e0;font-family:system-ui,sans-serif;padding:2rem;text-align:center;z-index:9999">
+    <div>
+      <p style="font-size:1.25rem;margin:0 0 1rem">Your browser is not supported.</p>
+      <p style="margin:0 0 1rem">Please update to a modern browser.</p>
+      <a href="https://browsehappy.com" style="color:#7eb8ff;text-decoration:underline">Learn more</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      try {
+        var supportsWasm = typeof WebAssembly === 'object';
+        var supportsAsync = false;
+        try { new Function('return (async function(){})()'); supportsAsync = true; } catch (e) {}
+        if (supportsWasm && supportsAsync) {
+          document.getElementById('outdated-browser').style.display = 'none';
+        }
+      } catch (e) {
+        // If the check itself fails, leave the warning visible.
+      }
+    })();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
   <script src="assets/packages/flutter_soloud/web/libflutter_soloud_plugin.js" defer></script>
   <script src="assets/packages/flutter_soloud/web/init_module.dart.js" defer></script>
